@@ -21,4 +21,5 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::group(['prefix' => 'dashboard', 'as' => 'dashboard.'], function () {
     Route::get('/', [DashboardController::class, 'index'])->name('index');
     Route::get('/admin', [DashboardController::class, 'adminIndex'])->name('adminIndex');
+    Route::get('/admin', [DashboardController::class, 'roomCoordIndex'])->name('roomCoordIndex');
 });

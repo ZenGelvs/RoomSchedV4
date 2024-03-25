@@ -15,4 +15,8 @@ class DashboardController extends Controller
     {
         return view('adminDashboard');
     }
+    public function roomCoordIndex()
+    {
+        return view('roomCoordinatorDashboard');
+    }
 }
