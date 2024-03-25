@@ -33,6 +33,9 @@ class LoginController extends Controller
             if ($user->college === 'ADMIN' && $user->department === 'ADMIN') {
                 Auth::login($user);
                 return redirect()->route('dashboard.adminIndex'); // NOTE: Change to path of the view file
+            } else if ($user->college === 'ROOM COORDINATOR' && $user->department === 'ROOM COORDINATOR') {
+                Auth::login($user);
+                return redirect()->route('dashboard.index');
             } else {
                 Auth::login($user);
                 return redirect()->route('dashboard.index');

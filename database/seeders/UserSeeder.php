@@ -48,6 +48,14 @@ class UserSeeder extends Seeder
                 'college' => 'ADMIN',
                 'department' => 'ADMIN',
             ],
+            [
+                'name' => 'Room Coordinator',
+                'email' => 'ROOM@room',
+                'password' => Hash::make('ROOM'),
+                'remember_token' => Str::random(10),
+                'college' => 'ROOM COORDINATOR',
+                'department' => 'ROOM COORDINATOR',
+            ],
         ]);
     }
 }
