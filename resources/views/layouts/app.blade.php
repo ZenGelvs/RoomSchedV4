@@ -76,15 +76,36 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <!-- Navigation links here -->
-                <li class="nav-item">
-                    <a class="nav-link" href=" ">Schedules</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href=" ">Subjects</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href=" ">Sections</a>
-                </li>
+
+                    <!-- Check for Admin Role -->
+                @if(Auth::user()->college === 'ADMIN' && Auth::user()->department === 'ADMIN')
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Add Subject</a>
+                    </li>
+
+                @endif
+                <!-- Check for Room Coordinator Role -->
+                @if(Auth::user()->college === 'ROOM COORDINATOR' && Auth::user()->department === 'ROOM COORDINATOR')
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Room Coordinator Link 1</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Room Coordinator Link 2</a>
+                    </li>
+                @endif
+                <!-- Default Links for other roles -->
+                @if(Auth::user()->college !== 'ADMIN' && Auth::user()->college !== 'ROOM COORDINATOR')
+                    <li class="nav-item">
+                        <a class="nav-link" href=" ">Schedules</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href=" ">Subjects</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href=" ">Sections</a>
+                    </li>
+                @endif
+
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Hi, {{ Auth::user()->name }}!
