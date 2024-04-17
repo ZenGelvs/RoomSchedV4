@@ -29,10 +29,10 @@ class LoginController extends Controller
         $user = User::where('name', $credentials['name'])->first();
 
         if ($user && Hash::check($credentials['password'], $user->password)) {
-            // Check if user is Admin and redirect to Department head page if not, if valid login creds. 
+            // Check if user is Admin, Room Coordinator or Department head, redirect accordingly if not, if valid login creds. 
             if ($user->college === 'ADMIN' && $user->department === 'ADMIN') {
                 Auth::login($user);
-                return redirect()->route('dashboard.adminIndex'); // NOTE: Change to path of the view file
+                return redirect()->route('dashboard.adminIndex'); 
             } else if ($user->college === 'ROOM COORDINATOR' && $user->department === 'ROOM COORDINATOR') {
                 Auth::login($user);
                 return redirect()->route('dashboard.roomCoordIndex');
