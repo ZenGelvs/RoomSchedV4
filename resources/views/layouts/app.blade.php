@@ -69,7 +69,7 @@
     @auth
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="{{ route('dashboard.index') }}">OCCUPIrate</a>
+        <a class="navbar-brand" href="">OCCUPIrate</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -80,7 +80,11 @@
                     <!-- Check for Admin Role -->
                 @if(Auth::user()->college === 'ADMIN' && Auth::user()->department === 'ADMIN')
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Add Subject</a>
+                        <a class="nav-link" href="{{ route('admin.subjects.index') }}">Add Subject</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('dashboard.adminIndex') }}">Manage Subjects</a>
                     </li>
 
                 @endif
