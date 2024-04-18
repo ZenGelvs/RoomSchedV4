@@ -8,6 +8,7 @@ use App\Imports\SubjectsImport;
 use App\Http\Controllers\Controller;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rule;
 
 
 class SubjectController extends Controller
@@ -184,4 +185,36 @@ class SubjectController extends Controller
 
         return redirect()->back()->with('success', 'Subject has been deleted successfully.');
     }
+
+    public function edit($id)
+    {
+        $subject = Subject::findOrFail($id);
+        return view('admin.edit_subject', compact('subject'));
+    }
+
+    public function update(Request $request, $id)
+    {
+
+        $request->validate([
+            'Subject_Code' => 'required',
+            'Description' => 'required',
+            'Lec' => 'required|numeric|min:0',
+            'Lab' => 'required|numeric|min:0',
+            'Units' => 'required|numeric|min:0',
+            'Pre_Req' => 'required',
+            'Year_Level' => 'required|in:1st,2nd,3rd,4th', 
+            'Semester' => 'required|in:1,2,Summer', 
+            'College' => 'required|in:COECSA,CAMS,CAS,CBA,CFAD,CITHM,NURSING', 
+            'Department' => 'required',
+            'Program' => 'required',
+            'Academic_Year' => 'required',
+        ]);
+        
+        $subject = Subject::find($id);
+
+        $subject->update($request->all());
+    
+        return redirect()->route('dashboard.adminIndex')->with('success', 'Subject updated successfully!');
+    }
+    
 }

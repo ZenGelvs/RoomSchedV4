@@ -57,6 +57,10 @@
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger mt-2">Delete</button>
                         </form>
+                        <form action="{{ route('admin.subjects.edit', $subject->id) }}" method="GET">
+                            @csrf
+                            <button type="submit" class="btn btn-warning mt-2">Edit</button>
+                        </form>
                     </div>
                 </div>
             </div>

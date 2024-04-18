@@ -35,5 +35,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::post('/store-subject', [SubjectController::class, 'store'])->name('subjects.store');
     Route::delete('/subjects/delete-all', [SubjectController::class, 'deleteAll'] )->name('subjects.deleteAll');
     Route::delete('/subjects/delete/{id}', [SubjectController::class, 'delete'])->name('subjects.delete');
+    Route::get('/subjects/edit/{id}', [SubjectController::class, 'edit'])->name('subjects.edit');
+    Route::put('/subjects/update/{id}', [SubjectController::class, 'update'])->name('subjects.update');
 });
 
