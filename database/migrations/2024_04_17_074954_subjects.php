@@ -20,10 +20,11 @@ return new class extends Migration
             $table->integer('Units');
             $table->string('Pre_Req')->nullable();
             $table->string('Year_Level');
-            $table->integer('Semester');
+            $table->string('Semester');
             $table->string('College');
             $table->string('Department');
             $table->string('Program');
+            $table->string('Academic_Year');
             $table->timestamps(); 
         });
     }

@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Models\Subject;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\SubjectsImport;
+use App\Http\Controllers\Controller;
+use Maatwebsite\Excel\Facades\Excel;
 
 
 class SubjectController extends Controller
@@ -34,5 +35,12 @@ class SubjectController extends Controller
 
         // Redirect back with success message
         return redirect()->back()->with('success', 'Subject added successfully!');
+    }
+
+    public function deleteAll()
+    {
+        Subject::truncate();
+
+        return redirect()->back()->with('success', 'All subjects have been deleted successfully.');
     }
 }

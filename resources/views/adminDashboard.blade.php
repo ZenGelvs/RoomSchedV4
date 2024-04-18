@@ -7,8 +7,25 @@
     <div class="login-container">
         <h2 class="text-center mb-4">Welcome to Admin Page, manage stuff!</h2>
 
+        <!-- Search Form -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <form action="{{ route('dashboard.adminIndex') }}" method="GET" class="form-inline">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search">
+                    <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
+                </form>
+            </div>
+            <div class="col-md-4">
+                <form action="{{ route('admin.subjects.deleteAll') }}" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger float-right">Delete All</button>
+                </form>
+            </div>
+        </div>
+
         <div class="row">
-            @foreach ($subjects as $subject)
+            @forelse ($subjects as $subject)
             <div class="col-md-4">
                 <div class="card mb-4">
                     <div class="card-body">
@@ -24,13 +41,17 @@
                             <li class="list-group-item"><b>College:</b> {{ $subject->College }}</li>
                             <li class="list-group-item"><b>Department:</b> {{ $subject->Department }}</li>
                             <li class="list-group-item"><b>Program:</b> {{ $subject->Program }}</li>
+                            <li class="list-group-item"><b>Academic Year:</b> {{ $subject->Academic_Year }}</li>
                         </ul>
                     </div>
                 </div>
             </div>
-            @endforeach
+            @empty
+            <div class="col-md-12 text-center">
+                <p>No subjects found.</p>
+            </div>
+            @endforelse
         </div>
-
     </div>
     <div class="d-flex justify-content-center mt-4">
         {{ $subjects->links() }}

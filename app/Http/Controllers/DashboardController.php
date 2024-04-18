@@ -12,11 +12,17 @@ class DashboardController extends Controller
         return view('dashboard');
     }
 
-    public function adminIndex()
+    public function adminIndex(Request $request)
     {
-        $subjects = Subject::paginate(12); 
+        $query = $request->input('search');
+        $subjects = Subject::when($query, function ($queryBuilder) use ($query) {
+            $queryBuilder->where('Subject_Code', 'like', '%'.$query.'%')
+                        ->orWhere('Description', 'like', '%'.$query.'%');
+        })->paginate(9);
+        
         return view('adminDashboard', compact('subjects'));
     }
+
     public function roomCoordIndex()
     {
         return view('roomCoordinatorDashboard');

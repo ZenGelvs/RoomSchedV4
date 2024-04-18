@@ -23,6 +23,7 @@ class Subject extends Model
         'College',
         'Department',
         'Program',
+        'Academic_Year'
     ];
 
 }
