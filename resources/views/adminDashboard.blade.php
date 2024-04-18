@@ -16,14 +16,20 @@
                 </form>
             </div>
             <div class="col-md-4">
-                <form action="{{ route('admin.subjects.deleteAll') }}" method="POST">
+                <form id="deleteAllForm" action="{{ route('admin.subjects.deleteAll') }}" method="POST">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn btn-danger float-right">Delete All</button>
+                    <button type="button" onclick="confirmDelete()" class="btn btn-danger float-right">Delete All</button>
                 </form>
             </div>
         </div>
 
+        @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+        @endif
+        
         <div class="row">
             @forelse ($subjects as $subject)
             <div class="col-md-4">
@@ -58,3 +64,11 @@
     </div>
 </div>
 @endsection
+
+<script>
+    function confirmDelete() {
+        if (confirm("Are you sure you want to delete ALL the Subjects in the Table?")) {
+            document.getElementById('deleteAllForm').submit();
+        }
+    }
+</script>
