@@ -49,6 +49,11 @@
                             <li class="list-group-item"><b>Program:</b> {{ $subject->Program }}</li>
                             <li class="list-group-item"><b>Academic Year:</b> {{ $subject->Academic_Year }}</li>
                         </ul>
+                        <form action="{{ route('admin.subjects.delete', $subject->id) }}" method="POST" onsubmit="return confirmDeleteIndiv()">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger mt-2">Delete</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -70,5 +75,9 @@
         if (confirm("Are you sure you want to delete ALL the Subjects in the Table?")) {
             document.getElementById('deleteAllForm').submit();
         }
+    }
+
+    function confirmDeleteIndiv() {
+        return confirm("Are you sure you want to delete this Subject in the Table?");
     }
 </script>

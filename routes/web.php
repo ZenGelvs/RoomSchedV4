@@ -34,5 +34,6 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::post('/upload-subjects', [SubjectController::class, 'upload'])->name('subjects.upload');
     Route::post('/store-subject', [SubjectController::class, 'store'])->name('subjects.store');
     Route::delete('/subjects/delete-all', [SubjectController::class, 'deleteAll'] )->name('subjects.deleteAll');
-
+    Route::delete('/subjects/delete/{id}', [SubjectController::class, 'delete'])->name('subjects.delete');
 });
+

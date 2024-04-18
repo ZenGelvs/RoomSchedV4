@@ -43,4 +43,11 @@ class SubjectController extends Controller
 
         return redirect()->back()->with('success', 'All subjects have been deleted successfully.');
     }
+
+    public function delete($id)
+    {
+        Subject::findOrFail($id)->delete();
+
+        return redirect()->back()->with('success', 'Subject has been deleted successfully.');
+    }
 }
