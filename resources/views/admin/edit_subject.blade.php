@@ -80,7 +80,7 @@
                     <label for="Academic_Year">Academic Year:</label>
                     <input type="text" class="form-control" id="Academic_Year" name="Academic_Year" value="{{ $subject->Academic_Year }}" required>
                 </div>
-                <button type="submit" class="btn btn-primary">Update</button>
+                <button type="submit" class="btn btn-warning">Update</button>
             </form>
         </div>
     </div>

@@ -28,7 +28,7 @@
             <div class="col-md-6">
                 <div class="card mb-4">
                     <div class="card-body">
-                        <h5 class="card-title">Upload Excel File</h5>
+                        <h5 class="card-title"><b>Upload Excel File</b></h5>
                         <form action="{{ route('admin.subjects.upload') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="form-group">
@@ -46,7 +46,7 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Add Subject Manually</h5>
+                        <h5 class="card-title"><b>Add Subject Manually</b></h5>
                         <button id="toggleManualForm" class="btn btn-primary">Add Subject Manually</button>
                         <!-- Form for manually adding subjects -->
                         <form id="manualForm" action="{{ route('admin.subjects.store') }}" method="POST" style="display: none;">

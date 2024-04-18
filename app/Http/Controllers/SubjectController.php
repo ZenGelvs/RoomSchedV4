@@ -194,7 +194,6 @@ class SubjectController extends Controller
 
     public function update(Request $request, $id)
     {
-
         $request->validate([
             'Subject_Code' => 'required',
             'Description' => 'required',
@@ -212,8 +211,25 @@ class SubjectController extends Controller
         
         $subject = Subject::find($id);
 
+        $existingSubject = Subject::where('Subject_Code', $request->input('Subject_Code'))
+                                    ->where('Description', $request->input('Description'))
+                                    ->where('Pre_Req', $request->input('Pre_Req'))
+                                    ->where('Year_Level', $request->input('Year_Level'))
+                                    ->where('Semester', $request->input('Semester'))
+                                    ->where('College', $request->input('College'))
+                                    ->where('Department', $request->input('Department'))
+                                    ->where('Program', $request->input('Program'))
+                                    ->where('Academic_Year', $request->input('Academic_Year'))
+                                    ->where('id', '!=', $id) 
+                                    ->first();
+
+        if ($existingSubject) {
+            $errorMessage = 'A subject with the same data already exists.';
+            return redirect()->route('dashboard.adminIndex')->withErrors(['error' => $errorMessage])->with('subjectError', $errorMessage);
+        }
+        
         $subject->update($request->all());
-    
+
         return redirect()->route('dashboard.adminIndex')->with('success', 'Subject updated successfully!');
     }
     

@@ -5,7 +5,7 @@
 @section('content')
 <div class="container mt-4">
     <div class="login-container">
-        <h2 class="text-center mb-4">Welcome to Admin Page, manage stuff!</h2>
+        <h2 class="text-center mb-4">Welcome to Admin Page, manage subjects for the Term</h2>
 
         <!-- Search Form -->
         <div class="row mb-4">
@@ -33,6 +33,16 @@
         </div>
         @endif
         
+        @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
         <div class="row">
             @forelse ($subjects as $subject)
             <div class="col-md-4">
@@ -52,15 +62,23 @@
                             <li class="list-group-item"><b>Program:</b> {{ $subject->Program }}</li>
                             <li class="list-group-item"><b>Academic Year:</b> {{ $subject->Academic_Year }}</li>
                         </ul>
-                        <form action="{{ route('admin.subjects.delete', $subject->id) }}" method="POST" onsubmit="return confirmDeleteIndiv()">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger mt-2">Delete</button>
-                        </form>
-                        <form action="{{ route('admin.subjects.edit', $subject->id) }}" method="GET">
-                            @csrf
-                            <button type="submit" class="btn btn-warning mt-2">Edit</button>
-                        </form>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <!-- Delete Button -->
+                                <form action="{{ route('admin.subjects.delete', $subject->id) }}" method="POST" onsubmit="return confirmDeleteIndiv()">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger mt-2">Delete</button>
+                                </form>
+                            </div>
+                            <div class="col-md-6">
+                                <!-- Edit Button -->
+                                <form action="{{ route('admin.subjects.edit', $subject->id) }}" method="GET">
+                                    @csrf
+                                    <button type="submit" class="btn btn-warning mt-2">Edit</button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
