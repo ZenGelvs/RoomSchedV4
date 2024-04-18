@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Subject;
 
 class DashboardController extends Controller
 {
@@ -13,7 +14,8 @@ class DashboardController extends Controller
 
     public function adminIndex()
     {
-        return view('adminDashboard');
+        $subjects = Subject::paginate(12); 
+        return view('adminDashboard', compact('subjects'));
     }
     public function roomCoordIndex()
     {

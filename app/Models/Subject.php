@@ -25,5 +25,4 @@ class Subject extends Model
         'Program',
     ];
 
-
 }
