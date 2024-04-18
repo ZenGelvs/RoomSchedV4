@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Imports\SubjectsImport;
 use App\Http\Controllers\Controller;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Validation\ValidationException;
 
 
 class SubjectController extends Controller
@@ -26,6 +27,16 @@ class SubjectController extends Controller
 
         $import = new SubjectsImport;
         $importedData = Excel::toCollection($import, $file)->first();
+
+        if (!$importedData) {
+            return redirect()->back()->with('error', 'Failed to import data from the Excel file.');
+        }
+
+        $validationErrors = $this->validateImportedData($importedData);
+
+        if ($validationErrors->count() > 0) {
+            return redirect()->back()->withErrors(['excelFile' => $validationErrors])->withInput();
+        }
 
         $duplicates = [];
         foreach ($importedData as $data) {
@@ -75,6 +86,63 @@ class SubjectController extends Controller
         }
 
         return redirect()->back()->with('success', 'Subjects imported successfully!');
+    }
+
+    private function validateImportedData($importedData)
+    {
+        $errors = collect();
+
+        foreach ($importedData as $index => $data) {
+            if (!isset($data['subject_code']) || empty($data['subject_code'])) {
+                $errors->push("Row {$index}: Subject code is required.");
+            }
+
+            if (!isset($data['description']) || empty($data['description'])) {
+                $errors->push("Row {$index}: Description is required.");
+            }
+
+            if (!isset($data['lec']) || !is_numeric($data['lec']) || $data['lec'] < 0) {
+                $errors->push("Row {$index}: Lec must be a non-negative numeric value.");
+            }
+
+            if (!isset($data['lab']) || !is_numeric($data['lab']) || $data['lab'] < 0) {
+                $errors->push("Row {$index}: Lab must be a non-negative numeric value.");
+            }
+
+            if (!isset($data['units']) || !is_numeric($data['units']) || $data['units'] <= 0) {
+                $errors->push("Row {$index}: Units must be a positive numeric value.");
+            }
+
+            if (!isset($data['pre_req']) || !is_string($data['pre_req'])) {
+                $errors->push("Row {$index}: Pre-Requisite must be a string.");
+            }
+
+            if (!isset($data['year_level']) || empty($data['year_level'])) {
+                $errors->push("Row {$index}: Year Level is required.");
+            }
+
+            if (!isset($data['semester']) || empty($data['semester'])) {
+                $errors->push("Row {$index}: Semester is required.");
+            }
+
+            if (!isset($data['college']) || empty($data['college'])) {
+                $errors->push("Row {$index}: College is required.");
+            }
+
+            if (!isset($data['department']) || empty($data['department'])) {
+                $errors->push("Row {$index}: Department is required.");
+            }
+
+            if (!isset($data['program']) || empty($data['program'])) {
+                $errors->push("Row {$index}: Program is required.");
+            }
+
+            if (!isset($data['academic_year']) || empty($data['academic_year'])) {
+                $errors->push("Row {$index}: Academic Year is required.");
+            }
+        }
+
+        return $errors;
     }
 
     public function store(Request $request)
