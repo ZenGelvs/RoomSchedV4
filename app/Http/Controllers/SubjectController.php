@@ -31,9 +31,25 @@ class SubjectController extends Controller
 
     public function store(Request $request)
     {
-        // Handle manual subject creation logic here
+        $validatedData = $request->validate([
+            'Subject_Code' => 'required|string',
+            'Description' => 'required|string',
+            'Lec' => 'required|integer',
+            'Lab' => 'required|integer',
+            'Units' => 'required|integer',
+            'Pre_Req' => 'nullable|string',
+            'Year_Level' => 'required|string',
+            'Semester' => 'required|string',
+            'College' => 'required|string',
+            'Department' => 'required|string',
+            'Program' => 'required|string',
+            'Academic_Year' => 'required|string',
+        ]);
 
-        // Redirect back with success message
+        $subject = new Subject($validatedData);
+
+        $subject->save();
+
         return redirect()->back()->with('success', 'Subject added successfully!');
     }
 
