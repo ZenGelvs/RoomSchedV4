@@ -12,6 +12,14 @@
                 </button>
             </div>
         @endif
+        @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        @endif
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="card mb-4">
@@ -23,7 +31,8 @@
                                 <label for="excelFile">Select Excel File:</label>
                                 <input type="file" class="form-control-file" id="excelFile" name="excelFile">
                             </div>
-                            <button type="submit" class="btn btn-primary">Upload</button>
+                            <button type="submit" class="btn btn-primary" id="uploadButton">Upload</button>
+                            <div id="fileError" class="text-danger" style="display: none;">Please select a file.</div>
                         </form>
                     </div>
                 </div>
@@ -139,6 +148,24 @@
                 document.getElementById('unitsValidationMessage').style.display = 'block';
             } else {
                 document.getElementById('unitsValidationMessage').style.display = 'none';
+            }
+        });
+
+        document.getElementById('uploadButton').addEventListener('click', function(event) {
+            var fileInput = document.getElementById('excelFile');
+            var fileError = document.getElementById('fileError');
+            var allowedExtensions = /(\.xlsx|\.xls)$/i;
+
+            if (!fileInput.files.length) {
+                fileError.innerText = 'Please select a file.';
+                fileError.style.display = 'block';
+                event.preventDefault();
+            } else if (!allowedExtensions.test(fileInput.value)) {
+                fileError.innerText = 'Please select a valid Excel file.';
+                fileError.style.display = 'block';
+                event.preventDefault();
+            } else {
+                fileError.style.display = 'none';
             }
         });
     </script>

@@ -2,6 +2,7 @@
 namespace App\Imports;
 
 use App\Models\Subject;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
@@ -24,5 +25,10 @@ class SubjectsImport implements ToModel, WithHeadingRow
             'Academic_Year' => $row['academic_year'],
             
         ]);
+    }
+
+    public function collection(Collection $rows)
+    {
+        return $rows;
     }
 }

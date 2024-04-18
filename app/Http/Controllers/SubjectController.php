@@ -24,7 +24,55 @@ class SubjectController extends Controller
 
         $file = $request->file('excelFile');
 
-        Excel::import(new SubjectsImport, $file);
+        $import = new SubjectsImport;
+        $importedData = Excel::toCollection($import, $file)->first();
+
+        $duplicates = [];
+        foreach ($importedData as $data) {
+
+            $existingSubject = Subject::where('Subject_Code', $data['subject_code'])
+                ->where('Description', $data['description'])
+                ->where('Lec', $data['lec'])
+                ->where('Lab', $data['lab'])
+                ->where('Units', $data['units'])
+                ->where('Pre_Req', $data['pre_req'])
+                ->where('Year_Level', $data['year_level'])
+                ->where('Semester', $data['semester'])
+                ->where('College', $data['college'])
+                ->where('Department', $data['department'])
+                ->where('Program', $data['program'])
+                ->where('Academic_Year', $data['academic_year'])
+                ->first();
+
+            if ($existingSubject) {
+                $duplicates[] = $data;
+            }
+        }
+
+        if (!empty($duplicates)) {
+            $message = 'The following subjects already exist:';
+            foreach ($duplicates as $duplicate) {
+                $message .= "\n" . $duplicate['subject_code'] . ' - ' . $duplicate['description'];
+            }
+            return redirect()->back()->with('error', $message);
+        }
+
+        foreach ($importedData as $data) {
+            Subject::create([
+                'Subject_Code' => $data['subject_code'],
+                'Description' => $data['description'],
+                'Lec' => $data['lec'],
+                'Lab' => $data['lab'],
+                'Units' => $data['units'],
+                'Pre_Req' => $data['pre_req'],
+                'Year_Level' => $data['year_level'],
+                'Semester' => $data['semester'],
+                'College' => $data['college'],
+                'Department' => $data['department'],
+                'Program' => $data['program'],
+                'Academic_Year' => $data['academic_year'],
+            ]);
+        }
 
         return redirect()->back()->with('success', 'Subjects imported successfully!');
     }
@@ -45,11 +93,13 @@ class SubjectController extends Controller
             'Program' => 'required|string',
             'Academic_Year' => 'required|string',
         ]);
-
-        $subject = new Subject($validatedData);
-
-        $subject->save();
-
+    
+        $subject = Subject::firstOrCreate($validatedData);
+    
+        if (!$subject->wasRecentlyCreated) {
+            return redirect()->back()->with('error', 'A subject with the same details already exists.');
+        }
+        
         return redirect()->back()->with('success', 'Subject added successfully!');
     }
 
