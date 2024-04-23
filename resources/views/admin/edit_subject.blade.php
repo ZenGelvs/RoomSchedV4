@@ -30,7 +30,7 @@
                 </div>
                 <div class="form-group">
                     <label for="Units">Total Units:</label>
-                    <input type="number" class="form-control" id="Units" name="Units" value="{{ max(0, $subject->Units) }}" min="0" required>
+                    <input type="number" class="form-control" id="Units" name="Units" value="{{ max(0, $subject->Units) }}" min="0" disabled>
                     @error('Units')
                         <span class="text-danger">{{ $message }}</span>
                     @enderror
@@ -87,7 +87,6 @@
 </div>
 @endsection
 <script>
-
     document.addEventListener("DOMContentLoaded", function() {
         document.getElementById("updateForm").addEventListener("submit", function(event) {
             var confirmation = confirm("Are you sure you want to save the changes?");
@@ -95,5 +94,16 @@
                 event.preventDefault();
             }
         });
+
+        // Update Total Units when Lec or Lab changes
+        document.getElementById("Lec").addEventListener("change", updateTotalUnits);
+        document.getElementById("Lab").addEventListener("change", updateTotalUnits);
+        
+        function updateTotalUnits() {
+            var lec = parseInt(document.getElementById("Lec").value);
+            var lab = parseInt(document.getElementById("Lab").value);
+            var totalUnits = lec + lab;
+            document.getElementById("Units").value = totalUnits;
+        }
     });
 </script>

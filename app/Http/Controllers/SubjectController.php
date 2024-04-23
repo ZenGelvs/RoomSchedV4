@@ -148,30 +148,30 @@ class SubjectController extends Controller
 
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'Subject_Code' => 'required|string',
-            'Description' => 'required|string',
-            'Lec' => 'required|integer',
-            'Lab' => 'required|integer',
-            'Units' => 'required|integer',
-            'Pre_Req' => 'nullable|string',
-            'Year_Level' => 'required|string',
-            'Semester' => 'required|string',
-            'College' => 'required|string',
-            'Department' => 'required|string',
-            'Program' => 'required|string',
-            'Academic_Year' => 'required|string',
+        $request->validate([
+            'Subject_Code' => 'required',
+            'Description' => 'required',
+            'Lec' => 'required|numeric|min:0',
+            'Lab' => 'required|numeric|min:0',
+            'Pre_Req' => 'required',
+            'Year_Level' => 'required|in:1st,2nd,3rd,4th', 
+            'Semester' => 'required|in:1,2,Summer', 
+            'College' => 'required|in:COECSA,CAMS,CAS,CBA,CFAD,CITHM,NURSING', 
+            'Department' => 'required',
+            'Program' => 'required',
+            'Academic_Year' => 'required',
         ]);
     
-        $subject = Subject::firstOrCreate($validatedData);
+        $totalUnits = $request->input('Lec') + $request->input('Lab');
     
-        if (!$subject->wasRecentlyCreated) {
-            return redirect()->back()->with('error', 'A subject with the same details already exists.');
-        }
-        
-        return redirect()->back()->with('success', 'Subject added successfully!');
+        $subject = new Subject();
+        $subject->fill($request->all());
+        $subject->Units = $totalUnits;
+        $subject->save();
+    
+        return redirect()->route('dashboard.adminIndex')->with('success', 'Subject added successfully!');
     }
-
+    
     public function deleteAll()
     {
         Subject::truncate();
@@ -199,7 +199,6 @@ class SubjectController extends Controller
             'Description' => 'required',
             'Lec' => 'required|numeric|min:0',
             'Lab' => 'required|numeric|min:0',
-            'Units' => 'required|numeric|min:0',
             'Pre_Req' => 'required',
             'Year_Level' => 'required|in:1st,2nd,3rd,4th', 
             'Semester' => 'required|in:1,2,Summer', 
@@ -210,7 +209,7 @@ class SubjectController extends Controller
         ]);
         
         $subject = Subject::find($id);
-
+    
         $existingSubject = Subject::where('Subject_Code', $request->input('Subject_Code'))
                                     ->where('Description', $request->input('Description'))
                                     ->where('Pre_Req', $request->input('Pre_Req'))
@@ -222,14 +221,19 @@ class SubjectController extends Controller
                                     ->where('Academic_Year', $request->input('Academic_Year'))
                                     ->where('id', '!=', $id) 
                                     ->first();
-
+    
         if ($existingSubject) {
             $errorMessage = 'A subject with the same data already exists.';
             return redirect()->route('dashboard.adminIndex')->withErrors(['error' => $errorMessage])->with('subjectError', $errorMessage);
         }
         
-        $subject->update($request->all());
+        $subject->fill($request->except('Units'))->save();
 
+        $lec = $request->input('Lec');
+        $lab = $request->input('Lab');
+        $totalUnits = $lec + $lab;
+        $subject->update(['Units' => $totalUnits]);
+    
         return redirect()->route('dashboard.adminIndex')->with('success', 'Subject updated successfully!');
     }
     

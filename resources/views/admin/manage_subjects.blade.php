@@ -74,9 +74,10 @@
                             <div class="form-group">
                                 <label for="Units">Total Units:</label>
                                 <div class="input-group">                        
-                                 <input type="number" class="form-control" id="Units" name="Units" value="0" min="0" required>
+                                    <input type="number" class="form-control" id="Units" name="Units" value="0" min="0" required readonly>
                                 </div>
-                            </div>
+                                <div id="unitsValidationMessage" class="text-danger" style="display: none;">Lec and Lab must equal Total Units.</div>
+                            </div>                            
                             <div class="form-group">
                                 <label for="Pre_Req">Pre-Requisite:</label>
                                 <input type="text" class="form-control" id="Pre_Req" name="Pre_Req" required>
@@ -144,16 +145,24 @@
                 form.style.display = 'none';
             }
         });
-        document.getElementById('Units').addEventListener('input', function() {
+        function updateTotalUnits() {
             var lec = parseInt(document.getElementById('Lec').value);
             var lab = parseInt(document.getElementById('Lab').value);
-            var units = parseInt(this.value);
-            if (lec + lab !== units) {
-                document.getElementById('unitsValidationMessage').style.display = 'block';
+            var totalUnits = lec + lab;
+            document.getElementById('Units').value = totalUnits;
+
+            // Validate if Lec and Lab equal Total Units
+            var unitsValidationMessage = document.getElementById('unitsValidationMessage');
+            if (lec + lab !== totalUnits) {
+                unitsValidationMessage.style.display = 'block';
             } else {
-                document.getElementById('unitsValidationMessage').style.display = 'none';
+                unitsValidationMessage.style.display = 'none';
             }
-        });
+        }
+
+        // Event listeners for Lec and Lab fields
+        document.getElementById('Lec').addEventListener('input', updateTotalUnits);
+        document.getElementById('Lab').addEventListener('input', updateTotalUnits);
 
         document.getElementById('uploadButton').addEventListener('click', function(event) {
             var fileInput = document.getElementById('excelFile');
