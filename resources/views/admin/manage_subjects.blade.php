@@ -151,7 +151,6 @@
             var totalUnits = lec + lab;
             document.getElementById('Units').value = totalUnits;
 
-            // Validate if Lec and Lab equal Total Units
             var unitsValidationMessage = document.getElementById('unitsValidationMessage');
             if (lec + lab !== totalUnits) {
                 unitsValidationMessage.style.display = 'block';
@@ -160,7 +159,6 @@
             }
         }
 
-        // Event listeners for Lec and Lab fields
         document.getElementById('Lec').addEventListener('input', updateTotalUnits);
         document.getElementById('Lab').addEventListener('input', updateTotalUnits);
 
