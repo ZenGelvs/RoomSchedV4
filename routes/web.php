@@ -1,12 +1,13 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\LoginController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\SubjectController;
-use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Application;
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\SectionsController;
+use App\Http\Controllers\DashboardController;
 
 
 Route::get('/', function () {
@@ -38,4 +39,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::get('/subjects/edit/{id}', [SubjectController::class, 'edit'])->name('subjects.edit');
     Route::put('/subjects/update/{id}', [SubjectController::class, 'update'])->name('subjects.update');
 });
+
+//Department Headn Route 
+Route::group(['namespace' => 'Department', 'prefix' => 'department'], function () {
+    Route::get('sections', [SectionsController::class, 'index'])->name('department.sections');
+});
+
 

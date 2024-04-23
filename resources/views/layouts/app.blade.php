@@ -97,8 +97,11 @@
                         <a class="nav-link" href="#">Room Coordinator Link 2</a>
                     </li>
                 @endif
-                <!-- Default Links for other roles -->
+                <!-- Default Links Department Head-->
                 @if(Auth::user()->college !== 'ADMIN' && Auth::user()->college !== 'ROOM COORDINATOR')
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('dashboard.index') }}">Home</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href=" ">Schedules</a>
                     </li>
@@ -106,7 +109,7 @@
                         <a class="nav-link" href=" ">Subjects</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href=" ">Sections</a>
+                        <a class="nav-link" href="{{ route('department.sections') }}">Sections</a>
                     </li>
                 @endif
 
