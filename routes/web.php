@@ -41,8 +41,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
 });
 
 //Department Headn Route 
-Route::group(['namespace' => 'Department', 'prefix' => 'department'], function () {
+Route::group(['namespace' => 'Department', 'prefix' => 'department.'], function () {
     Route::get('sections', [SectionsController::class, 'index'])->name('department.sections');
+    Route::post('sections', [SectionsController::class, 'store'])->name('department.store'); 
 });
 
 
