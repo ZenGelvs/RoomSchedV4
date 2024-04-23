@@ -127,7 +127,7 @@
     @endauth
 
     @yield('content')
-    
+
     <!-- Bootstrap JS and Popper.js (required for Bootstrap) -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
