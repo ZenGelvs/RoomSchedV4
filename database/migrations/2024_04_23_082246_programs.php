@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('program_name');
             $table->string('college');
             $table->string('department');
+            $table->integer('years');
             $table->timestamps();
         });
     }
