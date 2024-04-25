@@ -106,6 +106,9 @@
                         <a class="nav-link" href=" ">Schedules</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ route('department.faculty') }}">Faculty</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href=" ">Subjects</a>
                     </li>
                     <li class="nav-item">

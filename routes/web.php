@@ -4,6 +4,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\FacultyController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\SectionsController;
@@ -48,6 +49,11 @@ Route::group(['namespace' => 'Department', 'prefix' => 'department.'], function 
     Route::post('sections/delete-all', [SectionsController::class, 'deleteAll'])->name('department.deleteAll');
     Route::get('sections/{id}/edit', [SectionsController::class, 'editSection'])->name('department.editSection'); 
     Route::put('sections/{id}', [SectionsController::class, 'updateSection'])->name('department.updateSection'); 
+
+    Route::get('faculty', [FacultyController::class, 'index'])->name('department.faculty');
+    Route::post('/faculty', [FacultyController::class, 'store'])->name('faculty.store');
+    Route::delete('/faculty/{id}', [FacultyController::class, 'destroy'])->name('faculty.destroy');
+
 });
 
 
