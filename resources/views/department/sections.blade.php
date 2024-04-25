@@ -92,7 +92,7 @@
                                 <td>{{ $section->year_level }}</td>
                                 <td>{{ $section->section }}</td>
                                 <td>
-                                    <button class="btn btn-primary btn-sm">Edit</button>
+                                    <a href="{{ route('department.editSection', $section->id) }}" class="btn btn-warning btn-sm">Edit</a>
                                     <form action="{{ route('department.destroy', $section->id) }}" method="POST" class="deleteForm">
                                         @csrf
                                         @method('DELETE')

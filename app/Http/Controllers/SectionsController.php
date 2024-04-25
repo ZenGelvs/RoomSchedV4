@@ -82,5 +82,33 @@ class SectionsController extends Controller
         return redirect()->back()->with('success', 'All sections deleted successfully!');
     }
 
-    
+    public function editSection($id)
+    {
+        $section = Sections::findOrFail($id);
+        return view('department.editSection', compact('section'));
+    }
+
+    public function updateSection(Request $request, $id)
+    {
+        $request->validate([
+            'program_name' => 'required',
+            'year_level' => 'required|numeric',
+            'section' => 'required|string|max:255',
+        ]);
+
+        $existingSection = Sections::where('program_name', $request->program_name)
+            ->where('year_level', $request->year_level)
+            ->where('section', $request->section)
+            ->where('id', '!=', $id)
+            ->first();
+
+        if ($existingSection) {
+            return redirect()->back()->with('error', 'Section already exists.');
+        }
+
+        $section = Sections::findOrFail($id);
+        $section->update($request->all());
+
+        return redirect()->route('department.sections')->with('success', 'Section updated successfully.');
+    }
 }
