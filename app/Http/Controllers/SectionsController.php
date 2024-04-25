@@ -85,30 +85,53 @@ class SectionsController extends Controller
     public function editSection($id)
     {
         $section = Sections::findOrFail($id);
-        return view('department.editSection', compact('section'));
+        $programs = Programs::all(); 
+        return view('department.editSection', compact('section', 'programs'));
     }
 
     public function updateSection(Request $request, $id)
     {
         $request->validate([
             'program_name' => 'required',
-            'year_level' => 'required|numeric',
-            'section' => 'required|string|max:255',
+            'year_level' => 'required',
+            'section' => 'required',
         ]);
-
+    
+        $yearLevel = $request->year_level;
+        switch ($yearLevel) {
+            case 1:
+                $yearLevel = '1st';
+                break;
+            case 2:
+                $yearLevel = '2nd';
+                break;
+            case 3:
+                $yearLevel = '3rd';
+                break;
+            default:
+                $yearLevel .= 'th';
+                break;
+        }
+    
+        $sectionNumber = $request->year_level . '0' . $request->section;
+    
         $existingSection = Sections::where('program_name', $request->program_name)
-            ->where('year_level', $request->year_level)
-            ->where('section', $request->section)
+            ->where('year_level', $yearLevel)
+            ->where('section', $sectionNumber)
             ->where('id', '!=', $id)
             ->first();
-
+    
         if ($existingSection) {
             return redirect()->back()->with('error', 'Section already exists.');
         }
-
+    
         $section = Sections::findOrFail($id);
-        $section->update($request->all());
-
+        $section->update([
+            'program_name' => $request->program_name,
+            'year_level' => $yearLevel,
+            'section' => $sectionNumber, 
+        ]);
+    
         return redirect()->route('department.sections')->with('success', 'Section updated successfully.');
     }
 }
