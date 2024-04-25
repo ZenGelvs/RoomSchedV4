@@ -44,6 +44,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
 Route::group(['namespace' => 'Department', 'prefix' => 'department.'], function () {
     Route::get('sections', [SectionsController::class, 'index'])->name('department.sections');
     Route::post('sections', [SectionsController::class, 'store'])->name('department.store'); 
+    Route::delete('sections/{id}', [SectionsController::class, 'destroy'])->name('department.destroy');
+    Route::post('sections/delete-all', [SectionsController::class, 'deleteAll'])->name('department.deleteAll');
 });
 
 

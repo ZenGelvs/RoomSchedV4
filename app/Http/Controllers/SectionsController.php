@@ -67,4 +67,20 @@ class SectionsController extends Controller
         return redirect()->back()->with('success', 'Section added successfully!');
     }
 
+    public function destroy($id)
+    {
+        $section = Sections::findOrFail($id);
+        $section->delete();
+
+        return redirect()->back()->with('success', 'Section deleted successfully!');
+    }
+
+    public function deleteAll(Request $request)
+    {
+        Sections::truncate();
+
+        return redirect()->back()->with('success', 'All sections deleted successfully!');
+    }
+
+    
 }

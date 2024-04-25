@@ -13,7 +13,6 @@
             </button>
         </div>
         @endif
-        
         @if (session('error'))
             <div class="alert alert-danger">
                 {{ session('error') }}
@@ -28,12 +27,9 @@
                 <h5 class="mb-0">Add Sections</h5>
             </div>
             <div class="card-body">
-                <!-- Button to toggle form -->
                 <button class="btn btn-danger mb-3" type="button" data-toggle="collapse" data-target="#addSectionForm" aria-expanded="false" aria-controls="addSectionForm">
                     Add Section
                 </button>
-
-                <!-- Collapsible form for adding section -->
                 <div class="collapse" id="addSectionForm">
                     <div class="card card-body">
                         <form action="{{ route('department.store') }}" method="POST">
@@ -74,6 +70,12 @@
             <p>No records found.</p>
         @else
             <div class="table-responsive">
+                <div class="mb-3">
+                    <form action="{{ route('department.deleteAll') }}" method="POST" id="deleteAllForm">
+                        @csrf
+                        <button type="button" class="btn btn-danger" id="deleteAllBtn">Delete All</button>
+                    </form>
+                </div>
                 <table class="table table-striped">
                     <thead>
                         <tr>
@@ -91,7 +93,11 @@
                                 <td>{{ $section->section }}</td>
                                 <td>
                                     <button class="btn btn-primary btn-sm">Edit</button>
-                                    <button class="btn btn-danger btn-sm">Delete</button>
+                                    <form action="{{ route('department.destroy', $section->id) }}" method="POST" class="deleteForm">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm deleteBtn" data-message="Are you sure you want to delete this section?">Delete</button>
+                                    </form>
                                 </td>
                             </tr>
                         @endforeach
@@ -104,7 +110,6 @@
 
     @section('scripts')
         <script>
-            // Function to update the Year Level label
             function updateYearLevelLabel() {
                 var yearLevel = $('#year_level').val(); 
                 var section = $('#section').val();
@@ -117,11 +122,11 @@
             }
 
             $('form').submit(function() {
-                    var yearLevel = $('#year_level').val();
-                    var section = $('#section').val();
+                var yearLevel = $('#year_level').val();
+                var section = $('#section').val();
 
-                    $('#section').val(yearLevel + "0" + section);
-                });
+                $('#section').val(yearLevel + "0" + section);
+            });
 
             $('#program_name').change(function() {
                 var programName = $(this).val();
@@ -145,9 +150,22 @@
             $(document).ready(function() {
                 $('#program_name').change();
                 updateYearLevelLabel(); 
+                
+                $('.deleteForm').submit(function(e) {
+                    var message = $(this).find('.deleteBtn').data('message');
+                    if (!confirm(message)) {
+                        e.preventDefault();
+                    }
+                });
+
+                $('#deleteAllBtn').click(function() {
+                    var message = "Are you sure you want to delete all sections?";
+                    if (confirm(message)) {
+                        $('#deleteAllForm').submit();
+                    }
+                });
             });
         </script>
     @endsection
 
 @endsection
-
