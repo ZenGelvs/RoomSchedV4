@@ -5,6 +5,24 @@
 @section('content')
     <div class="container mt-4">
         <h2 class="text-center mb-4">Manage Sections</h2>
+        @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        @endif
+        
+        @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        @endif
+
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0">Add Sections</h5>

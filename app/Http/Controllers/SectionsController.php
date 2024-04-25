@@ -20,14 +20,21 @@ class SectionsController extends Controller
 
     public function store(Request $request)
     {
-        // Validate request
         $request->validate([
             'program_name' => 'required',
             'year_level' => 'required',
             'section' => 'required',
         ]);
 
-        // Save the section to the database
+        $existingSection = Sections::where('program_name', $request->program_name)
+        ->where('year_level', $request->year_level)
+        ->where('section', $request->section)
+        ->exists();
+
+        if ($existingSection) {
+            return redirect()->back()->with('error', 'Section already exists!');
+        }
+        
         Sections::create([
             'program_name' => $request->program_name,
             'year_level' => $request->year_level,
@@ -36,7 +43,6 @@ class SectionsController extends Controller
             'department' => Auth::user()->department,
         ]);
 
-        // Redirect back with success message
         return redirect()->back()->with('success', 'Section added successfully!');
     }
 }
