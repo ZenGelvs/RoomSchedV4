@@ -14,30 +14,51 @@ class SectionsController extends Controller
         $programs = Programs::where('college', Auth::user()->college)
                    ->where('department', Auth::user()->department)
                    ->get();
-
-        return view('department.sections', ['programs' => $programs]);
+    
+        $sections = Sections::where('college', Auth::user()->college)
+                   ->where('department', Auth::user()->department)
+                   ->paginate(10); 
+    
+        return view('department.sections', ['programs' => $programs, 'sections' => $sections]);
     }
+    
 
     public function store(Request $request)
-    {
+    {   
         $request->validate([
             'program_name' => 'required',
             'year_level' => 'required',
             'section' => 'required',
         ]);
 
+        $yearLevel = $request->year_level;
+        switch ($yearLevel) {
+            case 1:
+                $yearLevel = '1st';
+                break;
+            case 2:
+                $yearLevel = '2nd';
+                break;
+            case 3:
+                $yearLevel = '3rd';
+                break;
+            default:
+                $yearLevel .= 'th';
+                break;
+        }
+
         $existingSection = Sections::where('program_name', $request->program_name)
-        ->where('year_level', $request->year_level)
-        ->where('section', $request->section)
-        ->exists();
+            ->where('year_level', $yearLevel)
+            ->where('section', $request->section)
+            ->exists();
 
         if ($existingSection) {
             return redirect()->back()->with('error', 'Section already exists!');
         }
-        
+
         Sections::create([
             'program_name' => $request->program_name,
-            'year_level' => $request->year_level,
+            'year_level' => $yearLevel,
             'section' => $request->section,
             'college' => Auth::user()->college,
             'department' => Auth::user()->department,
@@ -45,4 +66,5 @@ class SectionsController extends Controller
 
         return redirect()->back()->with('success', 'Section added successfully!');
     }
+
 }

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id(); 
             $table->string('program_name'); 
             $table->String('year_level'); 
-            $table->String('section'); 
+            $table->integer('section'); 
             $table->String('college'); 
             $table->String('department'); 
             $table->timestamps(); 

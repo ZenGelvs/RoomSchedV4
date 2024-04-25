@@ -23,7 +23,7 @@
             </div>
         @endif
 
-        <div class="card">
+        <div class="card mb-4">
             <div class="card-header">
                 <h5 class="mb-0">Add Sections</h5>
             </div>
@@ -69,12 +69,43 @@
                 </div>
             </div>
         </div>
+
+        @if($sections->isEmpty())
+            <p>No records found.</p>
+        @else
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Program Name</th>
+                            <th>Year Level</th>
+                            <th>Section</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($sections as $section)
+                            <tr>
+                                <td>{{ $section->program_name }}</td>
+                                <td>{{ $section->year_level }}</td>
+                                <td>{{ $section->section }}</td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm">Edit</button>
+                                    <button class="btn btn-danger btn-sm">Delete</button>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            {{ $sections->links() }}
+        @endif
     </div>
 
     @section('scripts')
-    <script>
-
-        function updateYearLevelLabel() {
+        <script>
+            // Function to update the Year Level label
+            function updateYearLevelLabel() {
                 var yearLevel = $('#year_level').val(); 
                 var section = $('#section').val();
                 
@@ -85,7 +116,13 @@
                 }
             }
 
-        
+            $('form').submit(function() {
+                    var yearLevel = $('#year_level').val();
+                    var section = $('#section').val();
+
+                    $('#section').val(yearLevel + "0" + section);
+                });
+
             $('#program_name').change(function() {
                 var programName = $(this).val();
                 var program = {!! $programs->toJson() !!}.find(program => program.program_name === programName);
@@ -106,11 +143,11 @@
             });
 
             $(document).ready(function() {
-
                 $('#program_name').change();
                 updateYearLevelLabel(); 
             });
-    </script>
+        </script>
     @endsection
 
 @endsection
+
