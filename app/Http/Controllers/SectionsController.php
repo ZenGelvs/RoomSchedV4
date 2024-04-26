@@ -12,16 +12,15 @@ class SectionsController extends Controller
     public function index()
     {
         $programs = Programs::where('college', Auth::user()->college)
-                   ->where('department', Auth::user()->department)
-                   ->get();
-    
+                    ->where('department', Auth::user()->department)
+                    ->get();
+
         $sections = Sections::where('college', Auth::user()->college)
-                   ->where('department', Auth::user()->department)
-                   ->paginate(10); 
-    
-        return view('department.sections', ['programs' => $programs, 'sections' => $sections]);
+                    ->where('department', Auth::user()->department)
+                    ->paginate(10); 
+
+        return view('department.sections', compact('programs', 'sections'));
     }
-    
 
     public function store(Request $request)
     {   
@@ -85,10 +84,12 @@ class SectionsController extends Controller
     public function editSection($id)
     {
         $section = Sections::findOrFail($id);
-        $programs = Programs::all(); 
+        $programs = Programs::where('college', Auth::user()->college)
+                    ->where('department', Auth::user()->department)
+                    ->get(); 
         return view('department.editSection', compact('section', 'programs'));
     }
-
+    
     public function updateSection(Request $request, $id)
     {
         $request->validate([

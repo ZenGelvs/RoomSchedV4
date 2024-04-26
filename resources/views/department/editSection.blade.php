@@ -31,7 +31,12 @@
                     @method('PUT')
                     <div class="form-group">
                         <label for="program_name">Program Name:</label>
-                        <input type="text" class="form-control" id="program_name" name="program_name" value="{{ $section->program_name }}" required>
+                        <label id="" class="mb-2">{{ $section->program_name }}</label>
+                        <select class="form-control" id="program_name" name="program_name" required>
+                            @foreach($programs as $program)
+                                <option value="{{ $program->program_name }}">{{ $program->program_name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="year_level">Year Level:</label>

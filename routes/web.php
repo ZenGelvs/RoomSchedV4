@@ -52,7 +52,7 @@ Route::group(['namespace' => 'Department', 'prefix' => 'department.'], function 
 
     Route::get('faculty', [FacultyController::class, 'index'])->name('department.faculty');
     Route::post('/faculty', [FacultyController::class, 'store'])->name('faculty.store');
-    Route::delete('/faculty/{id}', [FacultyController::class, 'destroy'])->name('faculty.destroy');
+    Route::delete('/faculty/{id}', [FacultyController::class, 'destroys'])->name('faculty.destroy');
 
 });
 
