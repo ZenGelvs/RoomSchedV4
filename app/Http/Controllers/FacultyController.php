@@ -54,4 +54,37 @@ class FacultyController extends Controller
         return redirect()->back()->with('success', 'Faculty member deleted successfully.');
     }
 
+    public function edit($id)
+    {
+        $faculty = Faculty::findOrFail($id);
+        return view('department.editFaculty', compact('faculty'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'faculty_name' => 'required|string',
+            'faculty_id' => 'required',
+        ]);
+    
+        $existingFaculty = Faculty::where('faculty_id', $request->faculty_id)
+            ->where('id', '!=', $id)
+            ->exists();
+    
+        $existingFacultyWithName = Faculty::where('name', $request->faculty_name)
+            ->where('id', '!=', $id)
+            ->exists();
+    
+        if ($existingFaculty || $existingFacultyWithName) {
+            return redirect()->back()->with('error', 'Faculty member with the same ID or name already exists.');
+        }
+    
+        $faculty = Faculty::findOrFail($id);
+        $faculty->name = $request->faculty_name;
+        $faculty->faculty_id = $request->faculty_id;
+        $faculty->save();
+    
+        return redirect()->route('department.faculty')->with('success', 'Faculty member updated successfully.');
+    }
+    
 }

@@ -70,7 +70,7 @@
                                 <td>{{ $facultyMember->college }}</td>
                                 <td>{{ $facultyMember->department }}</td>
                                 <td>
-                                    <a href="#" class="btn btn-warning btn-sm">Edit</a>
+                                    <a href="{{ route('faculty.edit', $facultyMember->id) }}" class="btn btn-warning btn-sm">Edit</a>
                                     <form action="{{ route('faculty.destroy', $facultyMember->id) }}" method="POST" class="deleteForm">
                                         @csrf
                                         @method('DELETE')
