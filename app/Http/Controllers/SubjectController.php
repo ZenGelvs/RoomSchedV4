@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Subject;
 use Illuminate\Http\Request;
 use App\Imports\SubjectsImport;
+use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Validation\Rule;
 
 
 class SubjectController extends Controller
@@ -237,4 +238,15 @@ class SubjectController extends Controller
         return redirect()->route('dashboard.adminIndex')->with('success', 'Subject updated successfully!');
     }
     
+    public function departmentIndex()
+    {
+        $userCollege = Auth::user()->college;
+        $userDepartment = Auth::user()->department;
+
+        $subjects = Subject::where('College', $userCollege)
+            ->where('Department', $userDepartment)
+            ->get();
+
+        return view('department.subjects', compact('subjects'));
+    }
 }

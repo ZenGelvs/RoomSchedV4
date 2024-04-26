@@ -109,7 +109,7 @@
                         <a class="nav-link" href="{{ route('department.faculty') }}">Faculty</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href=" ">Subjects</a>
+                        <a class="nav-link" href="{{ route('department.subjects') }} ">Subjects</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('department.sections') }}">Sections</a>

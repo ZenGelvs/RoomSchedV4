@@ -59,7 +59,8 @@ Route::group(['namespace' => 'Department', 'prefix' => 'department.'], function 
     Route::get('/faculty/{id}/edit', [FacultyController::class, 'edit'])->name('faculty.edit');
     Route::put('/faculty/{id}', [FacultyController::class, 'update'])->name('faculty.update');
 
-    
+    //Subject Routes
+    Route::get('subjects', [SubjectController::class, 'departmentIndex'])->name('department.subjects');
 });
 
 
