@@ -245,7 +245,7 @@ class SubjectController extends Controller
 
         $subjects = Subject::where('College', $userCollege)
             ->where('Department', $userDepartment)
-            ->get();
+            ->paginate(10);
 
         return view('department.subjects', compact('subjects'));
     }

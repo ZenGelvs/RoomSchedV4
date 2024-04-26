@@ -14,7 +14,7 @@
                         <th>Lecture Hours</th>
                         <th>Lab Hours</th>
                         <th>Units</th>
-                        <th>Pre-Requisits</th>
+                        <th>Pre-Requisites</th>
                         <th>Year Level</th>
                         <th>Semester</th>
                         <th>Program</th>
@@ -38,6 +38,11 @@
                     @endforeach
                 </tbody>
             </table>
+        </div>
+        
+        <!-- Pagination Links -->
+        <div class="d-flex justify-content-center">
+            {{ $subjects->links() }}
         </div>
     </div>
 @endsection
