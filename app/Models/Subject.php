@@ -26,4 +26,8 @@ class Subject extends Model
         'Academic_Year'
     ];
 
+    public function faculty()
+    {
+        return $this->belongsToMany(Faculty::class, 'subject_faculty', 'subject_id', 'faculty_id');
+    }
 }

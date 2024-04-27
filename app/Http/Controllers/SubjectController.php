@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Faculty;
 use App\Models\Subject;
 use Illuminate\Http\Request;
 use App\Imports\SubjectsImport;
@@ -247,6 +248,31 @@ class SubjectController extends Controller
             ->where('Department', $userDepartment)
             ->paginate(10);
 
-        return view('department.subjects', compact('subjects'));
+        $faculty = Faculty::where('college', $userCollege)
+            ->where('department', $userDepartment)
+            ->get();
+
+        return view('department.subjects', compact('subjects', 'faculty'));
+    }
+
+    public function assignFaculty($subjectId, Request $request)
+    {
+        $subject = Subject::findOrFail($subjectId);
+        $facultyId = $request->input('faculty_id');
+        
+        if (!$subject->faculty->contains($facultyId)) {
+            $subject->faculty()->attach($facultyId);
+            return redirect()->route('department.subjects')->with('success', 'Faculty assigned to subject successfully.');
+        } else {
+            return redirect()->route('department.subjects')->with('error', 'Faculty is already assigned to this subject.');
+        }
+    }
+
+    public function removeFaculty($subjectId, $facultyId)
+    {
+        $subject = Subject::findOrFail($subjectId);
+        $subject->faculty()->detach($facultyId);
+
+        return redirect()->route('department.subjects')->with('success',  'Faculty removed from subject successfully.');
     }
 }

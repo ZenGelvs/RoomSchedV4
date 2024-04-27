@@ -61,6 +61,9 @@ Route::group(['namespace' => 'Department', 'prefix' => 'department.'], function 
 
     //Subject Routes
     Route::get('subjects', [SubjectController::class, 'departmentIndex'])->name('department.subjects');
+    Route::post('subjects/{subject}/assign-faculty', [SubjectController::class, 'assignFaculty'])->name('department.assignFaculty');
+    Route::delete('subjects/{subject}/remove-faculty/{faculty}', [SubjectController::class, 'removeFaculty'])->name('department.removeFaculty');
+
 });
 
 

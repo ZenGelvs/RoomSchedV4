@@ -5,6 +5,22 @@
 @section('content')
     <div class="container mt-4">
         <h2 class="text-center mb-4">Manage Subjects</h2>
+        @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        @endif
+        @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        @endif
         <div class="table-responsive">
             <table class="table table-striped">
                 <thead>
@@ -19,6 +35,8 @@
                         <th>Semester</th>
                         <th>Program</th>
                         <th>Academic Year</th>
+                        <th>Assigned Faculty</th>
+                        <th>Assign a Faculty</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -34,6 +52,32 @@
                             <td>{{ $subject->Semester }}</td>
                             <td>{{ $subject->Program }}</td>
                             <td>{{ $subject->Academic_Year }}</td>
+                            <td>
+                                @if($subject->faculty->isEmpty())
+                                    None
+                                @else
+                                    @foreach($subject->faculty as $facultyMember)
+                                        {{ $facultyMember->name }}
+                                        <form action="{{ route('department.removeFaculty', ['subject' => $subject->id, 'faculty' => $facultyMember->id]) }}" method="POST">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                                        </form>                                    
+                                    @endforeach
+                                @endif
+                            </td>                            
+                            <td>
+                                <form action="{{ route('department.assignFaculty', $subject->id) }}" method="POST">
+                                    @csrf
+                                    <select name="faculty_id" class="form-control">
+                                        <option value="">Select a Faculty</option>
+                                        @foreach($faculty as $facultyMember)
+                                            <option value="{{ $facultyMember->id }}">{{ $facultyMember->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <button type="submit" class="btn btn-primary">Assign Faculty</button>
+                                </form>
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
