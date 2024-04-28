@@ -5,6 +5,16 @@
 @section('content')
     <div class="container mt-4">
         <h2 class="text-center mb-4">Manage Subjects</h2>
+        <form action="{{ route('department.subjects') }}" method="GET" class="mb-4">
+            <div class="form-row">
+                <div class="col">
+                    <input type="text" name="search" class="form-control" placeholder="Search by Subject Name or Code" value="{{ request('search') }}">
+                </div>
+                <div class="col">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </div>
+        </form>
         @if (session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}

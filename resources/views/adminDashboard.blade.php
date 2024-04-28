@@ -11,7 +11,7 @@
         <div class="row mb-4">
             <div class="col-md-8">
                 <form action="{{ route('dashboard.adminIndex') }}" method="GET" class="form-inline">
-                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search by Subject Name or Code" aria-label="Search" name="search">
                     <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
                 </form>
             </div>

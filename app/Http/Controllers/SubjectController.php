@@ -239,21 +239,32 @@ class SubjectController extends Controller
         return redirect()->route('dashboard.adminIndex')->with('success', 'Subject updated successfully!');
     }
     
-    public function departmentIndex()
+    public function departmentIndex(Request $request)
     {
         $userCollege = Auth::user()->college;
         $userDepartment = Auth::user()->department;
 
-        $subjects = Subject::where('College', $userCollege)
-            ->where('Department', $userDepartment)
-            ->paginate(10);
+        $search = $request->input('search');
+
+        $query = Subject::where('College', $userCollege)
+                        ->where('Department', $userDepartment);
+                        
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('Subject_Code', 'like', '%'.$search.'%')
+                ->orWhere('Description', 'like', '%'.$search.'%');
+            });
+        }
+
+        $subjects = $query->paginate(10);
 
         $faculty = Faculty::where('college', $userCollege)
-            ->where('department', $userDepartment)
-            ->get();
+                        ->where('department', $userDepartment)
+                        ->get();
 
         return view('department.subjects', compact('subjects', 'faculty'));
     }
+
 
     public function assignFaculty($subjectId, Request $request)
     {
