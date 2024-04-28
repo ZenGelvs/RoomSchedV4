@@ -16,4 +16,9 @@ class Sections extends Model
         'college',
         'department',
     ];
+
+    public function subjects()
+    {
+        return $this->belongsToMany(Subject::class, 'section_subject', 'section_id', 'subject_id');
+    }
 }

@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Faculty;
 use App\Models\Subject;
+use App\Models\Sections;
 use Illuminate\Http\Request;
 use App\Imports\SubjectsImport;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
@@ -262,7 +264,11 @@ class SubjectController extends Controller
                         ->where('department', $userDepartment)
                         ->get();
 
-        return view('department.subjects', compact('subjects', 'faculty'));
+        $sections = Sections::where('college', $userCollege)
+                        ->where('department', $userDepartment)
+                        ->paginate(5);
+        
+        return view('department.subjects', compact('subjects', 'faculty', 'sections'));
     }
 
 
@@ -286,4 +292,42 @@ class SubjectController extends Controller
 
         return redirect()->route('department.subjects')->with('success',  'Faculty removed from subject successfully.');
     }
+
+    public function assignSubjects(Request $request)
+    {
+        $sectionId = $request->input('section_id');
+        $programName = $request->input('program_name');
+        $yearLevel = $request->input('year_level');
+
+        $subjectsForSection = Subject::where('Program', $programName)
+            ->where('Year_Level', $yearLevel)
+            ->get();
+
+        return view('department.assign_subjects', compact('subjectsForSection', 'programName', 'yearLevel', 'sectionId'));
+    }
+
+    public function assignSectionToSubject(Request $request)
+    {
+        $sectionId = $request->input('section_id');
+        $subjectIds = $request->input('subject');
+    
+        if ($subjectIds === null) {
+            Log::info('No subject IDs provided.');
+            return redirect()->back()->with('error', 'No subject IDs provided.');
+        }
+        $section = Sections::find($sectionId);
+        if (!$section) {
+            return redirect()->back()->with('error', 'Section not found.');
+        }
+    
+        try {
+            $section->subjects()->attach($subjectIds);
+            $attachedSubjects = $section->subjects()->pluck('subject_id')->toArray();
+            return redirect()->back()->with('success', 'Subjects assigned to section successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error attaching subjects to section: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to assign subjects to section.');
+        }
+    }
+
 }

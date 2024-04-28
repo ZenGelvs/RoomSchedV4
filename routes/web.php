@@ -42,7 +42,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
 });
 
 //Department Headn Route 
-Route::group(['namespace' => 'Department', 'prefix' => 'department.'], function () {
+Route::group(['namespace' => 'Department', 'prefix' => 'department'], function () {
 
     //Section Routes
     Route::get('sections', [SectionsController::class, 'index'])->name('department.sections');
@@ -63,6 +63,8 @@ Route::group(['namespace' => 'Department', 'prefix' => 'department.'], function 
     Route::get('subjects', [SubjectController::class, 'departmentIndex'])->name('department.subjects');
     Route::post('subjects/{subject}/assign-faculty', [SubjectController::class, 'assignFaculty'])->name('department.assignFaculty');
     Route::delete('subjects/{subject}/remove-faculty/{faculty}', [SubjectController::class, 'removeFaculty'])->name('department.removeFaculty');
+    Route::get('/assign-subjects', [SubjectController::class, 'assignSubjects'])->name('department.assignSubjects');
+    Route::post('/assign-subjects', [SubjectController::class, 'assignSectionToSubject'])->name('department.assign.subjects');
 
 });
 
