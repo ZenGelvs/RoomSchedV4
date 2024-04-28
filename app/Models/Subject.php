@@ -33,6 +33,6 @@ class Subject extends Model
 
     public function sections()
     {
-        return $this->belongsToMany(Section::class, 'section_subject', 'subject_id', 'section_id');
+        return $this->belongsToMany(Sections::class, 'section_subject', 'subject_id', 'section_id');
     }
 }

@@ -298,13 +298,24 @@ class SubjectController extends Controller
         $sectionId = $request->input('section_id');
         $programName = $request->input('program_name');
         $yearLevel = $request->input('year_level');
-
+    
         $subjectsForSection = Subject::where('Program', $programName)
             ->where('Year_Level', $yearLevel)
             ->get();
-
-        return view('department.assign_subjects', compact('subjectsForSection', 'programName', 'yearLevel', 'sectionId'));
+    
+        $section = Sections::find($sectionId);
+        $assignedSubjectIds = $section->subjects()->pluck('subjects.id')->toArray(); // Specify the table alias for the id column
+    
+        $availableSubjects = $subjectsForSection->reject(function ($subject) use ($assignedSubjectIds) {
+            return in_array($subject->id, $assignedSubjectIds);
+        });
+    
+        // Fetch the assigned subjects for the section
+        $assignedSubjects = $section->subjects;
+    
+        return view('department.assign_subjects', compact('availableSubjects', 'assignedSubjects', 'programName', 'yearLevel', 'sectionId'));
     }
+    
 
     public function assignSectionToSubject(Request $request)
     {
@@ -328,6 +339,14 @@ class SubjectController extends Controller
             Log::error('Error attaching subjects to section: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Failed to assign subjects to section.');
         }
+    }
+
+    public function unassignSubject(Subject $subject)
+    {
+        $section = $subject->sections()->first(); 
+        $section->subjects()->detach($subject->id);
+
+        return redirect()->back()->with('success', 'Subject unassigned successfully.');
     }
 
 }
