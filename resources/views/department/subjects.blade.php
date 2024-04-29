@@ -7,6 +7,22 @@
 <div class="container mt-4">
     <h2 class="text-center mb-4">Manage Subjects</h2>
     <div class="card mb-4">
+        @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        @endif
+        @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        @endif
         <div class="card-header" id="subjectManagementHeading">
             <h5 class="mb-0">
                 <button class="btn btn-danger" data-toggle="collapse" data-target="#subjectManagementCollapse" aria-expanded="true" aria-controls="subjectManagementCollapse">
@@ -26,22 +42,6 @@
                         </div>
                     </div>
                 </form>
-                @if (session('success'))
-                    <div class="alert alert-success">
-                        {{ session('success') }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                @endif
-                @if (session('error'))
-                    <div class="alert alert-danger">
-                        {{ session('error') }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                @endif
                 <div class="table-responsive">
                     <table class="table table-striped">
                         <thead>
