@@ -36,7 +36,6 @@
                 <div class="table-responsive">
                     <form action="{{ route('department.assign.subjects') }}" method="POST">
                         @csrf
-                        <!-- Ensure sectionId is available -->
                         <input type="hidden" name="section_id" value="{{ $sectionId ?? '' }}">
                         <table class="table table-striped">
                             <thead>

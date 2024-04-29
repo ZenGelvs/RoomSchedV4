@@ -8,10 +8,12 @@ use App\Models\Sections;
 use Illuminate\Http\Request;
 use App\Imports\SubjectsImport;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 
 
@@ -178,7 +180,13 @@ class SubjectController extends Controller
     
     public function deleteAll()
     {
+        Schema::disableForeignKeyConstraints();
+
+        \DB::table('subject_faculty')->truncate();
+        \DB::table('section_subject')->truncate();
         Subject::truncate();
+
+        Schema::enableForeignKeyConstraints();
 
         return redirect()->back()->with('success', 'All subjects have been deleted successfully.');
     }
@@ -304,13 +312,12 @@ class SubjectController extends Controller
             ->get();
     
         $section = Sections::find($sectionId);
-        $assignedSubjectIds = $section->subjects()->pluck('subjects.id')->toArray(); // Specify the table alias for the id column
+        $assignedSubjectIds = $section->subjects()->pluck('subjects.id')->toArray(); 
     
         $availableSubjects = $subjectsForSection->reject(function ($subject) use ($assignedSubjectIds) {
             return in_array($subject->id, $assignedSubjectIds);
         });
     
-        // Fetch the assigned subjects for the section
         $assignedSubjects = $section->subjects;
     
         return view('department.assign_subjects', compact('availableSubjects', 'assignedSubjects', 'programName', 'yearLevel', 'sectionId'));
