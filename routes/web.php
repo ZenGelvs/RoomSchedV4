@@ -70,6 +70,7 @@ Route::group(['namespace' => 'Department', 'prefix' => 'department'], function (
 
     //Schedule Routes
     Route::get('schedule', [ScheduleController::class, 'index'])->name('department.schedule');
+    Route::post('schedule', [ScheduleController::class, 'store'])->name('department.schedule.store');
 });
 
 

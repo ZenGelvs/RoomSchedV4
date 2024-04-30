@@ -16,13 +16,17 @@ return new class extends Migration
             $table->string('day');
             $table->string('start_time');
             $table->string('end_time');
-            $table->string('room_id');
             $table->unsignedBigInteger('section_id');
+            $table->unsignedBigInteger('subject_id');
+            $table->string('type');
+            $table->string('room_id');
             $table->string('department');
             $table->string('college');
-    
-           
+            $table->timestamps();
+            
+            
         });
+
     }
 
     /**

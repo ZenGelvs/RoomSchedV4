@@ -15,6 +15,8 @@ class Schedules extends Model
         'end_time', 
         'room_id',
         'section_id',
+        'subject_id', 
+        'type', 
         'college',
         'department',
     ];
