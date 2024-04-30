@@ -7,6 +7,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\FacultyController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\SectionsController;
 use App\Http\Controllers\DashboardController;
 
@@ -67,6 +68,8 @@ Route::group(['namespace' => 'Department', 'prefix' => 'department'], function (
     Route::post('/assign-subjects', [SubjectController::class, 'assignSectionToSubject'])->name('department.assign.subjects');
     Route::delete('/unassign-subject/{subject}', [SubjectController::class, 'unassignSubject'])->name('department.unassign.subject');
 
+    //Schedule Routes
+    Route::get('schedule', [ScheduleController::class, 'index'])->name('department.schedule');
 });
 
 

@@ -103,7 +103,7 @@
                         <a class="nav-link" href="{{ route('dashboard.index') }}">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href=" ">Schedules</a>
+                        <a class="nav-link" href="{{ route('department.schedule') }}">Schedules</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('department.faculty') }}">Faculty</a>
