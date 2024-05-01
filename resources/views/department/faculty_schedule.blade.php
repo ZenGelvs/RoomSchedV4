@@ -28,22 +28,28 @@
                                     <tbody>
                                         @php
                                             $startTime = "07:00";
+                                            $colorMap = [];
                                         @endphp
                                         @foreach ($faculty->subjects as $subject)
                                             @php
                                                 $subjectSchedules = $subject->schedules ?? collect();
                                             @endphp
                                             @foreach ($subjectSchedules->where('day', $day)->sortBy('start_time') as $schedule)
+                                                @php
+                                                    $subjectKey = $subject->Description . $subject->Subject_Code;
+                                                    $color = isset($colorMap[$subjectKey]) ? $colorMap[$subjectKey] : '#' . substr(md5($subjectKey), 0, 6);
+                                                    $colorMap[$subjectKey] = $color;
+                                                @endphp
                                                 @if ($schedule->start_time > $startTime)
                                                     <tr>
-                                                        <td>
+                                                        <td style="background-color: #f2f2f2;">
                                                             <p><strong>Time:</strong> {{ $startTime }} - {{ $schedule->start_time }}</p>
                                                             <p><em>No schedule</em></p>
                                                         </td>
                                                     </tr>
                                                 @endif
                                                 <tr>
-                                                    <td>
+                                                    <td style="background-color: {{ $color }};">
                                                         <p><strong>Time:</strong> {{ $schedule->start_time }} - {{ $schedule->end_time }}</p>
                                                         <p><strong>Subject Code:</strong> {{ $subject->Subject_Code }}</p>
                                                         <p><strong>Subject:</strong> {{ $subject->Description }}</p>
@@ -59,7 +65,7 @@
                                         @endforeach
                                         @if ($startTime < "19:00")
                                             <tr>
-                                                <td>
+                                                <td style="background-color: #f2f2f2;">
                                                     <p><strong>Time:</strong> {{ $startTime }} - 19:00</p>
                                                     <p><em>No schedule</em></p>
                                                 </td>

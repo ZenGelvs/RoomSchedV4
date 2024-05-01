@@ -74,6 +74,9 @@ Route::group(['namespace' => 'Department', 'prefix' => 'department'], function (
     Route::get('section_schedule', [ScheduleController::class, 'ScheduleIndex'])->name('department.section_schedule');
     Route::delete('schedule/{schedule}', [ScheduleController::class, 'destroy'])->name('department.schedule.destroy');
     Route::get('faculty_schedule', [ScheduleController::class, 'FacultySchedule'])->name('department.faculty_schedule');
+    Route::get('schedule/{schedule}/edit', [ScheduleController::class, 'EditSchedule'])->name('department.schedule.edit');
+    Route::put('schedule/{schedule}', [ScheduleController::class, 'UpdateSchedule'])->name('department.schedule.update');
+
 });
 
 

@@ -30,4 +30,8 @@ class Schedules extends Model
     {
         return $this->belongsTo(Room::class, 'room_id');
     }
+    public function section()
+    {
+        return $this->belongsTo(Sections::class, 'section_id');
+    }
 }

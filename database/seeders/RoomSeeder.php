@@ -283,14 +283,14 @@ class roomSeeder extends Seeder
             [
                 'room_name' => 'Drafting Room/Lab',
                 'room_id' => 'L303',
-                'room_type' => 'Lecture',
+                'room_type' => 'Laboratory',
                 'building' => 'COECSA',
                 'pref_class' => 'None',
             ],
             [
                 'room_name' => 'Drafting Room/Lab',
                 'room_id' => 'L304',
-                'room_type' => 'Lecture',
+                'room_type' => 'Laboratory',
                 'building' => 'COECSA',
                 'pref_class' => 'None',
             ],

@@ -103,25 +103,94 @@ class ScheduleController extends Controller
     }
 
     public function FacultySchedule(Request $request)
-{
-    $facultyId = $request->input('faculty');
-    $faculty = Faculty::findOrFail($facultyId); 
+    {
+        $facultyId = $request->input('faculty');
+        $faculty = Faculty::findOrFail($facultyId); 
 
-    $schedules = collect();
-    foreach ($faculty->subjects as $subject) {
-        // Loop through the schedules of each subject
-        foreach ($subject->schedules as $schedule) {
-            // Load the section related to the subject
-            $section = $subject->sections()->first();
-            // Attach the section to the schedule
-            $schedule->section = $section;
-            // Add the schedule to the collection
-            $schedules->push($schedule);
+        $schedules = collect();
+        foreach ($faculty->subjects as $subject) {
+            foreach ($subject->schedules as $schedule) {
+                $section = $subject->sections()->first();
+                $schedule->section = $section;
+                $schedules->push($schedule);
+            }
         }
-    }
-   
-    return view('department.faculty_schedule', compact('faculty', 'schedules'));
-}
     
+        return view('department.faculty_schedule', compact('faculty', 'schedules'));
+    }
+    
+    public function EditSchedule(Schedules $schedule)
+    {
+        $schedule->load('section');
 
+        $sections = Sections::with('subjects')->get();
+        $rooms = Room::all(); 
+
+        return view('department.edit_schedule', compact('schedule', 'rooms', 'sections'));
+    }
+
+    public function UpdateSchedule(Request $request, Schedules $schedule)
+    {
+        $request->validate([
+            'day' => 'required|string',
+            'startTime' => 'required',
+            'endTime' => 'required',
+            'subjectId' => 'required', 
+            'type' => 'required',
+            'roomId' => 'required',
+        ]);
+
+        if ($schedule->day == $request->day &&
+            $schedule->start_time == $request->startTime &&
+            $schedule->end_time == $request->endTime &&
+            $schedule->subject_id == $request->subjectId &&
+            $schedule->type == $request->type &&
+            $schedule->room_id == $request->roomId) {
+            return redirect()->back()->with('success', 'Schedule updated successfully.');
+        }
+
+        $existingSchedule = Schedules::where('day', $request->day)
+            ->where('start_time', $request->startTime)
+            ->where('end_time', $request->endTime)
+            ->where('section_id', $request->sectionId)
+            ->where('subject_id', $request->subjectId)
+            ->where('type', $request->type)
+            ->where('room_id', $request->roomId)
+            ->exists();
+
+        if ($existingSchedule) {
+            return redirect()->back()->with('error', 'A schedule with the same details already exists.');
+        }
+
+            $overlappingSchedule = Schedules::where('day', $request->day)
+            ->where(function ($query) use ($request) {
+                $query->where('room_id', '!=', $request->roomId) 
+                    ->where(function ($query) use ($request) {
+                        $query->where(function ($query) use ($request) {
+                            $query->where('start_time', '>=', $request->startTime)
+                                ->where('start_time', '<', $request->endTime);
+                        })->orWhere(function ($query) use ($request) {
+                            $query->where('end_time', '>', $request->startTime)
+                                ->where('end_time', '<=', $request->endTime);
+                        });
+                    });
+            })
+            ->exists();
+    
+        if ($overlappingSchedule) {
+            return redirect()->back()->with('error', 'There is an overlapping schedule for the selected room and time slot.');
+        }
+        $schedule->update([
+            'day' => $request->day,
+            'start_time' => $request->startTime,
+            'end_time' => $request->endTime,
+            'subject_id' => $request->subjectId, 
+            'type' => $request->type, 
+            'room_id' => $request->roomId,
+            'college' => Auth::user()->college,
+            'department' => Auth::user()->department,
+        ]);
+
+        return redirect()->back()->with('success', 'Schedule updated successfully.');
+    }
 }

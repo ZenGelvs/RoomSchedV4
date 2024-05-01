@@ -53,7 +53,8 @@
                                     N/A
                                 @endif
                             </td>
-                            <td>
+                            <td> 
+                                <a href="{{ route('department.schedule.edit', $schedule->id) }}" class="btn btn-warning btn-sm">Edit</a>
                                 <form action="{{ route('department.schedule.destroy', $schedule->id) }}" method="POST" class="delete-form">
                                     @csrf
                                     @method('DELETE')
@@ -86,8 +87,14 @@
                         <tbody>
                             @php
                                 $startTime = "07:00";
+                                $colorMap = [];
                             @endphp
                             @foreach ($schedules->where('day', $day)->sortBy('start_time') as $schedule)
+                                @php
+                                    $subjectKey = $schedule->subject->Description . $schedule->subject->Subject_Code;
+                                    $color = isset($colorMap[$subjectKey]) ? $colorMap[$subjectKey] : '#' . substr(md5($subjectKey), 0, 6);
+                                    $colorMap[$subjectKey] = $color; 
+                                @endphp
                                 @if ($schedule->start_time > $startTime)
                                     <tr>
                                         <td>
@@ -97,7 +104,7 @@
                                     </tr>
                                 @endif
                                 <tr>
-                                    <td>
+                                    <td style="background-color: {{ $color }};">
                                         <p><strong>Time:</strong> {{ $schedule->start_time }} - {{ $schedule->end_time }}</p>
                                         <p><strong>Subject Code:</strong> {{ $schedule->subject->Subject_Code }}</p>
                                         <p><strong>Subject:</strong> {{ $schedule->subject->Description }}</p>
