@@ -21,4 +21,9 @@ class Sections extends Model
     {
         return $this->belongsToMany(Subject::class, 'section_subject', 'section_id', 'subject_id');
     }
+
+    public function schedules()
+    {
+        return $this->hasMany(Schedules::class, 'section_id');
+    }
 }

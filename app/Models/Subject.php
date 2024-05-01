@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Schedules;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -34,5 +35,9 @@ class Subject extends Model
     public function sections()
     {
         return $this->belongsToMany(Sections::class, 'section_subject', 'subject_id', 'section_id');
+    }
+    public function schedules()
+    {
+        return $this->hasMany(Schedules::class, 'subject_id');
     }
 }

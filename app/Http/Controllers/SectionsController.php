@@ -70,7 +70,7 @@ class SectionsController extends Controller
     {
         $section = Sections::findOrFail($id);
         $section->delete();
-
+        
         return redirect()->back()->with('success', 'Section deleted successfully!');
     }
 

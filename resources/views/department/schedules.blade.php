@@ -23,6 +23,7 @@
     @endif
     <div class="card mb-4">
         <div class="card-header" id="createScheduleHeading">
+            <h4 class="text-center mb-4">Manual Method to create a Schedule</h2>
             <h2 class="mb-0">
                 <button class="btn btn-danger" data-toggle="collapse" data-target="#createScheduleCollapse" aria-expanded="true" aria-controls="createScheduleCollapse">
                     Create Schedule
@@ -87,8 +88,10 @@
                         <label for="subjectId">Subject:</label>
                         <select class="form-control" id="subjectId" name="subjectId" required>
                             <option value="">Select Subject...</option>
-                            @foreach($subjects as $subject)
-                                <option value="{{ $subject->id }}">{{ $subject->Subject_Code }} - {{ $subject->Description }}</option>
+                            @foreach($sections as $section)
+                                @foreach($section->subjects as $subject)
+                                    <option class="section-{{ $section->id }}-subject" value="{{ $subject->id }}" style="display: none;">{{ $subject->Description }}</option>
+                                @endforeach
                             @endforeach
                         </select>
                     </div>
@@ -115,26 +118,56 @@
     <div class="row">
         <div class="col-md-6">
             <h2 class="mb-4">View Schedule</h2>
-            <!-- Dropdown to select schedule -->
-            <div class="form-group">
-                <label for="scheduleSelect">Select Schedule:</label>
-                <select class="form-control" id="scheduleSelect">
-                    <option>Select Schedule...</option>
-                    <!-- Populate dropdown with schedules -->
-                </select>
-            </div>
-            <!-- Display selected schedule here -->
-            <div id="scheduleDetails">
-                <!-- Schedule details will be displayed here using JavaScript -->
-            </div>
+            <form action="{{ route('department.section_schedule') }}" method="GET">
+                @csrf
+                <div class="form-group">
+                    <label for="sectionSelect">Select Section:</label>
+                    <select class="form-control" id="sectionSelect" name="section" required>
+                        <option value="">Select Section...</option>
+                        @foreach ($sections as $section)
+                            <option value="{{ $section->id }}">{{ $section->program_name }} - {{ $section->section }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">View Section Schedule</button>
+            </form>
+            <form action="{{ route('department.faculty_schedule') }}" method="GET">
+                @csrf
+                <div class="form-group">
+                    <label for="facultySelect">Select Faculty:</label>
+                    <select class="form-control" id="facultySelect" name="faculty" required>
+                        <option value="">Select Faculty...</option>
+                        @foreach($faculties as $facultyOption)
+                            <option value="{{ $facultyOption->id }}">{{ $facultyOption->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">View Faculty Schedule</button>
+            </form>            
         </div>
     </div>
+    
 </div>
 
 @endsection
 
 @section('scripts')
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
 <script>
+     $(document).ready(function() {
+        $('#sectionId').change(function() {
+            var sectionId = $(this).val();
+            if (sectionId) {
+                $('#subjectId option').hide();
+                $('.section-' + sectionId + '-subject').show();
+            } else {
+                $('#subjectId option').hide();
+                $('#subjectId').find('option:first').show();
+            }
+        });
+    });
+    
     document.getElementById('type').addEventListener('change', function() {
         var type = this.value; 
 
@@ -151,5 +184,18 @@
             }
         });
     });
+
+    document.getElementById('startTime').addEventListener('change', validateTime);
+    document.getElementById('endTime').addEventListener('change', validateTime);
+
+    function validateTime() {
+        var startTime = document.getElementById('startTime').value;
+        var endTime = document.getElementById('endTime').value;
+
+        if (startTime >= endTime) {
+            alert('Start time must be before end time.');
+            this.value = '';
+        }
+    }
 </script>
 @endsection
