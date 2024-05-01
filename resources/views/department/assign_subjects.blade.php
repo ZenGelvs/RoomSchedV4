@@ -5,7 +5,7 @@
 @section('content')
 
 <div class="container mt-4">
-    <h2 class="text-center mb-4">Assign Subjects for {{ $programName }}, {{ $yearLevel }} Year and {{$sectionId}}ID</h2>
+    <h2 class="text-center mb-4">Assign Subjects for {{ $programName }}, {{ $yearLevel }} Year</h2>
     @if (session('success'))
     <div class="alert alert-success">
         {{ session('success') }}
@@ -83,7 +83,7 @@
                                 @endforeach
                             </tbody>
                         </table>
-                        <button type="submit" class="btn btn-primary">Assign Selected Subjects</button>
+                        <button type="submit" class="btn btn-success">Assign Selected Subjects</button>
                     </form>
                 </div>        
             </div>

@@ -76,7 +76,7 @@ Route::group(['namespace' => 'Department', 'prefix' => 'department'], function (
     Route::get('faculty_schedule', [ScheduleController::class, 'FacultySchedule'])->name('department.faculty_schedule');
     Route::get('schedule/{schedule}/edit', [ScheduleController::class, 'EditSchedule'])->name('department.schedule.edit');
     Route::put('schedule/{schedule}', [ScheduleController::class, 'UpdateSchedule'])->name('department.schedule.update');
-
+    Route::post('automatic_schedule', [ScheduleController::class, 'automaticSchedule'])->name('department.automatic_schedule');
 });
 
 

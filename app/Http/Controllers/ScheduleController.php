@@ -193,4 +193,88 @@ class ScheduleController extends Controller
 
         return redirect()->back()->with('success', 'Schedule updated successfully.');
     }
+
+    public function automaticSchedule(Request $request)
+    {
+        $request->validate([
+            'section_id' => 'required|exists:sections,id',
+        ]);
+    
+        $daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    
+        // Retrieve the section and its subjects
+        $section = Sections::findOrFail($request->section_id);
+        $subjects = $section->subjects;
+    
+        $rooms = Room::all();
+    
+        // Define the start time and end time for scheduling (1 hour 30 minutes)
+        $startTime = '07:00';
+        $endTime = '08:30';
+    
+        $schedulingSuccess = false;
+    
+        // Iterate through subjects
+        foreach ($subjects as $subject) {
+            // Check if the subject has been scheduled for any day of the week
+            $existingSchedules = Schedules::where('section_id', $request->section_id)
+                ->where('subject_id', $subject->id)
+                ->exists();
+    
+            if (!$existingSchedules) {
+                // Iterate through the days of the week
+                foreach ($daysOfWeek as $day) {
+                    // Find an available room for the subject
+                    $availableRoom = $this->findAvailableRoom($rooms, $day, $startTime, $endTime);
+    
+                    if ($availableRoom) {
+                        // Create a new schedule for the subject
+                        Schedules::create([
+                            'day' => $day,
+                            'start_time' => $startTime,
+                            'end_time' => $endTime,
+                            'section_id' => $request->section_id,
+                            'subject_id' => $subject->id,
+                            'type' => 'Lecture',
+                            'room_id' => $availableRoom->id,
+                            'college' => Auth::user()->college,
+                            'department' => Auth::user()->department,
+                        ]);
+                        $schedulingSuccess = true;
+                        break; // Break the loop once scheduled for one day
+                    } else {
+                        $schedulingSuccess = false;
+                    }
+                }
+            }
+        }
+    
+        if ($schedulingSuccess) {
+            return redirect()->back()->with('success', 'Automatic scheduling completed successfully.');
+        } else {
+            return redirect()->back()->with('error', 'Automatic scheduling failed. No available rooms found.');
+        }
+    }
+    
+
+    private function findAvailableRoom($rooms, $day, $startTime, $endTime)
+    {
+        // Iterate through rooms and find the first available room with room_type "Lecture"
+        foreach ($rooms as $room) {
+            if ($room->room_type === 'Lecture') {
+                $existingSchedule = Schedules::where('day', $day)
+                    ->where('start_time', '<=', $startTime)
+                    ->where('end_time', '>=', $endTime)
+                    ->where('room_id', $room->id)
+                    ->exists();
+
+                if (!$existingSchedule) {
+                    return $room; // Return the available room
+                }
+            }
+        }
+
+        return null; // Return null if no available room with room_type "Lecture" is found
+    }
+    
 }

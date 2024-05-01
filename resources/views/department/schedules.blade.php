@@ -23,7 +23,7 @@
     @endif
     <div class="card mb-4">
         <div class="card-header" id="createScheduleHeading">
-            <h4 class="text-center mb-4">Manual Method to create a Schedule</h2>
+            <h4 class="text-center mb-4">Create Schedule Manually</h2>
             <h2 class="mb-0">
                 <button class="btn btn-danger" data-toggle="collapse" data-target="#createScheduleCollapse" aria-expanded="true" aria-controls="createScheduleCollapse">
                     Create Schedule
@@ -109,7 +109,35 @@
                             <option value="">Select Room...</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary">Create Schedule</button>
+                    <button type="submit" class="btn btn-success">Create Schedule</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Automatic Scheduling using Greeedy Lagorithm-->
+    <div class="card mb-4">
+        <div class="card-header" id="autoScheduleHeading">
+            <h4 class="text-center mb-4">Automatic Scheduling</h4>
+            <h2 class="mb-0">
+                <button class="btn btn-danger" data-toggle="collapse" data-target="#autoScheduleCollapse" aria-expanded="false" aria-controls="autoScheduleCollapse">
+                    Automatic Scheduling
+                </button>
+            </h2>
+        </div>
+        <div id="autoScheduleCollapse" class="collapse" aria-labelledby="autoScheduleHeading" data-parent="#accordion">
+            <div class="card-body">
+                <form action="{{ route('department.automatic_schedule') }}" method="POST">
+                    @csrf
+                    <div class="form-group">
+                        <label for="sectionSelect">Select Section to automatically schedule subjects for (Lecture Only)</label>
+                        <select class="form-control" id="sectionSelect" name="section_id" required>
+                            <option value="">Select Section...</option>
+                            @foreach ($sections as $section)
+                                <option value="{{ $section->id }}">{{ $section->program_name }} - {{ $section->section }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Automate Scheduling</button>
                 </form>
             </div>
         </div>
@@ -129,7 +157,7 @@
                         @endforeach
                     </select>
                 </div>
-                <button type="submit" class="btn btn-primary">View Section Schedule</button>
+                <button type="submit" class="btn btn-secondary">View Section Schedule</button>
             </form>
             <form action="{{ route('department.faculty_schedule') }}" method="GET">
                 @csrf
@@ -142,11 +170,10 @@
                         @endforeach
                     </select>
                 </div>
-                <button type="submit" class="btn btn-primary">View Faculty Schedule</button>
+                <button type="submit" class="btn btn-secondary">View Faculty Schedule</button>
             </form>            
         </div>
     </div>
-    
 </div>
 
 @endsection
