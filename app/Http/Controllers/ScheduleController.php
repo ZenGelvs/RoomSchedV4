@@ -199,34 +199,41 @@ class ScheduleController extends Controller
         $request->validate([
             'section_id' => 'required|exists:sections,id',
         ]);
-    
+
         $daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    
+
         // Retrieve the section and its subjects
         $section = Sections::findOrFail($request->section_id);
         $subjects = $section->subjects;
-    
+
         $rooms = Room::all();
-    
-        // Define the start time and end time for scheduling (1 hour 30 minutes)
-        $startTime = '07:00';
-        $endTime = '08:30';
-    
+
+        // Retrieve preferred day and time from the request
+        $preferredDay = $request->input('preferred_day');
+        $preferredStartTime = $request->input('preferred_start_time');
+        $preferredEndTime = $request->input('preferred_end_time');
+
         $schedulingSuccess = false;
-    
+
         // Iterate through subjects
         foreach ($subjects as $subject) {
             // Check if the subject has been scheduled for any day of the week
             $existingSchedules = Schedules::where('section_id', $request->section_id)
                 ->where('subject_id', $subject->id)
                 ->exists();
-    
+
             if (!$existingSchedules) {
-                // Iterate through the days of the week
-                foreach ($daysOfWeek as $day) {
+                // Determine the days of the week to iterate through
+                $daysToCheck = ($preferredDay) ? [$preferredDay] : $daysOfWeek;
+
+                foreach ($daysToCheck as $day) {
+                    // Check if the preferred time is available or use default time
+                    $startTime = ($preferredStartTime) ? $preferredStartTime : '07:00';
+                    $endTime = ($preferredEndTime) ? $preferredEndTime : '08:30';
+                    
                     // Find an available room for the subject
                     $availableRoom = $this->findAvailableRoom($rooms, $day, $startTime, $endTime);
-    
+
                     if ($availableRoom) {
                         // Create a new schedule for the subject
                         Schedules::create([
@@ -248,13 +255,14 @@ class ScheduleController extends Controller
                 }
             }
         }
-    
+
         if ($schedulingSuccess) {
             return redirect()->back()->with('success', 'Automatic scheduling completed successfully.');
         } else {
             return redirect()->back()->with('error', 'Automatic scheduling failed. No available rooms found.');
         }
     }
+
     
 
     private function findAvailableRoom($rooms, $day, $startTime, $endTime)

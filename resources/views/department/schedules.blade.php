@@ -137,6 +137,46 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="preferredDay">Preferred Day</label>
+                        <select class="form-control" id="preferredDay" name="preferred_day">
+                            <option value="">Any</option>
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="preferredStartTime">Preferred Start Time:</label>
+                        <select class="form-control" id="preferredStartTime" name="preferred_start_time" required>
+                            <option value="">Select a preferred Start Time</option>
+                            @for ($hour = 7; $hour <= 20; $hour++)
+                                @for ($minute = 0; $minute < 60; $minute += 30)
+                                    @php
+                                        $time = sprintf('%02d:%02d', $hour, $minute);
+                                    @endphp
+                                    <option value="{{ $time }}">{{ $time }}</option>
+                                @endfor
+                            @endfor
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="preferredEndTime">End Time:</label>
+                        <select class="form-control" id="preferredEndTime" name="preferredEndTime" required>
+                            <option value="">Select a preferred End Time</option>
+                            @for ($hour = 7; $hour <= 20; $hour++)
+                                @for ($minute = 0; $minute < 60; $minute += 30)
+                                    @php
+                                        $time = sprintf('%02d:%02d', $hour, $minute);
+                                    @endphp
+                                    <option value="{{ $time }}">{{ $time }}</option>
+                                @endfor
+                            @endfor
+                        </select>
+                    </div>
                     <button type="submit" class="btn btn-primary">Automate Scheduling</button>
                 </form>
             </div>
