@@ -2,15 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Room;
+use App\Models\Faculty;
 use App\Models\Subject;
+use App\Models\Sections;
+use App\Models\Schedules;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        return view('dashboard');
+        $faculties = Faculty::with('subjects')->where('college', Auth::user()->college)
+        ->where('department', Auth::user()->department)
+        ->get(); 
+        $sectionsWithoutSchedules = Sections::has('schedules', '=', 0)->where('college', Auth::user()->college)
+        ->where('department', Auth::user()->department)
+        ->get(); 
+
+        return view('dashboard', compact('faculties', 'sectionsWithoutSchedules'));
     }
+
 
     public function adminIndex(Request $request)
     {
