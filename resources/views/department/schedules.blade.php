@@ -126,7 +126,7 @@
         </div>
         <div id="autoScheduleCollapse" class="collapse" aria-labelledby="autoScheduleHeading" data-parent="#accordion">
             <div class="card-body">
-                <form action="{{ route('department.automatic_schedule') }}" method="POST">
+                <form id="autoScheduleForm" action="{{ route('department.automatic_schedule') }}" method="POST">
                     @csrf
                     <div class="form-group">
                         <label for="sectionSelect">Select Section to automatically schedule subjects for (Lecture Only)</label>
@@ -140,7 +140,7 @@
                     <div class="form-group">
                         <label for="preferredDay">Preferred Day</label>
                         <select class="form-control" id="preferredDay" name="preferred_day">
-                            <option value="">Any</option>
+                            <option value="Any">Any</option>
                             <option value="Monday">Monday</option>
                             <option value="Tuesday">Tuesday</option>
                             <option value="Wednesday">Wednesday</option>
@@ -152,7 +152,7 @@
                     <div class="form-group">
                         <label for="preferredStartTime">Preferred Start Time:</label>
                         <select class="form-control" id="preferredStartTime" name="preferred_start_time" required>
-                            <option value="">Select a preferred Start Time</option>
+                            <option value="">Select a Start time</option>
                             @for ($hour = 7; $hour <= 20; $hour++)
                                 @for ($minute = 0; $minute < 60; $minute += 30)
                                     @php
@@ -166,7 +166,7 @@
                     <div class="form-group">
                         <label for="preferredEndTime">End Time:</label>
                         <select class="form-control" id="preferredEndTime" name="preferredEndTime" required>
-                            <option value="">Select a preferred End Time</option>
+                            <option value="">Select an End time</option>
                             @for ($hour = 7; $hour <= 20; $hour++)
                                 @for ($minute = 0; $minute < 60; $minute += 30)
                                     @php
@@ -177,6 +177,15 @@
                             @endfor
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="preferredRoom">Select Room:</label>
+                        <select class="form-control" id="preferredRoom" name="preferredRoom" required>
+                            <option value="Any">Any</option>
+                            @foreach ($rooms as $room)
+                                <option value="{{ $room->id }}">{{ $room->room_id }} {{ $room->room_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>                    
                     <button type="submit" class="btn btn-primary">Automate Scheduling</button>
                 </form>
             </div>
@@ -264,5 +273,18 @@
             this.value = '';
         }
     }
+    $(document).ready(function() {
+        $('#autoScheduleForm').submit(function() {
+            // Check if one of the preferred start or end time is "Any"
+            if ($('#preferredStartTime').val() === '' && $('#preferredEndTime').val() !== '') {
+                alert('Please select a preferred start time.');
+                return false;
+            }
+            if ($('#preferredEndTime').val() === '' && $('#preferredStartTime').val() !== '') {
+                alert('Please select a preferred end time.');
+                return false;
+            }
+        });
+    });
 </script>
 @endsection

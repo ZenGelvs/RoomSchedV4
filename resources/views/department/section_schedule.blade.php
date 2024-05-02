@@ -35,33 +35,33 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($schedules->sortBy('start_time') as $schedule)
-                        <tr>
-                            <td>{{ $schedule->day }}</td>
-                            <td>{{ $schedule->start_time }}</td>
-                            <td>{{ $schedule->end_time }}</td>
-                            <td>{{ $schedule->subject ? $schedule->subject->Subject_Code : 'N/A' }}</td>
-                            <td>{{ $schedule->subject ? $schedule->subject->Description : 'N/A' }}</td>
-                            <td>{{ $schedule->type }}</td>
-                            <td>{{ $schedule->room->room_id }} {{ $schedule->room->room_name }}</td>
-                            <td>
-                                @if($schedule->subject && $schedule->subject->faculty->isNotEmpty())
-                                    @foreach($schedule->subject->faculty as $faculty)
-                                        {{ $faculty->name }} <br>
-                                    @endforeach
-                                @else
-                                    N/A
-                                @endif
-                            </td>
-                            <td> 
-                                <a href="{{ route('department.schedule.edit', $schedule->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                                <form action="{{ route('department.schedule.destroy', $schedule->id) }}" method="POST" class="delete-form">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger delete-btn">Delete</button>
-                                </form>
-                            </td>
-                        </tr>
+                        @foreach ($schedules->sortBy('day')->sortBy('start_time') as $schedule)
+                            <tr>
+                                <td>{{ $schedule->day }}</td>
+                                <td>{{ $schedule->start_time }}</td>
+                                <td>{{ $schedule->end_time }}</td>
+                                <td>{{ $schedule->subject ? $schedule->subject->Subject_Code : 'N/A' }}</td>
+                                <td>{{ $schedule->subject ? $schedule->subject->Description : 'N/A' }}</td>
+                                <td>{{ $schedule->type }}</td>
+                                <td>{{ $schedule->room->room_id }} {{ $schedule->room->room_name }}</td>
+                                <td>
+                                    @if($schedule->subject && $schedule->subject->faculty->isNotEmpty())
+                                        @foreach($schedule->subject->faculty as $faculty)
+                                            {{ $faculty->name }} <br>
+                                        @endforeach
+                                    @else
+                                        N/A
+                                    @endif
+                                </td>
+                                <td> 
+                                    <a href="{{ route('department.schedule.edit', $schedule->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                                    <form action="{{ route('department.schedule.destroy', $schedule->id) }}" method="POST" class="delete-form">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger delete-btn">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
                         @endforeach
                     </tbody>
                 </table>
@@ -94,17 +94,18 @@
                                     $subjectKey = $schedule->subject->Description . $schedule->subject->Subject_Code;
                                     $color = isset($colorMap[$subjectKey]) ? $colorMap[$subjectKey] : '#' . substr(md5($subjectKey), 0, 6);
                                     $colorMap[$subjectKey] = $color; 
+                                    $textColor = (hexdec(substr($color, 1, 2)) * 0.299 + hexdec(substr($color, 3, 2)) * 0.587 + hexdec(substr($color, 5, 2)) * 0.114) > 186 ? '#000000' : '#FFFFFF';
                                 @endphp
                                 @if ($schedule->start_time > $startTime)
                                     <tr>
-                                        <td>
+                                        <td style="">
                                             <p><strong>Time:</strong> {{ $startTime }} - {{ $schedule->start_time }}</p>
                                             <p><em>No schedule</em></p>
                                         </td>
                                     </tr>
                                 @endif
                                 <tr>
-                                    <td style="background-color: {{ $color }};">
+                                    <td style="background-color: {{ $color }}; color: {{ $textColor }};">
                                         <p><strong>Time:</strong> {{ $schedule->start_time }} - {{ $schedule->end_time }}</p>
                                         <p><strong>Subject Code:</strong> {{ $schedule->subject->Subject_Code }}</p>
                                         <p><strong>Subject:</strong> {{ $schedule->subject->Description }}</p>
@@ -127,7 +128,7 @@
                             @endforeach
                             @if ($startTime < "19:00")
                                 <tr>
-                                    <td>
+                                    <td style="">
                                         <p><strong>Time:</strong> {{ $startTime }} - 19:00</p>
                                         <p><em>No schedule</em></p>
                                     </td>
@@ -139,7 +140,7 @@
                 @endforeach
             </div>
         </div>
-    </div>
+    </div>    
 </div>
 @endsection
 @section('scripts')

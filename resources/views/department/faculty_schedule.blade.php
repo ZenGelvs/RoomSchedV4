@@ -39,6 +39,7 @@
                                                     $subjectKey = $subject->Description . $subject->Subject_Code;
                                                     $color = isset($colorMap[$subjectKey]) ? $colorMap[$subjectKey] : '#' . substr(md5($subjectKey), 0, 6);
                                                     $colorMap[$subjectKey] = $color;
+                                                    $textColor = (hexdec(substr($color, 1, 2)) * 0.299 + hexdec(substr($color, 3, 2)) * 0.587 + hexdec(substr($color, 5, 2)) * 0.114) > 186 ? '#000000' : '#FFFFFF';
                                                 @endphp
                                                 @if ($schedule->start_time > $startTime)
                                                     <tr>
@@ -49,7 +50,7 @@
                                                     </tr>
                                                 @endif
                                                 <tr>
-                                                    <td style="background-color: {{ $color }};">
+                                                    <td style="background-color: {{ $color }}; color: {{ $textColor }};">
                                                         <p><strong>Time:</strong> {{ $schedule->start_time }} - {{ $schedule->end_time }}</p>
                                                         <p><strong>Subject Code:</strong> {{ $subject->Subject_Code }}</p>
                                                         <p><strong>Subject:</strong> {{ $subject->Description }}</p>
@@ -65,7 +66,7 @@
                                         @endforeach
                                         @if ($startTime < "19:00")
                                             <tr>
-                                                <td style="background-color: #f2f2f2;">
+                                                <td style="background-color: #f2f2f2; ">
                                                     <p><strong>Time:</strong> {{ $startTime }} - 19:00</p>
                                                     <p><em>No schedule</em></p>
                                                 </td>
