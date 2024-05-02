@@ -79,7 +79,7 @@
                                 <div id="unitsValidationMessage" class="text-danger" style="display: none;">Lec and Lab must equal Total Units.</div>
                             </div>                            
                             <div class="form-group">
-                                <label for="Pre_Req">Pre-Requisite:</label>
+                                <label for="Pre_Req">Pre-Requisite (Subject Code/s):</label>
                                 <input type="text" class="form-control" id="Pre_Req" name="Pre_Req" required>
                             </div>
                             <div class="form-group">
@@ -116,12 +116,28 @@
                             </div>
                             <div class="form-group">
                                 <label for="Department">Department:</label>
-                                <input type="text" class="form-control" id="Department" name="Department"required>
+                                <select class="form-control" id="Department" name="Department" required>
+                                    <option value="">Select Department</option>
+                                    <option value="DCS">DCS</option>
+                                    <option value="DOE">DOE</option>
+                                    <option value="DOA">DOA</option>
+                                    <option value="CITHM Dept">CITHM Dept</option>
+                                    <option value="CITHM Dept1">CITHM Dept1</option>
+                                    <option value="CITHM Dept2">CITHM Dept2</option>
+                                    <option value="CAMS Dept">CAMS Dept</option>
+                                    <option value="CAMS Dept1">CAMS Dept1</option>
+                                    <option value="CAMS Dept2">CAMS Dept2</option>
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label for="Program">Program:</label>
-                                <input type="text" class="form-control" id="Program" name="Program" required>
-                            </div>
+                                <select class="form-control" id="Program" name="Program" required>
+                                    <option value="">Select Program</option>
+                                    @foreach($programs as $program)
+                                        <option value="{{ $program }}">{{ $program }}</option>
+                                    @endforeach
+                                </select>
+                            </div>                            
                             <div class="form-group">
                                 <label for="Academic_Year">Academic Year:</label>
                                 <input type="text" class="form-control" id="Academic_Year" name="Academic_Year" required>

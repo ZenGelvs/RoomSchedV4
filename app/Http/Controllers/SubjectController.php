@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Programs; 
 use App\Models\Faculty;
 use App\Models\Subject;
 use App\Models\Sections;
@@ -21,7 +22,8 @@ class SubjectController extends Controller
 {
     public function index()
     {
-        return view('admin.manage_subjects');
+        $programs = Programs::pluck('program_name', 'program_name'); 
+        return view('admin.manage_subjects', ['programs' => $programs]); 
     }
 
     public function upload(Request $request)
