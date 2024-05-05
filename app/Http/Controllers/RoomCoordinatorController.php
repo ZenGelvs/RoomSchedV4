@@ -176,4 +176,53 @@ class RoomCoordinatorController extends Controller
         $schedule->delete();
         return redirect()->back()->with('success', 'Schedule deleted successfully');
     }
+
+    public function editSchedule(Schedules $schedule)
+    {   
+        $schedule->load('section');
+        $sections = Sections::with('subjects')->get();
+        $rooms = Room::all(); 
+        return view('roomCoordinator.edit_schedule', compact('schedule', 'rooms', 'sections'));
+    }
+
+    public function updateSchedule(Request $request, Schedule $schedule)
+    {
+        $request->validate([
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'type' => 'required|string',
+            'room_id' => 'required|string',
+            'department' => 'required|string',
+            'college' => 'required|string',
+        ]);
+
+        $existingSchedule = Schedules::where('day', $request->day)
+        ->where('start_time', $request->startTime)
+        ->where('end_time', $request->endTime)
+        ->where('section_id', $request->sectionId)
+        ->where('subject_id', $request->subjectId)
+        ->where('type', $request->type)
+        ->where('room_id', $request->roomId)
+        ->exists();
+
+        if ($existingSchedule) {
+            return redirect()->back()->with('error', 'A schedule with the same details already exists.');
+        }
+
+        $overlappingSchedule = Schedules::where('day', $request->day)
+            ->where('room_id', $request->roomId)
+            ->where(function ($query) use ($request) {
+                $query->where('start_time', '<', $request->endTime)
+                    ->where('end_time', '>', $request->startTime);
+            })
+            ->exists();
+    
+        if ($overlappingSchedule) {
+            return redirect()->back()->with('error', 'There is an overlapping schedule for the selected room and time slot.');
+        }
+
+        $schedule->update($request->all());
+
+        return redirect()->route('roomCoordinator.viewSectionSchedule', $schedule->section_id)->with('success', 'Schedule updated successfully');
+    }
 }   

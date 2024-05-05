@@ -74,7 +74,7 @@
                                                 N/A
                                             @endif
                                         </p>
-                                        <a href="" class="btn btn-warning btn-sm">Edit</a>
+                                        <a href="{{ route('roomCoordinator.editSchedule', $schedule->id) }}" class="btn btn-warning">Edit</a>
                                         <form action="{{ route('roomCoordinator.destroySchedule', $schedule->id) }}" method="POST" class="delete-form">
                                             @csrf
                                             @method('DELETE')

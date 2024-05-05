@@ -42,7 +42,8 @@
                                     <td>{{ $section->college }}</td>
                                     <td>{{ $section->department }}</td>
                                     <td>
-                                        <a href="{{ route('roomCoordinator.viewSectionSchedule', $section->id) }}" class="btn btn-primary">View Schedule</a>                                    </td>
+                                        <a href="{{ route('roomCoordinator.viewSectionSchedule', $section->id) }}" class="btn btn-primary">View Schedule</a>                                    
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
