@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>@yield('title', 'Welcome to Pirate Nav Arrrgh!')</title>
-
+    <link rel="icon" type="image/png" href="{{ asset('LPU_Logo.png') }}">
     <!-- Bootstrap CSS -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap JS Bundle with Popper.js -->

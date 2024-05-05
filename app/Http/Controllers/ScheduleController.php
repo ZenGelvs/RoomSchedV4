@@ -54,12 +54,12 @@ class ScheduleController extends Controller
         }
 
         $overlappingSchedule = Schedules::where('day', $request->day)
-            ->where('room_id', $request->roomId)
-            ->where(function ($query) use ($request) {
-                $query->where('start_time', '<', $request->endTime)
-                    ->where('end_time', '>', $request->startTime);
-            })
-            ->exists();
+        ->where('section_id', $request->sectionId)
+        ->where(function ($query) use ($request) {
+            $query->where('start_time', '<', $request->endTime)
+                ->where('end_time', '>', $request->startTime);
+        })
+        ->exists();
 
         if ($overlappingSchedule) {
             return redirect()->back()->with('error', 'There is an overlapping schedule for the selected room and time slot.');
@@ -148,12 +148,17 @@ class ScheduleController extends Controller
         }
 
         $overlappingSchedule = Schedules::where('day', $request->day)
-            ->where('room_id', $request->roomId)
-            ->where(function ($query) use ($request) {
-                $query->where('start_time', '<', $request->endTime)
-                    ->where('end_time', '>', $request->startTime);
-            })
-            ->exists();
+        ->where('section_id', $request->sectionId)
+        ->where('room_id', $request->roomId)
+        ->where(function ($query) use ($request) {
+            $query->whereRaw('? between start_time and end_time', [$request->startTime])
+                ->orWhereRaw('? between start_time and end_time', [$request->endTime])
+                ->orWhere(function ($query) use ($request) {
+                    $query->where('start_time', '>=', $request->startTime)
+                        ->where('end_time', '<=', $request->endTime);
+                });
+        })
+        ->exists();
 
         if ($overlappingSchedule) {
             return redirect()->back()->with('error', 'There is an overlapping schedule for the selected room and time slot.');
