@@ -80,8 +80,11 @@ Route::group(['namespace' => 'Department', 'prefix' => 'department'], function (
     Route::post('automatic_schedule', [ScheduleController::class, 'automaticSchedule'])->name('department.automatic_schedule');
 });
 
+//Room Coordinator Routes
 Route::group(['prefix' => 'roomCoordinator', 'as' => 'roomCoordinator.'], function () {
+    //Room Routes
     Route::delete('/rooms/{id}', [RoomCoordinatorController::class, 'deleteRoom'])->name('deleteRoom');
     Route::post('/subjects/add', [RoomCoordinatorController::class, 'addRoom'])->name('addRoom');
-
+    Route::get('/rooms/{id}/edit', [RoomCoordinatorController::class, 'editRoom'])->name('editRoom');
+    Route::put('/rooms/{id}', [RoomCoordinatorController::class, 'updateRoom'])->name('updateRoom');
 });

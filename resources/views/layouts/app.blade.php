@@ -91,7 +91,7 @@
                 <!-- Check for Room Coordinator Role -->
                 @if(Auth::user()->college === 'ROOM COORDINATOR' && Auth::user()->department === 'ROOM COORDINATOR')
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Room Coordinator Link 1</a>
+                        <a class="nav-link" href="{{ route('dashboard.roomCoordIndex') }}">Rooms</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Room Coordinator Link 2</a>

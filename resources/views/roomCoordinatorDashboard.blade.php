@@ -105,7 +105,7 @@
                                                 <td>{{ $room->room_type }}</td>
                                                 <td>{{ $room->building }}</td>
                                                 <td>
-                                                    <a href="#" class="btn btn-warning">Edit room</a>
+                                                    <a href="{{ route('roomCoordinator.editRoom', $room->id) }}" class="btn btn-warning">Edit room</a>
                                                     <a href="#" class="btn btn-primary">View Schedule</a>
                                                     <form action="{{ route('roomCoordinator.deleteRoom', $room->id) }}" method="POST" onsubmit="return confirmDeleteRoom()">
                                                         @csrf
