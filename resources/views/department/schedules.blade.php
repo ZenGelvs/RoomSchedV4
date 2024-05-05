@@ -273,18 +273,29 @@
             this.value = '';
         }
     }
-    $(document).ready(function() {
-        $('#autoScheduleForm').submit(function() {
-            // Check if one of the preferred start or end time is "Any"
-            if ($('#preferredStartTime').val() === '' && $('#preferredEndTime').val() !== '') {
-                alert('Please select a preferred start time.');
-                return false;
+    
+    const autoScheduleForm = document.getElementById('autoScheduleForm');
+    const preferredStartTime = document.getElementById('preferredStartTime');
+    const preferredEndTime = document.getElementById('preferredEndTime');
+
+    autoScheduleForm.addEventListener('submit', (event) => {
+        const startTime = preferredStartTime.value;
+        const endTime = preferredEndTime.value;
+
+        if (startTime >= endTime) {
+            event.preventDefault();
+            alert('End time must be after the start time.');
+        } else {
+            const [startHour, startMinute] = startTime.split(':').map(Number);
+            const [endHour, endMinute] = endTime.split(':').map(Number);
+
+            const durationMinutes = (endHour * 60 + endMinute) - (startHour * 60 + startMinute);
+
+            if (durationMinutes !== 90) {
+                event.preventDefault();
+                alert('The time interval between start and end times must be exactly 1 hour and 30 minutes.');
             }
-            if ($('#preferredEndTime').val() === '' && $('#preferredStartTime').val() !== '') {
-                alert('Please select a preferred end time.');
-                return false;
-            }
-        });
+        }
     });
 </script>
 @endsection
