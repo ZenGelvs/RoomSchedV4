@@ -9,15 +9,17 @@
                 <h2 class="text-center mb-0">Faculty Index</h2>
             </div>
             <div class="card-body">
-                <div class="mb-3">
-                    <form action="{{ route('roomCoordinator.facultySchedIndex') }}" method="GET">
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Search by name" name="search">
-                            <div class="input-group-append">
-                                <button class="btn btn-primary" type="submit">Search</button>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <form action="{{ route('roomCoordinator.facultySchedIndex') }}" method="GET">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Search by name" name="search">
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="submit">Search</button>
+                                </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             <div class="card-body">
                 <div class="table-responsive">

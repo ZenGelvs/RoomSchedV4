@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Room;
 use App\Models\Faculty;
+use App\Models\Sections;
 use App\Models\Schedules;
 use Illuminate\Http\Request;
 
@@ -145,4 +146,34 @@ class RoomCoordinatorController extends Controller
         }
         return view('roomCoordinator.faculty_sched', compact('faculty', 'schedules'));
     }
-}
+
+    public function sectionScheduleIndex(Request $request)
+    {
+        $search = $request->input('search');
+    
+        $sections = Sections::query()
+                        ->where('program_name', 'like', "%$search%")
+                        ->orWhere('year_level', 'like', "%$search%")
+                        ->orWhere('section', 'like', "%$search%")
+                        ->orWhere('college', 'like', "%$search%")
+                        ->orWhere('department', 'like', "%$search%")
+                        ->get();
+                        
+        return view('roomCoordinator.sections_index', compact('sections'));
+    }
+
+    public function viewSectionSchedule($sectionId)
+    {
+        $section = Sections::findOrFail($sectionId);
+        $schedules = $section->schedules()->get();
+
+        return view('roomCoordinator.sections_schedule', compact('section', 'schedules'));
+
+    }
+
+    public function destroySchedule(Schedules $schedule)
+    {
+        $schedule->delete();
+        return redirect()->back()->with('success', 'Schedule deleted successfully');
+    }
+}   

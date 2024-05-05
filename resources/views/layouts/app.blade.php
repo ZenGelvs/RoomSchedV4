@@ -97,7 +97,7 @@
                         <a class="nav-link" href="{{ route('roomCoordinator.facultySchedIndex') }}">Faculty</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Sections</a>
+                        <a class="nav-link" href="{{ route('roomCoordinator.sectionScheduleIndex') }}">Sections</a>
                     </li>
                 @endif
                 <!-- Default Links Department Head-->

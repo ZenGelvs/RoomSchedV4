@@ -88,7 +88,13 @@ Route::group(['prefix' => 'roomCoordinator', 'as' => 'roomCoordinator.'], functi
     Route::get('/rooms/{id}/edit', [RoomCoordinatorController::class, 'editRoom'])->name('editRoom');
     Route::put('/rooms/{id}', [RoomCoordinatorController::class, 'updateRoom'])->name('updateRoom');
     Route::get('/rooms/{roomId}/schedule', [RoomCoordinatorController::class, 'roomSchedule'])->name('roomSchedule');
+
+    //Faculty Routes
     Route::get('/faculty', [RoomCoordinatorController::class, 'facultySchedIndex'])->name('facultySchedIndex');
     Route::get('/faculty/{id}/schedule', [RoomCoordinatorController::class, 'viewFacultySchedule'])->name('viewFacultySchedule');
 
+    //Schedule Routes
+    Route::get('/section', [RoomCoordinatorController::class, 'sectionScheduleIndex'])->name('sectionScheduleIndex');
+    Route::get('/section/{id}/schedule', [RoomCoordinatorController::class, 'viewSectionSchedule'])->name('viewSectionSchedule');
+    Route::delete('/section/{schedule}', [RoomCoordinatorController::class, 'destroySchedule'])->name('destroySchedule');
 });

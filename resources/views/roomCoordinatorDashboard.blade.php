@@ -29,7 +29,7 @@
                         <div class="input-group mb-3">
                             <input type="text" class="form-control" placeholder="Search by room ID or name" name="search">
                             <div class="input-group-append">
-                                <button class="btn btn-outline-primary" type="submit">Search</button>
+                                <button class="btn btn-primary" type="submit">Search</button>
                             </div>
                         </div>
                     </form>

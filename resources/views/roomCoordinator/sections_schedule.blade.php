@@ -74,12 +74,12 @@
                                                 N/A
                                             @endif
                                         </p>
-                                        <a href="{{ route('department.schedule.edit', $schedule->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                                        <form action="{{ route('department.schedule.destroy', $schedule->id) }}" method="POST" class="delete-form">
+                                        <a href="" class="btn btn-warning btn-sm">Edit</a>
+                                        <form action="{{ route('roomCoordinator.destroySchedule', $schedule->id) }}" method="POST" class="delete-form">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-danger delete-btn">Delete</button>
-                                        </form>
+                                        </form>                                        
                                     </td>
                                 </tr>
                                 @php
