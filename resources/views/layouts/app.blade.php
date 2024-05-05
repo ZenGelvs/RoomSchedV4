@@ -94,7 +94,7 @@
                         <a class="nav-link" href="{{ route('dashboard.roomCoordIndex') }}">Rooms</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Faculty</a>
+                        <a class="nav-link" href="{{ route('roomCoordinator.facultySchedIndex') }}">Faculty</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Sections</a>

@@ -81,7 +81,6 @@
             </div>
 
             <div class="row">
-                <!-- Room Table Card -->
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-body">
@@ -116,8 +115,7 @@
                                             </tr>
                                         @endforeach
                                     </tbody>
-                                    {{ $rooms->links() }} <!-- Pagination Links -->
-                                </table>
+                                    {{ $rooms->links() }} 
                             </div>
                         </div>
                     </div>

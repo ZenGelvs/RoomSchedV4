@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Room;
+use App\Models\Faculty;
 use App\Models\Schedules;
 use Illuminate\Http\Request;
 
@@ -116,5 +117,25 @@ class RoomCoordinatorController extends Controller
         $room = Room::findOrFail($roomId);
         $schedules = Schedules::where('room_id', $roomId)->get();
         return view('roomCoordinator.room_sched', compact('room', 'schedules'));
+    }
+
+    public function facultySchedIndex()
+    {
+        $facultyList = Faculty::with('subjects')->paginate(10); 
+        return view('roomCoordinator.faculty_index', compact('facultyList'));
+    }
+
+    public function viewFacultySchedule($facultyId)
+    {
+        $faculty = Faculty::findOrFail($facultyId);
+        $schedules = collect();
+        foreach ($faculty->subjects as $subject) {
+            foreach ($subject->schedules as $schedule) {
+                $section = $subject->sections()->first();
+                $schedule->section = $section;
+                $schedules->push($schedule);
+            }
+        }
+        return view('roomCoordinator.faculty_sched', compact('faculty', 'schedules'));
     }
 }
