@@ -42,8 +42,22 @@ class DashboardController extends Controller
         return view('adminDashboard', compact('subjects'));
     }
 
-    public function roomCoordIndex()
+    public function roomCoordIndex(Request $request)
     {
-        return view('roomCoordinatorDashboard');
+        $search = $request->input('search');
+    
+        $rooms = Room::query();
+
+        // Apply search filter if search query is present
+        if ($search) {
+            $rooms->where('room_id', 'like', "%$search%")
+                ->orWhere('room_name', 'like', "%$search%")
+                ->orWhere('room_type', 'like', "%$search%")
+                ->orWhere('building', 'like', "%$search%");
+        }
+
+        $rooms = $rooms->paginate(10);
+
+        return view('roomCoordinatorDashboard', compact('rooms'));
     }
 }

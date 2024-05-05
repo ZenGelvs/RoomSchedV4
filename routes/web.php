@@ -10,6 +10,7 @@ use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\SectionsController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\RoomCoordinatorController;
 
 
 Route::get('/', function () {
@@ -79,4 +80,6 @@ Route::group(['namespace' => 'Department', 'prefix' => 'department'], function (
     Route::post('automatic_schedule', [ScheduleController::class, 'automaticSchedule'])->name('department.automatic_schedule');
 });
 
-
+Route::group(['prefix' => 'roomCoordinator', 'as' => 'roomCoordinator.'], function () {
+    Route::delete('/rooms/{id}', [RoomCoordinatorController::class, 'deleteRoom'])->name('deleteRoom');
+});

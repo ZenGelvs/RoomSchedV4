@@ -1,48 +1,83 @@
 @extends('layouts.app')
 
-@section('title', 'Admin Page')
+@section('title', 'Room Coordinator Page')
 
 @section('content')
     <div class="container mt-4">
         <div class="login-container">
             <h2 class="text-center mb-4">Welcome to Room Coordinator Page, manage stuff!</h2>
 
-                <div class="row">
-                    <!-- Create Schedule Card -->
-                    <div class="col-md-4">
-                        <div class="card">
-                            <img src=" " alt="Subjects Image" 
-                            style="width: 300px; height: 300px;" class="card-img-top">
-                            <div class="card-body">
-                                <h5 class="card-title">Schedules</h5>
-                                <p class="card-text">Manage Schedules for the upcoming term</p>
-                                <a href=" " class="btn btn-dark">Go to Schedule</a>
+            @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @endif
+            
+            @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+            
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <form action="{{ route('dashboard.roomCoordIndex') }}" method="GET">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="Search by room ID or name" name="search">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-primary" type="submit">Search</button>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- View Subjects Card -->
-                    <div class="col-md-4">
-                        <div class="card">
-                            <img src=" " alt="Subjects Image" 
-                            style="width: 300px; height: 300px;" class="card-img-top">
-                            <div class="card-body">
-                                <h5 class="card-title">Subjects</h5>
-                                <p class="card-text">Assign Professors to subjects for classes.</p>
-                                <a href=" " class="btn btn-dark">Go to Subjects</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- View Sections Card -->
-                    <div class="col-md-4">
-                        <div class="card">
-                            <img src=" " alt="Sections Image" 
-                            style="width: 300px; height: 300px;" class="card-img-top">
-                            <div class="card-body">
-                                <h5 class="card-title">Sections</h5>
-                                <p class="card-text">Manage sections and blocks for the upcoming term.</p>
-                                <a href=" " class="btn btn-dark">Go to Sections</a>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="row">
+                <!-- Room Table Card -->
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Room List</h5>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Room ID</th>
+                                            <th>Room Name</th>
+                                            <th>Room Type</th>
+                                            <th>Building</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($rooms as $room)
+                                            <tr>
+                                                <td>{{ $room->id }}</td>
+                                                <td>{{ $room->room_id }}</td>
+                                                <td>{{ $room->room_name }}</td>
+                                                <td>{{ $room->room_type }}</td>
+                                                <td>{{ $room->building }}</td>
+                                                <td>
+                                                    <a href="#" class="btn btn-primary">View Schedule</a>
+                                                    <form action="{{ route('roomCoordinator.deleteRoom', $room->id) }}" method="POST" onsubmit="return confirmDeleteRoom()">
+                                                        @csrf
+                                                        @method('DELETE') 
+                                                        <button type="submit" class="btn btn-danger mt-2">Delete</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                    {{ $rooms->links() }} <!-- Pagination Links -->
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -51,3 +86,10 @@
         </div>
     </div>
 @endsection
+
+<script>
+
+    function confirmDeleteRoom() {
+        return confirm("Are you sure you want to delete this Room?");
+    }
+</script>

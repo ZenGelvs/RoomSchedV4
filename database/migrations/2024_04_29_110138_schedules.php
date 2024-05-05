@@ -19,13 +19,14 @@ return new class extends Migration
             $table->unsignedBigInteger('section_id');
             $table->unsignedBigInteger('subject_id');
             $table->string('type');
-            $table->string('room_id');
+            $table->unsignedBigInteger('room_id');
             $table->string('department');
             $table->string('college');
             $table->timestamps();
             
             $table->foreign('section_id')->references('id')->on('sections')->onDelete('cascade');
-            $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
+            $table->foreign('subject_id')->references('id')->on('subjects')->onDelete('cascade');
+            $table->foreign('room_id')->references('id')->on('room')->onDelete('cascade');
         });
 
     }
