@@ -36,6 +36,7 @@
                                     @endforeach
                                 </tbody>
                             </table>
+                            <a href="{{ route('department.faculty') }}" class="btn btn-dark">Add Faculty</a>
                         </div>
                     </div>
                 </div>
@@ -50,6 +51,8 @@
                             <li>{{ $section->program_name }} - {{ $section->section }}</li>
                             @endforeach
                         </ul>
+                        <a href="{{ route('department.subjects') }}" class="btn btn-dark">Assign Subjects</a>
+                        <a href="{{ route('department.sections') }}" class="btn btn-dark">Add Sections</a>
                     </div>
                 </div>
             </div>
@@ -105,6 +108,7 @@
                                 </tbody>
                             </table>
                         </div>
+                        <a href="{{ route('department.schedule') }}" class="btn btn-dark">Schedule Sections</a>
                     </div>
                 </div>
             </div>
