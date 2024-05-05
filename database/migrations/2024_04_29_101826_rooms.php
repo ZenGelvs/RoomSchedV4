@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('room_type');
             $table->string('building');
             $table->string('pref_class')->nullable();
-
+            $table->timestamps();
         });
     }
 

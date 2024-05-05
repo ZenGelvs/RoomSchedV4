@@ -82,4 +82,6 @@ Route::group(['namespace' => 'Department', 'prefix' => 'department'], function (
 
 Route::group(['prefix' => 'roomCoordinator', 'as' => 'roomCoordinator.'], function () {
     Route::delete('/rooms/{id}', [RoomCoordinatorController::class, 'deleteRoom'])->name('deleteRoom');
+    Route::post('/subjects/add', [RoomCoordinatorController::class, 'addRoom'])->name('addRoom');
+
 });

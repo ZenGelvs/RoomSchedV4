@@ -14,18 +14,15 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            @endif
-            
-            @if ($errors->any())
+        @endif
+        @if (session('error'))
             <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+                {{ session('error') }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-            @endif
-            
+        @endif
             <div class="row mt-4">
                 <div class="col-md-4">
                     <form action="{{ route('dashboard.roomCoordIndex') }}" method="GET">
@@ -39,6 +36,50 @@
                 </div>
             </div>
             
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <button class="btn btn-danger" type="button" data-toggle="collapse" data-target="#addSubjectForm" aria-expanded="false" aria-controls="addSubjectForm">
+                                Add Room
+                            </button>
+                        </div>
+                        <div class="collapse" id="addSubjectForm">
+                            <div class="card-body">
+                                <form method="POST" action="{{ route('roomCoordinator.addRoom') }}">
+                                    @csrf
+                                    <div class="form-group">
+                                        <label for="roomName">Room Name</label>
+                                        <input type="text" class="form-control" id="roomName" name="roomName" placeholder="Enter Room name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="roomID">Room ID</label>
+                                        <input type="text" class="form-control" id="roomID" name="roomID" placeholder="Enter Room ID" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="roomType">Room Type</label>
+                                        <select class="form-control" id="roomType" name="roomType" required>
+                                            <option value="">Select Room Type</option>
+                                            <option value="Lecture">Lecture</option>
+                                            <option value="Lab">Lab</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="building">Building</label>
+                                        <select class="form-control" id="building" name="building" required>
+                                            <option value="">Select Building </option>
+                                            <option value="COECSA">COECSA</option>
+                                            <option value="Jose">Jose</option>
+                                            <option value="Sotero">Sotero</option>
+                                        </select>                                    </div>
+                                    <button type="submit" class="btn btn-success">Add Room</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="row">
                 <!-- Room Table Card -->
                 <div class="col-md-12">
@@ -49,7 +90,6 @@
                                 <table class="table">
                                     <thead>
                                         <tr>
-                                            <th>ID</th>
                                             <th>Room ID</th>
                                             <th>Room Name</th>
                                             <th>Room Type</th>
@@ -60,12 +100,12 @@
                                     <tbody>
                                         @foreach ($rooms as $room)
                                             <tr>
-                                                <td>{{ $room->id }}</td>
                                                 <td>{{ $room->room_id }}</td>
                                                 <td>{{ $room->room_name }}</td>
                                                 <td>{{ $room->room_type }}</td>
                                                 <td>{{ $room->building }}</td>
                                                 <td>
+                                                    <a href="#" class="btn btn-warning">Edit room</a>
                                                     <a href="#" class="btn btn-primary">View Schedule</a>
                                                     <form action="{{ route('roomCoordinator.deleteRoom', $room->id) }}" method="POST" onsubmit="return confirmDeleteRoom()">
                                                         @csrf
@@ -83,12 +123,13 @@
                     </div>
                 </div>
             </div>
+
+            
         </div>
     </div>
 @endsection
 
 <script>
-
     function confirmDeleteRoom() {
         return confirm("Are you sure you want to delete this Room?");
     }
