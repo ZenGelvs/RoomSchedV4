@@ -247,7 +247,6 @@ class ScheduleController extends Controller
                         break; // Break the loop once scheduled for one day
                     }
                 }
-
                 // If scheduled for any day, break out of the subjects loop
                 if ($scheduledForAnyDay) {
                     break;
