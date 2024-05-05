@@ -3,17 +3,13 @@
 @section('title', 'Faculty Schedules')
 
 @section('content')
-<div class="container mt-4">
-    <div class="card">
-        <div class="card-header">
-            <h2 class="text-center mb-4">Schedules for {{ $faculty->name }}</h2>
-        </div>
-        <div class="card-body">
-            <!-- Day-wise Schedule Table -->
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-center mb-0">Schedules for {{ $faculty->name }}</h2>
+            </div>
+        <div>
             <div class="card mt-4">
-                <div class="card-header">
-                    <h2 class="text-center mb-4">Day-wise Schedule</h2>
-                </div>
                 <div class="card-body">
                     <div class="row">
                         @foreach(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as $day)
@@ -79,7 +75,5 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 </div>
 @endsection
