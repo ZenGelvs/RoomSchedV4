@@ -47,8 +47,7 @@ class DashboardController extends Controller
         $search = $request->input('search');
     
         $rooms = Room::query();
-
-        // Apply search filter if search query is present
+        
         if ($search) {
             $rooms->where('room_id', 'like', "%$search%")
                 ->orWhere('room_name', 'like', "%$search%")

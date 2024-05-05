@@ -119,9 +119,16 @@ class RoomCoordinatorController extends Controller
         return view('roomCoordinator.room_sched', compact('room', 'schedules'));
     }
 
-    public function facultySchedIndex()
+    public function facultySchedIndex(Request $request)
     {
-        $facultyList = Faculty::with('subjects')->paginate(10); 
+        $query = Faculty::with('subjects');
+
+        if ($request->has('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        $facultyList = $query->paginate(5);
+
         return view('roomCoordinator.faculty_index', compact('facultyList'));
     }
 
