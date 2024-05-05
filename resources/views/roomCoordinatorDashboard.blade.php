@@ -5,7 +5,7 @@
 @section('content')
     <div class="container mt-4">
         <div class="login-container">
-            <h2 class="text-center mb-4">Welcome to Room Coordinator Page, manage stuff!</h2>
+            <h2 class="text-center mb-4">Welcome to the Room Coordinator Page, manage rooms and Schedules!</h2>
 
             @if (session('success'))
             <div class="alert alert-success">
@@ -106,7 +106,7 @@
                                                 <td>{{ $room->building }}</td>
                                                 <td>
                                                     <a href="{{ route('roomCoordinator.editRoom', $room->id) }}" class="btn btn-warning">Edit room</a>
-                                                    <a href="#" class="btn btn-primary">View Schedule</a>
+                                                    <a href="{{ route('roomCoordinator.roomSchedule', $room->id) }}" class="btn btn-primary">View Schedule</a>
                                                     <form action="{{ route('roomCoordinator.deleteRoom', $room->id) }}" method="POST" onsubmit="return confirmDeleteRoom()">
                                                         @csrf
                                                         @method('DELETE') 

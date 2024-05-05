@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Room;
+use App\Models\Schedules;
 use Illuminate\Http\Request;
 
 class RoomCoordinatorController extends Controller
@@ -108,5 +109,12 @@ class RoomCoordinatorController extends Controller
         ]);
 
         return redirect()->route('dashboard.roomCoordIndex')->with('success', 'Room updated successfully.');
+    }
+
+    public function roomSchedule($roomId)
+    {
+        $room = Room::findOrFail($roomId);
+        $schedules = Schedules::where('room_id', $roomId)->get();
+        return view('roomCoordinator.room_sched', compact('room', 'schedules'));
     }
 }
