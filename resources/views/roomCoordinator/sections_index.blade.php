@@ -20,6 +20,9 @@
                             </div>
                         </form>
                     </div>
+                    <div class="col-md-6 text-right">
+                        <a href="{{ route('roomCoordinator.addSchedule') }}" class="btn btn-success">Add Schedule</a>
+                    </div>
                 </div>
                 <div class="table-responsive">
                     <table class="table">
@@ -42,7 +45,7 @@
                                     <td>{{ $section->college }}</td>
                                     <td>{{ $section->department }}</td>
                                     <td>
-                                        <a href="{{ route('roomCoordinator.viewSectionSchedule', $section->id) }}" class="btn btn-primary">View Schedule</a>                                    
+                                        <a href="{{ route('roomCoordinator.viewSectionSchedule', $section->id) }}" class="btn btn-primary">View Schedule</a>                                     
                                     </td>
                                 </tr>
                             @endforeach
