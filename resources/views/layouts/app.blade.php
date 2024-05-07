@@ -80,13 +80,11 @@
                     <!-- Check for Admin Role -->
                 @if(Auth::user()->college === 'ADMIN' && Auth::user()->department === 'ADMIN')
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ route('dashboard.adminIndex') }}">Subjects</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{{ route('admin.subjects.index') }}">Add Subject</a>
                     </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('dashboard.adminIndex') }}">Manage Subjects</a>
-                    </li>
-
                 @endif
                 <!-- Check for Room Coordinator Role -->
                 @if(Auth::user()->college === 'ROOM COORDINATOR' && Auth::user()->department === 'ROOM COORDINATOR')
