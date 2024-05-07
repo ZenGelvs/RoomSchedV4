@@ -40,9 +40,19 @@
                         <input type="number" class="form-control" id="faculty_id" name="faculty_id" value="{{ $faculty->faculty_id }}" required>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="submit" class="btn btn-primary" onclick="return confirmUpdate()" >Save Changes</button>
+                    <a href="{{ route('department.faculty') }}" onclick="return confirmCancelation()" type="button" class="btn btn-secondary" >Cancel</a>
                 </form>
             </div>
         </div>
     </div>
+
+<script>
+    function confirmUpdate() {
+        return confirm('Are you sure you want to update this faculty?');
+    }
+    function confirmCancelation() {
+            return confirm("Are you sure you want to Cancel? All changes won't be saved?");
+        }
+</script>
 @endsection

@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -43,6 +44,17 @@
             color: #fff;
             padding: 20px 0;
         }
+
+        /* Additional style for logo card */
+        .logo-card {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-card img {
+            max-width: 100%;
+            height: auto;
+        }
     </style>
 </head>
 
@@ -50,6 +62,9 @@
 <body>
     <div class="container">
         <div class="login-container">
+            <div class="logo-card">
+                <img src="{{ asset('OccuPirate (maroon transaprent).png') }}" alt="Logo">
+            </div>
             <h2 class="text-center mb-4">Login</h2>
             
             <!-- Login Form -->
@@ -81,7 +96,7 @@
         <div class="container text-center">
             <div class="row">
                 <div class="col-md-12">
-                    <p style="margin-bottom: 20px;">Copyright © Lyceum of the Philippines University - Cavite 2024. All Rights Reserved.</p><br>
+                    <p style="margin-bottom: 20px;">Copyright © Lyceum of the Philippines University - Cavite 2024. All Rights Reserved.</p>
                     <p>Built with Laravel, a PHP-based web framework for web development.</p>
                     <p>Copyright © 2024 Laravel, All Rights Reserved.</p>
                 </div>

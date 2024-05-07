@@ -58,6 +58,7 @@
                         <input type="number" class="form-control" id="section" name="section" value="{{ substr($section->section, -1) }}" min="1" max="10" required>
                     </div>                    
                     <button type="button" id="submitButton" class="btn btn-success">Update Section</button>
+                    <a href="{{ route('department.sections') }}" onclick="return confirmCancelation()" type="button" class="btn btn-secondary" >Cancel</a>
                 </form>
             </div>
         </div>
@@ -65,6 +66,10 @@
 
     @section('scripts')
     <script>
+         function confirmCancelation() {
+            return confirm("Are you sure you want to Cancel? All changes won't be saved");
+        }
+
         function updateYearLevelLabel() {
             var yearLevel = $('#year_level').val(); 
             var section = $('#section').val();

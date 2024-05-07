@@ -5,7 +5,7 @@
 @section('content')
     <div class="container mt-4">
         <div class="login-container">
-            <h2 class="text-center mb-4">Welcome to the Room Coordinator Page, manage rooms and Schedules!</h2>
+            <h2 class="text-center mb-4">Welcome to the Room Coordinator Page, view schedules and assign classes!</h2>
 
             @if (session('success'))
             <div class="alert alert-success">

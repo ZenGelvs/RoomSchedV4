@@ -104,7 +104,9 @@
                         @endforeach
                     </select>
                 </div>           
-                <button type="submit" class="btn btn-primary">Update Schedule</button>
+                <button type="submit" class="btn btn-primary" onclick="return confirmUpdate()">Update Schedule</button>
+                <a href="{{ route('department.schedule') }}" onclick="return confirmCancelation()" type="button" class="btn btn-secondary" >Cancel</a>
+
             </form>
         </div>
     </div>
@@ -113,6 +115,14 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 <script>
+    function confirmUpdate() {
+        return confirm("Are you sure you want to update this schedule?");
+    }
+
+    function confirmCancelation() {
+            return confirm("Are you sure you want to Cancel? All changes won't be saved?");
+        }
+
     $(document).ready(function() {
         $('#sectionId').change(function() {
             var sectionId = $(this).val();

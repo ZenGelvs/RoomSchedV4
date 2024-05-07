@@ -5,7 +5,7 @@
 @section('content')
 <div class="container mt-4">
     <div class="login-container">
-        <h2 class="text-center mb-4">Welcome to Admin Page, manage subjects for the Term</h2>
+        <h2 class="text-center mb-4">Welcome to Subjects Record, manage subjects for the Term</h2>
 
         <!-- Search Form -->
         <div class="row mb-4">

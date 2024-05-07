@@ -91,7 +91,7 @@
                                         <td>{{ $schedule->day }}</td>
                                         <td>{{ $schedule->start_time }} - {{ $schedule->end_time }}</td>
                                         <td>{{ $schedule->subject->Subject_Code }} - {{ $schedule->subject->Description }}</td>
-                                        <td>{{ $schedule->section->program_name }} = {{ $schedule->section->section }}</td>
+                                        <td>{{ $schedule->section->program_name }} - {{ $schedule->section->section }}</td>
                                     </tr>
                                     @php
                                         $startTime = $schedule->end_time;

@@ -25,7 +25,7 @@
                     </button>
                 </div>
             @endif
-            <form id="editSchedForm" action="{{ route('department.schedule.update', $schedule->id) }}" method="POST">
+            <form action="{{ route('department.schedule.update', $schedule->id) }}" method="POST">
                 @csrf
                 @method('PUT')
                 <div class="form-group">
@@ -104,8 +104,8 @@
                         @endforeach
                     </select>
                 </div>           
-                <button type="submit" class="btn btn-primary">Update Schedule</button>
-                <a href="{{ route('roomCoordinator.sectionScheduleIndex') }}" type="button" class="btn btn-secondary" >Cancel</a>
+                <button type="submit" class="btn btn-primary" onclick="return confirmUpdate()">Update Schedule</button>
+                <a href="{{ route('roomCoordinator.sectionScheduleIndex') }}" onclick="return confirmCancelation()" type="button" class="btn btn-secondary" >Cancel</a>
             </form>
         </div>
     </div>
@@ -114,17 +114,25 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 <script>
-    $(document).ready(function() {
-        $('#sectionId').change(function() {
-            var sectionId = $(this).val();
-            if (sectionId) {
-                $('#subjectId option').hide();
-                $('.section-' + sectionId + '-subject').show();
-            } else {
-                $('#subjectId option').hide();
-                $('#subjectId').find('option:first').show();
-            }
-        });
+        function confirmUpdate() {
+            return confirm("Are you sure you want to update this schedule?");
+        }
+
+        function confirmCancelation() {
+            return confirm("Are you sure you want to Cancel? All changes won't be saved?");
+        }
+
+        $(document).ready(function() {
+            $('#sectionId').change(function() {
+                var sectionId = $(this).val();
+                if (sectionId) {
+                    $('#subjectId option').hide();
+                    $('.section-' + sectionId + '-subject').show();
+                } else {
+                    $('#subjectId option').hide();
+                    $('#subjectId').find('option:first').show();
+                }
+            });
 
         document.getElementById('type').addEventListener('change', function() {
             var type = this.value;
@@ -178,11 +186,7 @@
                 return checkEndTime();
             });
         });
-        function confirmUpdate() {
-        if (confirm("Are you sure you want to update this room?")) {
-            document.getElementById('editSchedForm').submit();
-        }
-    }
+
 </script>
 
 @endsection

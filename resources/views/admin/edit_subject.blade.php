@@ -81,12 +81,16 @@
                     <input type="text" class="form-control" id="Academic_Year" name="Academic_Year" value="{{ $subject->Academic_Year }}" required>
                 </div>
                 <button type="submit" class="btn btn-warning">Update</button>
+                <a href="{{ route('admin.subjects.index') }}" onclick="return confirmCancelation()" type="button" class="btn btn-secondary" >Cancel</a>
             </form>
         </div>
     </div>
 </div>
 @endsection
 <script>
+     function confirmCancelation() {
+            return confirm("Are you sure you want to Cancel? All changes won't be saved");
+        }
     document.addEventListener("DOMContentLoaded", function() {
         document.getElementById("updateForm").addEventListener("submit", function(event) {
             var confirmation = confirm("Are you sure you want to save the changes?");

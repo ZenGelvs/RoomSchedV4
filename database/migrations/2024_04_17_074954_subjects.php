@@ -12,19 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('Subjects', function (Blueprint $table) {
-            $table->id(); 
-            $table->string('Subject_Code');
-            $table->string('Description');
-            $table->integer('Lec');
-            $table->integer('Lab');
-            $table->integer('Units');
+            $table->id() ->nullable();
+            $table->string('Subject_Code')->nullable();
+            $table->string('Description')->nullable();
+            $table->integer('Lec')->nullable();
+            $table->integer('Lab')->nullable();
+            $table->integer('Units')->nullable();
             $table->string('Pre_Req')->nullable();
-            $table->string('Year_Level');
-            $table->string('Semester');
-            $table->string('College');
-            $table->string('Department');
-            $table->string('Program');
-            $table->string('Academic_Year');
+            $table->string('Year_Level')->nullable();
+            $table->string('Semester')->nullable();
+            $table->string('College')->nullable();
+            $table->string('Department')->nullable();
+            $table->string('Program')->nullable();
+            $table->string('Academic_Year')->nullable();
             $table->timestamps(); 
         });
     }
