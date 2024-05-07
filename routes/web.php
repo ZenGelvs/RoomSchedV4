@@ -57,7 +57,7 @@ Route::group(['namespace' => 'Department', 'prefix' => 'department'], function (
     //Faculty Routes
     Route::get('faculty', [FacultyController::class, 'index'])->name('department.faculty');
     Route::post('/faculty', [FacultyController::class, 'store'])->name('faculty.store');
-    Route::delete('/faculty/{id}', [FacultyController::class, 'destroys'])->name('faculty.destroy');
+    Route::delete('/faculty/{id}', [FacultyController::class, 'destroy'])->name('faculty.destroy');
     Route::get('/faculty/{id}/edit', [FacultyController::class, 'edit'])->name('faculty.edit');
     Route::put('/faculty/{id}', [FacultyController::class, 'update'])->name('faculty.update');
 
