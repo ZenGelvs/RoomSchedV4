@@ -314,7 +314,7 @@ class SubjectController extends Controller
             ->get();
     
         $section = Sections::find($sectionId);
-        $assignedSubjectIds = $section->subjects()->pluck('subjects.id')->toArray(); 
+        $assignedSubjectIds = $section->Subjects()->pluck('Subjects.id')->toArray(); 
     
         $availableSubjects = $subjectsForSection->reject(function ($subject) use ($assignedSubjectIds) {
             return in_array($subject->id, $assignedSubjectIds);
@@ -335,13 +335,16 @@ class SubjectController extends Controller
             Log::info('No subject IDs provided.');
             return redirect()->back()->with('error', 'No subject IDs provided.');
         }
+    
         $section = Sections::find($sectionId);
         if (!$section) {
             return redirect()->back()->with('error', 'Section not found.');
         }
     
         try {
-            $section->subjects()->attach($subjectIds);
+            $subjectIdsArray = array_map('intval', is_array($subjectIds) ? $subjectIds : explode(',', $subjectIds));
+    
+            $section->subjects()->attach($subjectIdsArray);
             $attachedSubjects = $section->subjects()->pluck('subject_id')->toArray();
             return redirect()->back()->with('success', 'Subjects assigned to section successfully.');
         } catch (\Exception $e) {

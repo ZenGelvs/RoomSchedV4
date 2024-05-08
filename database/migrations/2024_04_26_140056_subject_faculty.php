@@ -9,18 +9,16 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
+    public function up(): void {
         Schema::create('subject_faculty', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('subject_id');
             $table->unsignedBigInteger('faculty_id');
             $table->timestamps();
         
-            $table->foreign('subject_id')->references('id')->on('subjects')->onDelete('cascade');
+            $table->foreign('subject_id')->references('id')->on('Subjects')->onDelete('cascade');
             $table->foreign('faculty_id')->references('id')->on('faculty')->onDelete('cascade');
         });
-        
     }
 
     /**
