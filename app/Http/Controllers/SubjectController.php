@@ -22,8 +22,8 @@ class SubjectController extends Controller
 {
     public function index()
     {
-        $programs = Programs::pluck('program_name', 'program_name'); 
-        return view('admin.manage_subjects', ['programs' => $programs]); 
+        $programs = Programs::all();
+        return view('admin.manage_subjects', compact('programs'));
     }
 
     public function upload(Request $request)

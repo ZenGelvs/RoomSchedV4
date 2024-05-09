@@ -118,24 +118,12 @@
                                 <label for="Department">Department:</label>
                                 <select class="form-control" id="Department" name="Department" required>
                                     <option value="">Select Department</option>
-                                    <option value="DCS">DCS</option>
-                                    <option value="DOE">DOE</option>
-                                    <option value="DOA">DOA</option>
-                                    <option value="CITHM Dept">CITHM Dept</option>
-                                    <option value="CITHM Dept1">CITHM Dept1</option>
-                                    <option value="CITHM Dept2">CITHM Dept2</option>
-                                    <option value="CAMS Dept">CAMS Dept</option>
-                                    <option value="CAMS Dept1">CAMS Dept1</option>
-                                    <option value="CAMS Dept2">CAMS Dept2</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label for="Program">Program:</label>
                                 <select class="form-control" id="Program" name="Program" required>
                                     <option value="">Select Program</option>
-                                    @foreach($programs as $program)
-                                        <option value="{{ $program }}">{{ $program }}</option>
-                                    @endforeach
                                 </select>
                             </div>                            
                             <div class="form-group">
@@ -195,5 +183,64 @@
                 fileError.style.display = 'none';
             }
         });
+
+        const collegeDepartments = {
+        'COECSA': ['DCS', 'DOE', 'DOA'],
+        'CAMS': ['CAMS Dept', 'CAMS Dept1', 'CAMS Dept2'],
+        'CAS': ['CAS Dept', 'CAS Dept1', 'CAS Dept2'],
+        'CBA': ['CBA Dept', 'CBA Dept1', 'CBA Dept2'],
+        'CFAD': ['CFAD Dept', 'CFAD Dept1', 'CFAD Dept2'],
+        'CITHM': ['Tourism', 'CITHM Dept1', 'CITHM Dept2'],
+        'NURSING': ['NURSING Dept', 'NURSING Dept1', 'NURSING Dept2']
+    };
+
+    function updateDepartments() {
+        const collegeSelect = document.getElementById('College');
+        const departmentSelect = document.getElementById('Department');
+        const selectedCollege = collegeSelect.value;
+
+        departmentSelect.innerHTML = '<option value="">Select Department</option>';
+
+        if (selectedCollege && collegeDepartments[selectedCollege]) {
+            collegeDepartments[selectedCollege].forEach(department => {
+                const option = document.createElement('option');
+                option.value = department;
+                option.textContent = department;
+                departmentSelect.appendChild(option);
+            });
+        }
+    }
+
+    document.getElementById('College').addEventListener('change', updateDepartments);
+    
+    updateDepartments();
+
+    const programsData = {!! json_encode($programs) !!};
+
+    function updatePrograms() {
+        const collegeSelect = document.getElementById('College');
+        const departmentSelect = document.getElementById('Department');
+        const programSelect = document.getElementById('Program');
+        const selectedCollege = collegeSelect.value;
+        const selectedDepartment = departmentSelect.value;
+
+        const filteredPrograms = programsData.filter(program => {
+            return program.college === selectedCollege && program.department === selectedDepartment;
+        });
+
+        programSelect.innerHTML = '<option value="">Select Program</option>';
+
+        filteredPrograms.forEach(program => {
+            const option = document.createElement('option');
+            option.value = program.program_ID;
+            option.textContent = program.program_name;
+            programSelect.appendChild(option);
+        });
+    }
+
+    document.getElementById('College').addEventListener('change', updatePrograms);
+    document.getElementById('Department').addEventListener('change', updatePrograms);
+
+    updatePrograms();
     </script>
 @endsection
