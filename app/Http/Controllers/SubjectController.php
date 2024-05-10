@@ -169,17 +169,27 @@ class SubjectController extends Controller
             'Program' => 'required',
             'Academic_Year' => 'required',
         ]);
-    
+
         $totalUnits = $request->input('Lec') + $request->input('Lab');
-    
-        $subject = new Subject();
-        $subject->fill($request->all());
-        $subject->Units = $totalUnits;
-        $subject->save();
-    
+
+        Subject::create([
+            'Subject_Code' => $request->input('Subject_Code'),
+            'Description' => $request->input('Description'),
+            'Lec' => $request->input('Lec'),
+            'Lab' => $request->input('Lab'),
+            'Pre_Req' => $request->input('Pre_Req'),
+            'Year_Level' => $request->input('Year_Level'),
+            'Semester' => $request->input('Semester'),
+            'College' => $request->input('College'),
+            'Department' => $request->input('Department'),
+            'Program' => $request->input('Program'),
+            'Academic_Year' => $request->input('Academic_Year'),
+            'Units' => $totalUnits, 
+        ]);
+
         return redirect()->route('dashboard.adminIndex')->with('success', 'Subject added successfully!');
     }
-    
+
     public function deleteAll()
     {
         Schema::disableForeignKeyConstraints();

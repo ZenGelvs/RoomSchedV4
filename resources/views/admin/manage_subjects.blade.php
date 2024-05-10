@@ -232,7 +232,7 @@
 
         filteredPrograms.forEach(program => {
             const option = document.createElement('option');
-            option.value = program.program_ID;
+            option.value = program.program_name;
             option.textContent = program.program_name;
             programSelect.appendChild(option);
         });
