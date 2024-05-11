@@ -172,6 +172,22 @@ class SubjectController extends Controller
 
         $totalUnits = $request->input('Lec') + $request->input('Lab');
 
+        $existingSubject = Subject::where('Subject_Code', $request->input('Subject_Code'))
+                                    ->where('Description', $request->input('Description'))
+                                    ->where('Pre_Req', $request->input('Pre_Req'))
+                                    ->where('Year_Level', $request->input('Year_Level'))
+                                    ->where('Semester', $request->input('Semester'))
+                                    ->where('College', $request->input('College'))
+                                    ->where('Department', $request->input('Department'))
+                                    ->where('Program', $request->input('Program'))
+                                    ->where('Academic_Year', $request->input('Academic_Year'))
+                                    ->first();
+
+        if ($existingSubject) {
+        $errorMessage = 'A subject with the same data already exists.';
+        return redirect()->route('dashboard.adminIndex')->withErrors(['error' => $errorMessage])->with('subjectError', $errorMessage);
+        }
+
         Subject::create([
             'Subject_Code' => $request->input('Subject_Code'),
             'Description' => $request->input('Description'),
@@ -186,22 +202,6 @@ class SubjectController extends Controller
             'Academic_Year' => $request->input('Academic_Year'),
             'Units' => $totalUnits, 
         ]);
-
-        $existingSubject = Subject::where('Subject_Code', $request->input('Subject_Code'))
-                                    ->where('Description', $request->input('Description'))
-                                    ->where('Pre_Req', $request->input('Pre_Req'))
-                                    ->where('Year_Level', $request->input('Year_Level'))
-                                    ->where('Semester', $request->input('Semester'))
-                                    ->where('College', $request->input('College'))
-                                    ->where('Department', $request->input('Department'))
-                                    ->where('Program', $request->input('Program'))
-                                    ->where('Academic_Year', $request->input('Academic_Year'))
-                                    ->first();
-    
-        if ($existingSubject) {
-            $errorMessage = 'A subject with the same data already exists.';
-            return redirect()->route('dashboard.adminIndex')->withErrors(['error' => $errorMessage])->with('subjectError', $errorMessage);
-        }
 
         return redirect()->route('dashboard.adminIndex')->with('success', 'Subject added successfully!');
     }
