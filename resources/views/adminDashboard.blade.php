@@ -7,37 +7,42 @@
     <div class="login-container">
         <h2 class="text-center mb-4">Welcome to Subjects Record, manage subjects for the Term</h2>
 
-        <!-- Search and Filter Form -->
+        <!-- Search Form -->
         <div class="row mb-4">
-            <div class="col-md-6">
+            <div class="col-md-8">
                 <form action="{{ route('dashboard.adminIndex') }}" method="GET" class="form-inline">
-                    <input class="form-control mr-sm-2" type="search" placeholder="Search by Subject name or Code" aria-label="Search" name="search" style="width: 280px;">
-                    <button class="btn btn-outline-secondary my-2 my-sm-0" type="submit" style="color: black;">Search <i class="fa fa-search" style="color: black;"></i></button>
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search by Subject Name or Code" aria-label="Search" name="search">
+                    <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
                 </form>
             </div>
-        
-         @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+            <div class="col-md-4">
+                <form id="deleteAllForm" action="{{ route('admin.subjects.deleteAll') }}" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <button type="button" onclick="confirmDelete()" class="btn btn-danger float-right">Delete All</button>
+                </form>
             </div>
+        </div>
+
+        @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
         @endif
+        
         @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </ul>
-            </div>
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
         @endif
-        
-        <!-- Subjects List -->
+
         <div class="row">
             @forelse ($subjects as $subject)
             <div class="col-md-4">
