@@ -70,11 +70,26 @@
                 </div>
                 <div class="form-group">
                     <label for="Department">Department:</label>
-                    <input type="text" class="form-control" id="Department" name="Department" value="{{ $subject->Department }}" required>
+                    <select class="form-control" id="Department" name="Department" required>
+                        <option value="">Select a Department</option>
+                        @foreach($collegeDepartments[$subject->College] as $department)
+                            <option value="{{ $department }}" {{ $department == $subject->Department ? 'selected' : '' }}>
+                                {{ $department }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="Program">Program:</label>
-                    <input type="text" class="form-control" id="Program" name="Program" value="{{ $subject->Program }}" required>
+                    <select class="form-control" id="Program" name="Program" required>
+                        <option value="">Select Program</option>
+                        @foreach($programs as $program)
+                            <option value="{{ $program->program_name }}" 
+                                {{ $program->program_name == $subject->Program ? 'selected' : '' }}>
+                                {{ $program->program_name }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="Academic_Year">Academic Year:</label>
@@ -99,7 +114,6 @@
             }
         });
 
-        // Update Total Units when Lec or Lab changes
         document.getElementById("Lec").addEventListener("change", updateTotalUnits);
         document.getElementById("Lab").addEventListener("change", updateTotalUnits);
         
@@ -109,5 +123,64 @@
             var totalUnits = lec + lab;
             document.getElementById("Units").value = totalUnits;
         }
+
+        const collegeDepartments = {
+        'COECSA': ['DCS', 'DOE', 'DOA'],
+        'CAMS': ['CAMS Dept', 'CAMS Dept1', 'CAMS Dept2'],
+        'CAS': ['CAS Dept', 'CAS Dept1', 'CAS Dept2'],
+        'CBA': ['CBA Dept', 'CBA Dept1', 'CBA Dept2'],
+        'CFAD': ['CFAD Dept', 'CFAD Dept1', 'CFAD Dept2'],
+        'CITHM': ['Tourism', 'CITHM Dept1', 'CITHM Dept2'],
+        'NURSING': ['NURSING Dept', 'NURSING Dept1', 'NURSING Dept2']
+    };
+
+    function updateDepartments() {
+        const collegeSelect = document.getElementById('College');
+        const departmentSelect = document.getElementById('Department');
+        const selectedCollege = collegeSelect.value;
+
+        departmentSelect.innerHTML = '<option value="">Select Department</option>';
+
+        if (selectedCollege && collegeDepartments[selectedCollege]) {
+            collegeDepartments[selectedCollege].forEach(department => {
+                const option = document.createElement('option');
+                option.value = department;
+                option.textContent = department;
+                departmentSelect.appendChild(option);
+            });
+        }
+    }
+
+    document.getElementById('College').addEventListener('change', updateDepartments);
+    
+    updateDepartments();
+
+    const programsData = {!! json_encode($programs) !!};
+
+    function updatePrograms() {
+        const collegeSelect = document.getElementById('College');
+        const departmentSelect = document.getElementById('Department');
+        const programSelect = document.getElementById('Program');
+        const selectedCollege = collegeSelect.value;
+        const selectedDepartment = departmentSelect.value;
+
+        const filteredPrograms = programsData.filter(program => {
+            return program.college === selectedCollege && program.department === selectedDepartment;
+        });
+
+        programSelect.innerHTML = '<option value="">Select Program</option>';
+
+        filteredPrograms.forEach(program => {
+            const option = document.createElement('option');
+            option.value = program.program_name;
+            option.textContent = program.program_name;
+            programSelect.appendChild(option);
+        });
+    }
+
+    document.getElementById('College').addEventListener('change', updatePrograms);
+    document.getElementById('Department').addEventListener('change', updatePrograms);
+
+    updatePrograms();
     });
 </script>

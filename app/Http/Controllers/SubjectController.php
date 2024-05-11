@@ -187,6 +187,22 @@ class SubjectController extends Controller
             'Units' => $totalUnits, 
         ]);
 
+        $existingSubject = Subject::where('Subject_Code', $request->input('Subject_Code'))
+                                    ->where('Description', $request->input('Description'))
+                                    ->where('Pre_Req', $request->input('Pre_Req'))
+                                    ->where('Year_Level', $request->input('Year_Level'))
+                                    ->where('Semester', $request->input('Semester'))
+                                    ->where('College', $request->input('College'))
+                                    ->where('Department', $request->input('Department'))
+                                    ->where('Program', $request->input('Program'))
+                                    ->where('Academic_Year', $request->input('Academic_Year'))
+                                    ->first();
+    
+        if ($existingSubject) {
+            $errorMessage = 'A subject with the same data already exists.';
+            return redirect()->route('dashboard.adminIndex')->withErrors(['error' => $errorMessage])->with('subjectError', $errorMessage);
+        }
+
         return redirect()->route('dashboard.adminIndex')->with('success', 'Subject added successfully!');
     }
 
@@ -213,8 +229,19 @@ class SubjectController extends Controller
     public function edit($id)
     {
         $subject = Subject::findOrFail($id);
-        return view('admin.edit_subject', compact('subject'));
+        $programs = Programs::all();
+        $collegeDepartments = [
+            'COECSA' => ['DCS', 'DOE', 'DOA'],
+            'CAMS' => ['CAMS Dept', 'CAMS Dept1', 'CAMS Dept2'],
+            'CAS' => ['CAS Dept', 'CAS Dept1', 'CAS Dept2'],
+            'CBA' => ['CBA Dept', 'CBA Dept1', 'CBA Dept2'],
+            'CFAD' => ['CFAD Dept', 'CFAD Dept1', 'CFAD Dept2'],
+            'CITHM' => ['Tourism', 'CITHM Dept1', 'CITHM Dept2'],
+            'NURSING' => ['NURSING Dept', 'NURSING Dept1', 'NURSING Dept2']
+        ];
+        return view('admin.edit_subject', compact('subject', 'programs', 'collegeDepartments'));
     }
+    
 
     public function update(Request $request, $id)
     {

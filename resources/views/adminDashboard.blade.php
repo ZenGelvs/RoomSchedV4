@@ -7,46 +7,41 @@
     <div class="login-container">
         <h2 class="text-center mb-4">Welcome to Subjects Record, manage subjects for the Term</h2>
 
-        <!-- Search Form -->
+        <!-- Search and Filter Form -->
         <div class="row mb-4">
-            <div class="col-md-8">
+            <div class="col-md-6">
                 <form action="{{ route('dashboard.adminIndex') }}" method="GET" class="form-inline">
-                    <input class="form-control mr-sm-2" type="search" placeholder="Search by Subject Name or Code" aria-label="Search" name="search">
-                    <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search by Subject name or Code" aria-label="Search" name="search" style="width: 280px;">
+                    <button class="btn btn-outline-secondary my-2 my-sm-0" type="submit" style="color: black;">Search <i class="fa fa-search" style="color: black;"></i></button>
                 </form>
             </div>
-            <div class="col-md-4">
-                <form id="deleteAllForm" action="{{ route('admin.subjects.deleteAll') }}" method="POST">
-                    @csrf
-                    @method('DELETE')
-                    <button type="button" onclick="confirmDelete()" class="btn btn-danger float-right">Delete All</button>
-                </form>
+        
+         @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-        </div>
-
-        @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
+        @endif
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </ul>
+            </div>
         @endif
         
-        @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-        @endif
-
+        <!-- Subjects List -->
         <div class="row">
             @forelse ($subjects as $subject)
             <div class="col-md-4">
-                <div class="card mb-4">
+                <div class="card mb-4 animated fadeIn card-hover">
                     <div class="card-body">
                         <h5 class="card-title"><b>{{ $subject->Subject_Code }}</b></h5>
                         <p class="card-text"><strong>{{ $subject->Description }}</strong></p>
@@ -62,20 +57,20 @@
                             <li class="list-group-item"><b>Program:</b> {{ $subject->Program }}</li>
                             <li class="list-group-item"><b>Academic Year:</b> {{ $subject->Academic_Year }}</li>
                         </ul>
-                        <div class="row">
-                            <div class="col-md-3">
+                        <div class="row mt-3">
+                            <div class="col-md-6">
                                 <!-- Delete Button -->
                                 <form action="{{ route('admin.subjects.delete', $subject->id) }}" method="POST" onsubmit="return confirmDeleteIndiv()">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger mt-2">Delete</button>
+                                    <button type="submit" class="btn btn-danger rounded-pill btn-block">Delete</button>
                                 </form>
                             </div>
                             <div class="col-md-6">
                                 <!-- Edit Button -->
                                 <form action="{{ route('admin.subjects.edit', $subject->id) }}" method="GET">
                                     @csrf
-                                    <button type="submit" class="btn btn-warning mt-2">Edit</button>
+                                    <button type="submit" class="btn btn-warning rounded-pill btn-block">Edit</button>
                                 </form>
                             </div>
                         </div>
