@@ -74,6 +74,7 @@
                                 @endfor
                             @endfor
                         </select>
+                        <small class="text-danger" id="endTimeError" style="display:none;">End time must be after start time.</small>
                     </div>
                     <div class="form-group">
                         <label for="sectionId">Section ID:</label>
@@ -165,7 +166,7 @@
                     </div>
                     <div class="form-group">
                         <label for="preferredEndTime">End Time:</label>
-                        <select class="form-control" id="preferredEndTime" name="preferredEndTime" required>
+                        <select class="form-control" id="preferredEndTime" name="preferred_end_time" required>
                             <option value="">Select an End time</option>
                             @for ($hour = 7; $hour <= 20; $hour++)
                                 @for ($minute = 0; $minute < 60; $minute += 30)
@@ -176,6 +177,7 @@
                                 @endfor
                             @endfor
                         </select>
+                        <small class="text-danger" id="PrefendTimeError" style="display:none;">End time must be after start time.</small>
                     </div>
                     <div class="form-group">
                         <label for="preferredRoom">Select Room:</label>
@@ -229,41 +231,72 @@
         });
     });
 
-    document.getElementById('startTime').addEventListener('change', validateTime);
-    document.getElementById('endTime').addEventListener('change', validateTime);
+    function checkEndTime() {
+            console.log('Checking end time');
+            var startTime = $('#startTime').val();
+            var endTime = $('#endTime').val();
 
-    function validateTime() {
-        var startTime = document.getElementById('startTime').value;
-        var endTime = document.getElementById('endTime').value;
-
-        if (startTime >= endTime) {
-            alert('Start time must be before end time.');
-            this.value = '';
-        }
-    }
-    
-    const autoScheduleForm = document.getElementById('autoScheduleForm');
-    const preferredStartTime = document.getElementById('preferredStartTime');
-    const preferredEndTime = document.getElementById('preferredEndTime');
-
-    autoScheduleForm.addEventListener('submit', (event) => {
-        const startTime = preferredStartTime.value;
-        const endTime = preferredEndTime.value;
-
-        if (startTime >= endTime) {
-            event.preventDefault();
-            alert('End time must be after the start time.');
-        } else {
-            const [startHour, startMinute] = startTime.split(':').map(Number);
-            const [endHour, endMinute] = endTime.split(':').map(Number);
-
-            const durationMinutes = (endHour * 60 + endMinute) - (startHour * 60 + startMinute);
-
-            if (durationMinutes !== 90) {
-                event.preventDefault();
-                alert('The time interval between start and end times must be exactly 1 hour and 30 minutes.');
+            if (startTime && endTime) {
+                console.log('Start Time:', startTime);
+                console.log('End Time:', endTime);
+                if (endTime <= startTime) {
+                    $('#endTimeError').show();
+                    console.log('End time is before start time');
+                    return false;
+                } else {
+                    $('#endTimeError').hide();
+                    console.log('End time is after start time');
+                    return true;
+                }
             }
+            console.log('Start time or End time is not selected');
+            return true;
         }
-    });
+
+            $('#startTime').change(function() {
+                checkEndTime();
+            });
+
+            $('#endTime').change(function() {
+                checkEndTime();
+            });
+
+            $('form').submit(function() {
+                return checkEndTime();
+            });
+
+    function checkPrefEndTime() {
+            console.log('Checking end time');
+            var startTime = $('#preferredStartTime').val();
+            var endTime = $('#preferredEndTime').val();
+
+            if (startTime && endTime) {
+                console.log('Start Time:', startTime);
+                console.log('End Time:', endTime);
+                if (endTime <= startTime) {
+                    $('#PrefendTimeError').show();
+                    console.log('End time is before start time');
+                    return false;
+                } else {
+                    $('#PrefendTimeError').hide();
+                    console.log('End time is after start time');
+                    return true;
+                }
+            }
+            console.log('Start time or End time is not selected');
+            return true;
+        }
+
+            $('#preferredStartTime').change(function() {
+                checkPrefEndTime();
+            });
+
+            $('#preferredEndTime').change(function() {
+                checkPrefEndTime();
+            });
+
+            $('form').submit(function() {
+                return checkPrefEndTime();
+            });
 </script>
 @endsection

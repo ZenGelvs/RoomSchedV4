@@ -246,13 +246,12 @@ class RoomCoordinatorController extends Controller
     public function storeSchedule(Request $request)
     {
         $request->validate([
-            'day' => 'required|string',
-            'startTime' => 'required',
-            'endTime' => 'required',
-            'sectionId' => 'required',
-            'subjectId' => 'required',
-            'type' => 'required',
-            'roomId' => 'required',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'type' => 'required|string',
+            'room_id' => 'required|string',
+            'department' => 'required|string',
+            'college' => 'required|string',
         ]);
 
         $section = Sections::findOrFail($request->sectionId);
@@ -279,6 +278,18 @@ class RoomCoordinatorController extends Controller
         ->exists();
 
         if ($overlappingSchedule) {
+            return redirect()->back()->with('error', 'There is an overlapping schedule for this section.');
+        }
+
+        $overlappingRoomSchedule = Schedules::where('day', $request->day)
+            ->where('room_id', $request->roomId)
+            ->where(function ($query) use ($request) {
+                $query->where('start_time', '<', $request->endTime)
+                    ->where('end_time', '>', $request->startTime);
+            })
+            ->exists();
+
+        if ($overlappingRoomSchedule) {
             return redirect()->back()->with('error', 'There is an overlapping schedule for the selected room and time slot.');
         }
 
@@ -399,7 +410,7 @@ class RoomCoordinatorController extends Controller
             if ($room->room_type === 'Lecture') {
                 // Initialize start time based on the end time of the last scheduled slot
                 $startTime = empty($scheduledSlots) ? $preferredStartTime : end($scheduledSlots)['end_time'];
-                $endTime = date('H:i', strtotime($startTime) + (1 * 3600) + (30 * 60)); // Assuming 1.5 hours duration
+                $endTime = $preferredEndTime;
 
                 // Check if the calculated time slot overlaps with any existing schedules for the same section, day, and time
                 $overlappingSchedule = Schedules::where('day', $day)
