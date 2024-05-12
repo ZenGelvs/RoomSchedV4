@@ -279,7 +279,7 @@ class ScheduleController extends Controller
             if ($room->room_type === 'Lecture') {
                 // Initialize start time based on the end time of the last scheduled slot
                 $startTime = empty($scheduledSlots) ? $preferredStartTime : end($scheduledSlots)['end_time'];
-                $endTime = date('H:i', strtotime($startTime) + (1 * 3600) + (30 * 60)); // Assuming 1.5 hours duration
+                $endTime = $preferredEndTime;
 
                 // Check if the calculated time slot overlaps with any existing schedules for the same section, day, and time
                 $overlappingSchedule = Schedules::where('day', $day)

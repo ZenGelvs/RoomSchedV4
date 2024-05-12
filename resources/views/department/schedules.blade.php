@@ -165,7 +165,7 @@
                     </div>
                     <div class="form-group">
                         <label for="preferredEndTime">End Time:</label>
-                        <select class="form-control" id="preferredEndTime" name="preferredEndTime" required>
+                        <select class="form-control" id="preferredEndTime" name="preferred_end_time" required>
                             <option value="">Select an End time</option>
                             @for ($hour = 7; $hour <= 20; $hour++)
                                 @for ($minute = 0; $minute < 60; $minute += 30)
@@ -285,17 +285,7 @@
         if (startTime >= endTime) {
             event.preventDefault();
             alert('End time must be after the start time.');
-        } else {
-            const [startHour, startMinute] = startTime.split(':').map(Number);
-            const [endHour, endMinute] = endTime.split(':').map(Number);
-
-            const durationMinutes = (endHour * 60 + endMinute) - (startHour * 60 + startMinute);
-
-            if (durationMinutes !== 90) {
-                event.preventDefault();
-                alert('The time interval between start and end times must be exactly 1 hour and 30 minutes.');
-            }
-        }
+        } 
     });
 </script>
 @endsection
