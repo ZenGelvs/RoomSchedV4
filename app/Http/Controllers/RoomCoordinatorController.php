@@ -227,6 +227,16 @@ class RoomCoordinatorController extends Controller
             return redirect()->back()->with('error', 'There is an overlapping schedule for the selected room and time slot.');
         }
 
+        $overlappingRoomSchedule = Schedules::where('day',  $request->day)
+                    ->where('start_time', '<',  $request->endTime)
+                    ->where('end_time', '>', $request->startTime)
+                    ->where('room_id', $request->roomId)
+                    ->exists();
+
+        if ($overlappingRoomSchedule) {
+            return redirect()->back()->with('error', 'There is an overlapping schedule for the selected room and time slot.');
+        }
+        
         $schedule->update($request->all());
 
         return redirect()->route('roomCoordinator.viewSectionSchedule', $schedule->section_id)->with('success', 'Schedule updated successfully');
