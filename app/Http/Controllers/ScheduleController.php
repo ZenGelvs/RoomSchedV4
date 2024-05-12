@@ -54,17 +54,29 @@ class ScheduleController extends Controller
         }
 
         $overlappingSchedule = Schedules::where('day', $request->day)
-        ->where('section_id', $request->sectionId)
-        ->where(function ($query) use ($request) {
-            $query->where('start_time', '<', $request->endTime)
-                ->where('end_time', '>', $request->startTime);
-        })
-        ->exists();
+            ->where('section_id', $request->sectionId)
+            ->where(function ($query) use ($request) {
+                $query->where('start_time', '<', $request->endTime)
+                    ->where('end_time', '>', $request->startTime);
+            })
+            ->exists();
 
         if ($overlappingSchedule) {
-            return redirect()->back()->with('error', 'There is an overlapping schedule for the selected room and time slot.');
+            return redirect()->back()->with('error', 'There is an overlapping schedule for this section.');
         }
 
+        $overlappingRoomSchedule = Schedules::where('day', $request->day)
+            ->where('room_id', $request->roomId)
+            ->where(function ($query) use ($request) {
+                $query->where('start_time', '<', $request->endTime)
+                    ->where('end_time', '>', $request->startTime);
+            })
+            ->exists();
+
+        if ($overlappingRoomSchedule) {
+            return redirect()->back()->with('error', 'There is an overlapping schedule for the selected room and time slot.');
+        }
+        
         Schedules::create([
             'day' => $request->day,
             'start_time' => $request->startTime,
@@ -79,8 +91,7 @@ class ScheduleController extends Controller
 
         return redirect()->back()->with('success', 'Schedule created successfully.');
     }
-
-
+    
     public function ScheduleIndex(Request $request)
     {
         $sectionId = $request->input('section');
@@ -129,46 +140,54 @@ class ScheduleController extends Controller
             'day' => 'required|string',
             'startTime' => 'required',
             'endTime' => 'required',
-            'subjectId' => 'required', 
+            'subjectId' => 'required',
             'type' => 'required',
             'roomId' => 'required',
         ]);
 
         $existingSchedule = Schedules::where('day', $request->day)
-        ->where('start_time', $request->startTime)
-        ->where('end_time', $request->endTime)
-        ->where('section_id', $request->sectionId)
-        ->where('subject_id', $request->subjectId)
-        ->where('type', $request->type)
-        ->where('room_id', $request->roomId)
-        ->exists();
+            ->where('start_time', $request->startTime)
+            ->where('end_time', $request->endTime)
+            ->where('section_id', $schedule->section_id) 
+            ->where('subject_id', $request->subjectId)
+            ->where('type', $request->type)
+            ->where('room_id', $request->roomId)
+            ->where('id', '!=', $schedule->id)
+            ->exists();
 
         if ($existingSchedule) {
             return redirect()->back()->with('error', 'A schedule with the same details already exists.');
         }
-
+        
         $overlappingSchedule = Schedules::where('day', $request->day)
-        ->where('section_id', $request->sectionId)
-        ->where('room_id', $request->roomId)
-        ->where(function ($query) use ($request) {
-            $query->whereRaw('? between start_time and end_time', [$request->startTime])
-                ->orWhereRaw('? between start_time and end_time', [$request->endTime])
-                ->orWhere(function ($query) use ($request) {
-                    $query->where('start_time', '>=', $request->startTime)
-                        ->where('end_time', '<=', $request->endTime);
-                });
-        })
-        ->exists();
+            ->where('section_id', $schedule->section_id) 
+            ->where('id', '!=', $schedule->id) 
+            ->where(function ($query) use ($request) {
+                $query->where('start_time', '<', $request->endTime)
+                    ->where('end_time', '>', $request->startTime);
+            })
+            ->exists();
 
-        if ($overlappingSchedule) {
+        if ($overlappingSchedule ) {
+            return redirect()->back()->with('error', 'There is an overlapping schedule for the section.');
+        }
+
+        $overlappingRoomSchedule = Schedules::where('day',  $request->day)
+                    ->where('start_time', '<',  $request->endTime)
+                    ->where('end_time', '>', $request->startTime)
+                    ->where('room_id', $request->roomId)
+                    ->exists();
+
+        if ($overlappingRoomSchedule) {
             return redirect()->back()->with('error', 'There is an overlapping schedule for the selected room and time slot.');
         }
+
         $schedule->update([
             'day' => $request->day,
             'start_time' => $request->startTime,
             'end_time' => $request->endTime,
-            'subject_id' => $request->subjectId, 
-            'type' => $request->type, 
+            'subject_id' => $request->subjectId,
+            'type' => $request->type,
             'room_id' => $request->roomId,
             'college' => Auth::user()->college,
             'department' => Auth::user()->department,
@@ -273,21 +292,21 @@ class ScheduleController extends Controller
         usort($scheduledSlots, function ($a, $b) {
             return strtotime($a['start_time']) - strtotime($b['start_time']);
         });
-
+    
         // Iterate through rooms
         foreach ($rooms as $room) {
             if ($room->room_type === 'Lecture') {
                 // Initialize start time based on the end time of the last scheduled slot
                 $startTime = empty($scheduledSlots) ? $preferredStartTime : end($scheduledSlots)['end_time'];
                 $endTime = $preferredEndTime;
-
+    
                 // Check if the calculated time slot overlaps with any existing schedules for the same section, day, and time
                 $overlappingSchedule = Schedules::where('day', $day)
                     ->where('start_time', '<', $endTime)
                     ->where('end_time', '>', $startTime)
                     ->where('section_id', $sectionId)
                     ->exists();
-
+    
                 // Check if the calculated time slot overlaps with any existing schedules for the same room and day
                 $overlappingRoomSchedule = Schedules::where('day', $day)
                     ->where('start_time', '<', $endTime)
@@ -304,7 +323,7 @@ class ScheduleController extends Controller
                 }
             }
         }
-
+    
         return null;
     }
 
