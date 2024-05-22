@@ -70,7 +70,7 @@
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         @php
-            $dashboardRoute = 'dashboard.index'; // Default dashboard route
+            $dashboardRoute = 'dashboard.index'; 
 
             if (Auth::user()->college === 'ADMIN' && Auth::user()->department === 'ADMIN') {
                 $dashboardRoute = 'dashboard.adminIndex';
