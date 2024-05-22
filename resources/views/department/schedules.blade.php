@@ -32,7 +32,7 @@
         </div>
         <div id="createScheduleCollapse" class="collapse" aria-labelledby="createScheduleHeading" data-parent="#accordion">
             <div class="card-body">
-                <!-- Form to create a new schedule -->
+                <!-- Manual Form to create a new schedule -->
                 <form action="{{ route('department.schedule.store') }}" method="POST" id="createScheduleForm">
                     @csrf
                     <div class="form-group">
@@ -102,6 +102,15 @@
                             <option value="">Select Class Type...</option>
                             <option value="Lecture">Lecture</option>
                             <option value="Laboratory">Laboratory</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="building">Building:</label>
+                        <select class="form-control" id="building" name="building" required>
+                            <option value="">Select Building...</option>
+                            <option value="COECSA">COECSA Building</option>
+                            <option value="SOTERO">SPL Building</option>
+                            <option value="JOSE">JPL Building</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -180,14 +189,23 @@
                         <small class="text-danger" id="PrefendTimeError" style="display:none;">End time must be after start time.</small>
                     </div>
                     <div class="form-group">
+                        <label for="preferredBuilding">Select a Building:</label>
+                        <select class="form-control" id="preferredBuilding" name="preferred_building" required>
+                            <option value="Any">Any</option>
+                            <option value="COECSA">COECSA Building</option>
+                            <option value="SOTERO">SPL Building</option>
+                            <option value="JOSE">JPL Building</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="preferredRoom">Select Room:</label>
                         <select class="form-control" id="preferredRoom" name="preferredRoom" required>
                             <option value="Any">Any</option>
                             @foreach ($rooms as $room)
-                                <option value="{{ $room->id }}">{{ $room->room_id }} {{ $room->room_name }}</option>
+                                <option value="{{ $room->id }}" data-building="{{ $room->building }}">{{ $room->room_id }} {{ $room->room_name }}</option>
                             @endforeach
                         </select>
-                    </div>                    
+                    </div>                                     
                     <button type="submit" class="btn btn-primary">Automate Scheduling</button>
                 </form>
             </div>
@@ -246,22 +264,26 @@
         });
     });
     
-    document.getElementById('type').addEventListener('change', function() {
-        var type = this.value; 
+    document.getElementById('building').addEventListener('change', filterRooms);
+    document.getElementById('type').addEventListener('change', filterRooms);
 
+    function filterRooms() {
+        var building = document.getElementById('building').value;
+        var type = document.getElementById('type').value;
         var roomSelect = document.getElementById('roomId');
 
         roomSelect.innerHTML = '<option value="">Select Room...</option>';
 
         @json($rooms).forEach(function(room) {
-            if (room.room_type === type) {
+            if ((building === '' || room.building === building) && 
+                (type === '' || room.room_type === type)) {
                 var option = document.createElement('option');
                 option.value = room.id;
                 option.textContent = room.room_id + ' - ' + room.room_name;
                 roomSelect.appendChild(option);
             }
         });
-    });
+    }
     
     function checkEndTime() {
             console.log('Checking end time');
@@ -330,5 +352,30 @@
             $('form').submit(function() {
                 return checkPrefEndTime();
             });
+        document.addEventListener('DOMContentLoaded', function() {
+            var preferredBuildingSelect = document.getElementById('preferredBuilding');
+            var preferredRoomSelect = document.getElementById('preferredRoom');
+
+            function filterRoomsByBuilding() {
+                var selectedBuilding = preferredBuildingSelect.value;
+                var options = preferredRoomSelect.querySelectorAll('option');
+
+                options.forEach(function(option) {
+                    var building = option.getAttribute('data-building');
+                    if (selectedBuilding === 'Any' || building === selectedBuilding) {
+                        option.style.display = '';
+                    } else {
+                        option.style.display = 'none';
+                    }
+                });
+
+                preferredRoomSelect.value = 'Any';
+            }
+
+            preferredBuildingSelect.addEventListener('change', filterRoomsByBuilding);
+
+            filterRoomsByBuilding();
+        });
+
 </script>
 @endsection

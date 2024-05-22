@@ -69,8 +69,8 @@
                                         <select class="form-control" id="building" name="building" required>
                                             <option value="">Select Building </option>
                                             <option value="COECSA">COECSA</option>
-                                            <option value="Jose">Jose</option>
-                                            <option value="Sotero">Sotero</option>
+                                            <option value="JOSE">Jose</option>
+                                            <option value="SOTERO">Sotero</option>
                                         </select>                                    </div>
                                     <button type="submit" class="btn btn-success">Add Room</button>
                                 </form>

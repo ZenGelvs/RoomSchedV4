@@ -105,6 +105,15 @@
                         </select>
                     </div>
                     <div class="form-group">
+                        <label for="building">Building:</label>
+                        <select class="form-control" id="building" name="building" required>
+                            <option value="">Select Building...</option>
+                            <option value="COECSA">COECSA Building</option>
+                            <option value="SOTERO">SPL Building</option>
+                            <option value="JOSE">JPL Building</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="roomId">Room ID:</label>
                         <select class="form-control" id="roomId" name="roomId" required>
                             <option value="">Select Room...</option>
@@ -180,6 +189,15 @@
                         <small class="text-danger" id="PrefendTimeError" style="display:none;">End time must be after start time.</small>
                     </div>
                     <div class="form-group">
+                        <label for="preferredBuilding">Select a Building:</label>
+                        <select class="form-control" id="preferredBuilding" name="preferred_building" required>
+                            <option value="Any">Any</option>
+                            <option value="COECSA">COECSA Building</option>
+                            <option value="SOTERO">SPL Building</option>
+                            <option value="JOSE">JPL Building</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="preferredRoom">Select Room:</label>
                         <select class="form-control" id="preferredRoom" name="preferredRoom" required>
                             <option value="Any">Any</option>
@@ -214,22 +232,26 @@
         });
     });
     
-    document.getElementById('type').addEventListener('change', function() {
-        var type = this.value; 
+    document.getElementById('building').addEventListener('change', filterRooms);
+    document.getElementById('type').addEventListener('change', filterRooms);
 
+    function filterRooms() {
+        var building = document.getElementById('building').value;
+        var type = document.getElementById('type').value;
         var roomSelect = document.getElementById('roomId');
 
         roomSelect.innerHTML = '<option value="">Select Room...</option>';
 
         @json($rooms).forEach(function(room) {
-            if (room.room_type === type) {
+            if ((building === '' || room.building === building) && 
+                (type === '' || room.room_type === type)) {
                 var option = document.createElement('option');
                 option.value = room.id;
                 option.textContent = room.room_id + ' - ' + room.room_name;
                 roomSelect.appendChild(option);
             }
         });
-    });
+    }
 
     function checkEndTime() {
             console.log('Checking end time');
@@ -298,5 +320,29 @@
             $('form').submit(function() {
                 return checkPrefEndTime();
             });
+        document.addEventListener('DOMContentLoaded', function() {
+            var preferredBuildingSelect = document.getElementById('preferredBuilding');
+            var preferredRoomSelect = document.getElementById('preferredRoom');
+
+            function filterRoomsByBuilding() {
+                var selectedBuilding = preferredBuildingSelect.value;
+                var options = preferredRoomSelect.querySelectorAll('option');
+
+                options.forEach(function(option) {
+                    var building = option.getAttribute('data-building');
+                    if (selectedBuilding === 'Any' || building === selectedBuilding) {
+                        option.style.display = '';
+                    } else {
+                        option.style.display = 'none';
+                    }
+                });
+
+                preferredRoomSelect.value = 'Any';
+            }
+
+            preferredBuildingSelect.addEventListener('change', filterRoomsByBuilding);
+
+            filterRoomsByBuilding();
+        });
 </script>
 @endsection

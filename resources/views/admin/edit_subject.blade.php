@@ -96,7 +96,7 @@
                     <input type="text" class="form-control" id="Academic_Year" name="Academic_Year" value="{{ $subject->Academic_Year }}" required>
                 </div>
                 <button type="submit" class="btn btn-warning">Update</button>
-                <a href="{{ route('admin.subjects.index') }}" onclick="return confirmCancelation()" type="button" class="btn btn-secondary" >Cancel</a>
+                <a href="{{ route('dashboard.adminIndex') }}" onclick="return confirmCancelation()" type="button" class="btn btn-secondary" >Cancel</a>
             </form>
         </div>
     </div>

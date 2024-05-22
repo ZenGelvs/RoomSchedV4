@@ -116,14 +116,16 @@ class ScheduleController extends Controller
         foreach ($faculty->subjects as $subject) {
             foreach ($subject->schedules as $schedule) {
                 $section = $subject->sections()->first();
-                $schedule->section = $section;
+                if ($section) {
+                    $schedule->section = $section;
+                }
                 $schedules->push($schedule);
             }
         }
-    
+
         return view('department.faculty_schedule', compact('faculty', 'schedules'));
     }
-    
+
     public function EditSchedule(Schedules $schedule)
     {
         $schedule->load('section');
@@ -204,13 +206,24 @@ class ScheduleController extends Controller
 
         $preferredStartTime = $request->preferred_start_time;
         $preferredEndTime = $request->preferred_end_time;
+        $preferredBuilding = $request->preferred_building;
 
         // Retrieve the section and its subjects
         $section = Sections::findOrFail($request->section_id);
         $subjects = $section->subjects;
 
-        // Retrieve rooms and filter by preferred room
-        $rooms = ($request->preferredRoom !== 'Any') ? Room::where('id', $request->preferredRoom)->get() : Room::where('room_type', 'Lecture')->get();
+        // Retrieve rooms and filter by preferred room and building
+        $roomsQuery = Room::where('room_type', 'Lecture');
+
+        if ($request->preferredRoom !== 'Any') {
+            $roomsQuery->where('id', $request->preferredRoom);
+        }
+
+        if ($preferredBuilding !== 'Any') {
+            $roomsQuery->where('building', $preferredBuilding);
+        }
+
+        $rooms = $roomsQuery->get();
 
         // Determine preferred days to iterate through
         $daysOfWeek = ($request->preferred_day !== 'Any') ? [$request->preferred_day] : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -241,12 +254,6 @@ class ScheduleController extends Controller
                     $availableSlot = $this->findAvailableSlot($rooms, $day, $preferredStartTime, $preferredEndTime, $scheduledSlots[$day], $request->section_id);
 
                     if ($availableSlot) {
-                        // Check if the available slot is different from the preferred time slot
-                        $preferredTimeSlot = [
-                            'start_time' => $preferredStartTime,
-                            'end_time' => $preferredEndTime,
-                        ];
-
                         // Create a new schedule for the subject
                         Schedules::create([
                             'day' => $day,
@@ -292,21 +299,21 @@ class ScheduleController extends Controller
         usort($scheduledSlots, function ($a, $b) {
             return strtotime($a['start_time']) - strtotime($b['start_time']);
         });
-    
+
         // Iterate through rooms
         foreach ($rooms as $room) {
             if ($room->room_type === 'Lecture') {
                 // Initialize start time based on the end time of the last scheduled slot
                 $startTime = empty($scheduledSlots) ? $preferredStartTime : end($scheduledSlots)['end_time'];
                 $endTime = $preferredEndTime;
-    
+
                 // Check if the calculated time slot overlaps with any existing schedules for the same section, day, and time
                 $overlappingSchedule = Schedules::where('day', $day)
                     ->where('start_time', '<', $endTime)
                     ->where('end_time', '>', $startTime)
                     ->where('section_id', $sectionId)
                     ->exists();
-    
+
                 // Check if the calculated time slot overlaps with any existing schedules for the same room and day
                 $overlappingRoomSchedule = Schedules::where('day', $day)
                     ->where('start_time', '<', $endTime)
@@ -323,7 +330,7 @@ class ScheduleController extends Controller
                 }
             }
         }
-    
+
         return null;
     }
 

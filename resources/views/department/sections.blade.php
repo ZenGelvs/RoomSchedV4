@@ -111,13 +111,13 @@
     @section('scripts')
         <script>
             function updateYearLevelLabel() {
-                var yearLevel = $('#year_level').val(); 
+                var yearLevel = $('#year_level').val();
                 var section = $('#section').val();
-                
-                if (section !== '') {
+
+                if (yearLevel && section) {
                     $('#year_level_label').text(yearLevel + "0" + section);
                 } else {
-                    $('#year_level_label').text(yearLevel + "0");
+                    $('#year_level_label').text('');
                 }
             }
 

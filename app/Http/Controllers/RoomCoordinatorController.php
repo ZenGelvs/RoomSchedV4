@@ -136,15 +136,20 @@ class RoomCoordinatorController extends Controller
 
     public function viewFacultySchedule($facultyId)
     {
-        $faculty = Faculty::findOrFail($facultyId);
+        $facultyId = $request->input('faculty');
+        $faculty = Faculty::findOrFail($facultyId); 
+
         $schedules = collect();
         foreach ($faculty->subjects as $subject) {
             foreach ($subject->schedules as $schedule) {
                 $section = $subject->sections()->first();
-                $schedule->section = $section;
+                if ($section) {
+                    $schedule->section = $section;
+                }
                 $schedules->push($schedule);
             }
         }
+
         return view('roomCoordinator.faculty_sched', compact('faculty', 'schedules'));
     }
 
@@ -326,13 +331,24 @@ class RoomCoordinatorController extends Controller
 
         $preferredStartTime = $request->preferred_start_time;
         $preferredEndTime = $request->preferred_end_time;
+        $preferredBuilding = $request->preferred_building;
 
         // Retrieve the section and its subjects
         $section = Sections::findOrFail($request->section_id);
         $subjects = $section->subjects;
 
-        // Retrieve rooms and filter by preferred room
-        $rooms = ($request->preferredRoom !== 'Any') ? Room::where('id', $request->preferredRoom)->get() : Room::where('room_type', 'Lecture')->get();
+       // Retrieve rooms and filter by preferred room and building
+       $roomsQuery = Room::where('room_type', 'Lecture');
+
+       if ($request->preferredRoom !== 'Any') {
+           $roomsQuery->where('id', $request->preferredRoom);
+       }
+
+       if ($preferredBuilding !== 'Any') {
+           $roomsQuery->where('building', $preferredBuilding);
+       }
+
+       $rooms = $roomsQuery->get();
 
         // Determine preferred days to iterate through
         $daysOfWeek = ($request->preferred_day !== 'Any') ? [$request->preferred_day] : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -363,12 +379,6 @@ class RoomCoordinatorController extends Controller
                     $availableSlot = $this->findAvailableSlot($rooms, $day, $preferredStartTime, $preferredEndTime, $scheduledSlots[$day], $request->section_id);
 
                     if ($availableSlot) {
-                        // Check if the available slot is different from the preferred time slot
-                        $preferredTimeSlot = [
-                            'start_time' => $preferredStartTime,
-                            'end_time' => $preferredEndTime,
-                        ];
-
                         // Create a new schedule for the subject
                         Schedules::create([
                             'day' => $day,
