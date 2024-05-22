@@ -69,7 +69,18 @@
     @auth
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <img src="{{ asset('OccuPirate (white transparent).png') }}" alt="OCCUPIrate" height="50">
+        @php
+            $dashboardRoute = 'dashboard.index'; // Default dashboard route
+
+            if (Auth::user()->college === 'ADMIN' && Auth::user()->department === 'ADMIN') {
+                $dashboardRoute = 'dashboard.adminIndex';
+            } elseif (Auth::user()->college === 'ROOM COORDINATOR' && Auth::user()->department === 'ROOM COORDINATOR') {
+                $dashboardRoute = 'dashboard.roomCoordIndex';
+            }
+        @endphp
+        <a class="navbar-brand" href="{{ route($dashboardRoute) }}">
+            <img src="{{ asset('OccuPirate (white transparent).png') }}" alt="OCCUPIrate" height="50">
+        </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -104,17 +115,17 @@
                         <a class="nav-link" href="{{ route('dashboard.index') }}">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('department.schedule') }}">Schedules</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('department.faculty') }}">Faculty</a>
+                        <a class="nav-link" href="{{ route('department.sections') }}">Sections</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('department.subjects') }} ">Subjects</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('department.sections') }}">Sections</a>
+                        <a class="nav-link" href="{{ route('department.faculty') }}">Faculty</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('department.schedule') }}">Schedules</a>
+                    </li> 
                 @endif
 
                 <li class="nav-item dropdown">
