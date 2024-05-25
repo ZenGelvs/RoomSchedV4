@@ -28,6 +28,50 @@
         </div>
     @endif
         <div class="card-body">
+
+            <!-- Summary Table for Subjects -->
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Subject Code</th>
+                            <th>Description</th>
+                            <th>Assigned Faculty</th>
+                            <th>Lec</th>
+                            <th>Lab</th>
+                            <th>Total Units</th>
+                            <th>Schedule</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($subjects as $subject)
+                            <tr>
+                                <td>{{ $subject->Subject_Code }}</td>
+                                <td>{{ $subject->Description }}</td>
+                                <td>
+                                    @if($subject->faculty->isNotEmpty())
+                                        @foreach($subject->faculty as $faculty)
+                                            {{ $faculty->name }},
+                                        @endforeach
+                                    @else
+                                        N/A
+                                    @endif
+                                </td>
+                                <td>{{ $subject->Lec }}</td>
+                                <td>{{ $subject->Lab }}</td>
+                                <td>{{ $subject->Units }}</td>
+                                <td>
+                                    @foreach ($subject->schedules as $schedule)
+                                        {{ $schedule->day }}: {{ $schedule->start_time }} - {{ $schedule->end_time }} ({{ $schedule->room->room_id }} {{ $schedule->room->room_name }})<br>
+                                    @endforeach
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Day-wise Schedule Tables -->
             <div class="row">
                 @foreach(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as $day)
                 <div class="col-md-2">
@@ -60,26 +104,16 @@
                                 @endif
                                 <tr>
                                     <td style="background-color: {{ $color }}; color: {{ $textColor }};">
-                                        <p><strong>Time:</strong> {{ $schedule->start_time }} - {{ $schedule->end_time }}</p>
-                                        <p><strong>Subject Code:</strong> {{ $schedule->subject->Subject_Code }}</p>
-                                        <p><strong>Subject:</strong> {{ $schedule->subject->Description }}</p>
-                                        <p><strong>Type:</strong> {{ $schedule->type }}</p>
-                                        <p><strong>Room:</strong> {{ $schedule->room->room_id }} {{ $schedule->room->room_name }}</p>
-                                        <p><strong>Faculty:</strong> 
-                                            @if($schedule->subject && $schedule->subject->faculty->isNotEmpty())
-                                                @foreach($schedule->subject->faculty as $faculty)
-                                                    {{ $faculty->name }},
-                                                @endforeach
-                                            @else
-                                                N/A
-                                            @endif
-                                        </p>
-                                        <a href="{{ route('roomCoordinator.editSchedule', $schedule->id) }}" class="btn btn-warning">Edit</a>
-                                        <form action="{{ route('roomCoordinator.destroySchedule', $schedule->id) }}" method="POST" class="delete-form">
+                                        <p><strong>{{ $schedule->start_time }} - {{ $schedule->end_time }}</strong></p>
+                                        <p><strong>{{ $schedule->subject->Subject_Code }}</strong></p>
+                                        <p><strong>{{ $schedule->type }}</strong> </p>
+                                        <p><strong>{{ $schedule->room->room_id }}</strong></p>
+                                        <a href="{{ route('department.schedule.edit', $schedule->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                                        <form action="{{ route('department.schedule.destroy', $schedule->id) }}" method="POST" class="delete-form">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-danger delete-btn">Delete</button>
-                                        </form>                                        
+                                        </form>
                                     </td>
                                 </tr>
                                 @php

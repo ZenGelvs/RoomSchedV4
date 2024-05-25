@@ -116,9 +116,11 @@ class ScheduleController extends Controller
     {
         $sectionId = $request->input('section');
         $section = Sections::findOrFail($sectionId); 
-        $schedules = $section->schedules()->get(); 
+        $schedules = $section->schedules()->get();
+        
+        $subjects = $section->subjects()->with('schedules', 'faculty')->get();
 
-        return view('department.section_schedule', compact('section', 'schedules'));
+        return view('department.section_schedule', compact('section', 'schedules', 'subjects'));
     }
 
     public function destroy(Schedules $schedule)

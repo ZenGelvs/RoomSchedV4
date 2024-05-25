@@ -21,42 +21,51 @@
                         </form>
                     </div>
                 </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Faculty ID</th>
-                                <th>Name</th>
-                                <th>College</th>
-                                <th>Department</th>
-                                <th>Assigned Subjects</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($facultyList as $faculty)
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
                                 <tr>
-                                    <td>{{ $faculty->faculty_id }}</td>
-                                    <td>{{ $faculty->name }}</td>
-                                    <td>{{ $faculty->college }}</td>
-                                    <td>{{ $faculty->department }}</td>
-                                    <td>
-                                        <ul>
-                                            @foreach ($faculty->subjects as $subject)
-                                                <li>{{ $subject->Description }}</li>
-                                            @endforeach
-                                        </ul>
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('roomCoordinator.viewFacultySchedule', $faculty->id) }}" class="btn btn-primary">View Schedule</a>
-                                    </td>
+                                    <th>Faculty ID</th>
+                                    <th>Name</th>
+                                    <th>College</th>
+                                    <th>Department</th>
+                                    <th>Assigned Subjects</th>
+                                    <th>Actions</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach ($facultyList as $faculty)
+                                    <tr>
+                                        <td>{{ $faculty->faculty_id }}</td>
+                                        <td>{{ $faculty->name }}</td>
+                                        <td>{{ $faculty->college }}</td>
+                                        <td>{{ $faculty->department }}</td>
+                                        <td>
+                                            <ul>
+                                                @php
+                                                    $subjectsGrouped = $faculty->subjects->groupBy(function($item) {
+                                                        return $item->Subject_Code . '-' . $item->Description;
+                                                    });
+                                                @endphp
+                                                @foreach ($subjectsGrouped as $subjectGroup)
+                                                    @php
+                                                        $subject = $subjectGroup->first();
+                                                    @endphp
+                                                    <li>{{ $subject->Description }}</li>
+                                                @endforeach
+                                            </ul>
+                                        </td>
+                                        <td>
+                                            <a href="{{ route('roomCoordinator.viewFacultySchedule', $faculty->id) }}" class="btn btn-primary">View Schedule</a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    {{ $facultyList->links() }}
                 </div>
-                {{ $facultyList->links() }}
             </div>
         </div>
     </div>

@@ -9,6 +9,53 @@
                 <h2 class="text-center mb-0">Room Schedule {{ $room->room_id }} - {{ $room->room_name }}</h2>
             </div>
         </div>
+        <!-- Summary Table for Subjects -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h4 class="card-title">Summary of Scheduled Subjects</h4>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Subject Code</th>
+                                <th>Description</th>
+                                <th>Assigned Faculty</th>
+                                <th>Lec</th>
+                                <th>Lab</th>
+                                <th>Total Units</th>
+                                <th>Schedule</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($schedules->unique('subject_id') as $schedule)
+                                <tr>
+                                    <td>{{ $schedule->subject->Subject_Code }}</td>
+                                    <td>{{ $schedule->subject->Description }}</td>
+                                    <td>
+                                        @if($schedule->subject->faculty->isNotEmpty())
+                                            @foreach($schedule->subject->faculty as $faculty)
+                                                {{ $faculty->name }}<br>
+                                            @endforeach
+                                        @else
+                                            N/A
+                                        @endif
+                                    </td>
+                                    <td>{{ $schedule->subject->Lec }}</td>
+                                    <td>{{ $schedule->subject->Lab }}</td>
+                                    <td>{{ $schedule->subject->Units }}</td>
+                                    <td>
+                                        @foreach ($schedules->where('subject_id', $schedule->subject_id) as $sched)
+                                            {{ $sched->day }}: {{ $sched->start_time }} - {{ $sched->end_time }} (Section: {{ $schedule->section->program_name }} {{ $schedule->section->section }}) <br>
+                                        @endforeach
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- Day-wise Schedule Tables -->
         <div class="card mt-4">
             <div class="card-body">
                 <div class="row">
@@ -35,7 +82,7 @@
                                         @endphp
                                         @if ($schedule->start_time > $startTime)
                                             <tr>
-                                                <td style="">
+                                                <td style="background-color: #f2f2f2;">
                                                     <p><strong>Time:</strong> {{ $startTime }} - {{ $schedule->start_time }}</p>
                                                     <p><em>No schedule</em></p>
                                                 </td>
@@ -43,21 +90,10 @@
                                         @endif
                                         <tr>
                                             <td style="background-color: {{ $color }}; color: {{ $textColor }};">
-                                                <p><strong>Time:</strong> {{ $schedule->start_time }} - {{ $schedule->end_time }}</p>
-                                                <p><strong>Subject Code:</strong> {{ $schedule->subject->Subject_Code }}</p>
-                                                <p><strong>Subject:</strong> {{ $schedule->subject->Description }}</p>
-                                                <p><strong>Section:</strong> {{ $schedule->section->program_name}} - {{ $schedule->section->section}}</p>
-                                                <p><strong>Type:</strong> {{ $schedule->type }}</p>
-                                                <p><strong>Room:</strong> {{ $schedule->room->room_id }} {{ $schedule->room->room_name }}</p>
-                                                <p><strong>Faculty:</strong> 
-                                                    @if($schedule->subject && $schedule->subject->faculty->isNotEmpty())
-                                                        @foreach($schedule->subject->faculty as $faculty)
-                                                            {{ $faculty->name }},
-                                                        @endforeach
-                                                    @else
-                                                        N/A
-                                                    @endif
-                                                </p>
+                                                <p><strong>{{ $schedule->start_time }} - {{ $schedule->end_time }}</strong> </p>
+                                                <p><strong>{{ $schedule->subject->Subject_Code }}</strong> </p>
+                                                <p><strong>{{ $schedule->section->program_name}} - {{ $schedule->section->section}}</strong> </p>
+                                                <p><strong>{{ $schedule->type }}</strong> </p>
                                                 <a href="{{ route('department.schedule.edit', $schedule->id) }}" class="btn btn-warning btn-sm">Edit</a>
                                                 <form action="{{ route('department.schedule.destroy', $schedule->id) }}" method="POST" class="delete-form">
                                                     @csrf
@@ -72,7 +108,7 @@
                                     @endforeach
                                     @if ($startTime < "19:00")
                                         <tr>
-                                            <td style="">
+                                            <td style="background-color: #f2f2f2;">
                                                 <p><strong>Time:</strong> {{ $startTime }} - 19:00</p>
                                                 <p><em>No schedule</em></p>
                                             </td>
@@ -86,4 +122,16 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+<script>
+    document.querySelectorAll('.delete-btn').forEach(item => {
+        item.addEventListener('click', event => {
+            if (!confirm('Are you sure you want to delete this schedule?')) {
+                event.preventDefault();
+            }
+        });
+    });
+</script>
 @endsection

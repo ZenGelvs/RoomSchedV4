@@ -118,7 +118,7 @@ class RoomCoordinatorController extends Controller
     public function roomSchedule($roomId)
     {
         $room = Room::findOrFail($roomId);
-        $schedules = Schedules::where('room_id', $roomId)->get();
+        $schedules = Schedules::where('room_id', $roomId)->with('subject')->with('section')->get();
         return view('roomCoordinator.room_sched', compact('room', 'schedules'));
     }
 
@@ -173,8 +173,9 @@ class RoomCoordinatorController extends Controller
     {
         $section = Sections::findOrFail($sectionId);
         $schedules = $section->schedules()->get();
+        $subjects = $section->subjects()->with('schedules', 'faculty')->get();
 
-        return view('roomCoordinator.sections_schedule', compact('section', 'schedules'));
+        return view('roomCoordinator.sections_schedule', compact('section', 'schedules', 'subjects'));
 
     }
 
@@ -466,7 +467,7 @@ class RoomCoordinatorController extends Controller
                 $reasonsCount = array_count_values($reasons);
                 foreach ($reasonsCount as $reason => $count) {
                     if ($reason !== null) {
-                        $detailedErrors[] = " Day $day: $reason ";
+                        $detailedErrors[] = " Day $day: $reason";
                     }
                 }
             }
