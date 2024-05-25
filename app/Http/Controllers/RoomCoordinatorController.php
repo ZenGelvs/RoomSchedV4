@@ -466,11 +466,11 @@ class RoomCoordinatorController extends Controller
                 $reasonsCount = array_count_values($reasons);
                 foreach ($reasonsCount as $reason => $count) {
                     if ($reason !== null) {
-                        $detailedErrors[] = "Day $day: $reason ($count times)";
+                        $detailedErrors[] = " Day $day: $reason ";
                     }
                 }
             }
-            $message = 'Automatic scheduling failed. No available time slots found. Reasons: ' . implode(', ', $detailedErrors);
+            $message = 'Automatic scheduling failed. No available time slots found.' . implode(', ', $detailedErrors);
             return redirect()->back()->with('error', $message);
         }
     }
