@@ -9,7 +9,7 @@
 
         <div class="row">
             <!-- Faculty and Assigned Subjects Card -->
-            <div class="col-md-4 mb-4">
+            <div class="col-12 mb-4">
                 <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title">Faculty and Assigned Subjects</h5>
@@ -19,6 +19,7 @@
                                     <tr>
                                         <th>Faculty Name</th>
                                         <th>Assigned Subjects</th>
+                                        <th>Sections</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -28,7 +29,16 @@
                                         <td>
                                             <ul>
                                                 @foreach($faculty->subjects as $subject)
-                                                <li>{{ $subject->Description }}</li>
+                                                <li>{{ $subject->Subject_Code}}</li>
+                                                @endforeach
+                                            </ul>
+                                        </td>
+                                        <td>
+                                            <ul>
+                                                @foreach($faculty->subjects as $subject)
+                                                    @foreach($subject->sections as $section)
+                                                        <li>{{ $section->program_name }} - {{ $section->section }}</li>
+                                                    @endforeach
                                                 @endforeach
                                             </ul>
                                         </td>
@@ -42,7 +52,7 @@
                 </div>
             </div>
             <!-- Sections without Schedules Card -->
-            <div class="col-md-4 mb-4">
+            <div class="col-12 mb-4">
                 <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title">Sections without Schedules</h5>
@@ -58,7 +68,7 @@
             </div>
             <!-- Random Room Schedule Table -->
             @if ($randomRoom)
-            <div class="col-md-4 mb-4">
+            <div class="col-12 mb-4">
                 <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title">Random Room Schedule</h5>

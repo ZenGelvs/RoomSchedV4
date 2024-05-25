@@ -136,7 +136,7 @@
         </div>
         <div id="autoScheduleCollapse" class="collapse" aria-labelledby="autoScheduleHeading" data-parent="#accordion">
             <div class="card-body">
-                <form id="autoScheduleForm" action="{{ route('roomCoordinator.automaticSchedule') }}" method="POST">
+                <form id="autoScheduleForm" action="{{ route('department.automatic_schedule') }}" method="POST">
                     @csrf
                     <div class="form-group">
                         <label for="sectionSelect">Select Section to automatically schedule subjects for (Lecture Only)</label>
@@ -202,16 +202,15 @@
                         <select class="form-control" id="preferredRoom" name="preferredRoom" required>
                             <option value="Any">Any</option>
                             @foreach ($rooms as $room)
-                                <option value="{{ $room->id }}">{{ $room->room_id }} {{ $room->room_name }}</option>
+                                <option value="{{ $room->id }}" data-building="{{ $room->building }}">{{ $room->room_id }} {{ $room->room_name }}</option>
                             @endforeach
                         </select>
-                    </div>                    
+                    </div>                                     
                     <button type="submit" class="btn btn-primary">Automate Scheduling</button>
                 </form>
             </div>
         </div>
     </div>
-</div>
 
 @endsection
 

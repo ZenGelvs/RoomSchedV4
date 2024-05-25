@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Room;
 use App\Models\Faculty;
 use App\Models\Sections;
+use App\Models\Subject;
 use App\Models\Schedules;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -134,9 +135,9 @@ class RoomCoordinatorController extends Controller
         return view('roomCoordinator.faculty_index', compact('facultyList'));
     }
 
-    public function viewFacultySchedule($facultyId)
+    public function viewFacultySchedule(Request $request, $facultyId)
     {
-        $facultyId = $request->input('faculty');
+        $facultyId = $request->input('faculty', $facultyId);
         $faculty = Faculty::findOrFail($facultyId); 
 
         $schedules = collect();
@@ -242,6 +243,25 @@ class RoomCoordinatorController extends Controller
             return redirect()->back()->with('error', 'There is an overlapping schedule for the selected room and time slot.');
         }
         
+        $subject = Subject::find($request->subjectId);
+        $facultyIds = $subject->faculty->pluck('id');
+
+        $overlappingFacultySchedule = Schedules::where('day', $request->day)
+            ->whereIn('subject_id', function ($query) use ($facultyIds) {
+                $query->select('subject_id')
+                    ->from('subject_faculty')
+                    ->whereIn('faculty_id', $facultyIds);
+            })
+            ->where(function ($query) use ($request) {
+                $query->where('start_time', '<', $request->endTime)
+                    ->where('end_time', '>', $request->startTime);
+            })
+            ->exists();
+
+        if ($overlappingFacultySchedule) {
+            return redirect()->back()->with('error', 'There is an overlapping schedule for the faculty assigned to this subject.');
+        }
+
         $schedule->update($request->all());
 
         return redirect()->route('roomCoordinator.viewSectionSchedule', $schedule->section_id)->with('success', 'Schedule updated successfully');
@@ -261,12 +281,13 @@ class RoomCoordinatorController extends Controller
     public function storeSchedule(Request $request)
     {
         $request->validate([
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-            'type' => 'required|string',
-            'room_id' => 'required|string',
-            'department' => 'required|string',
-            'college' => 'required|string',
+            'day' => 'required|string',
+            'startTime' => 'required',
+            'endTime' => 'required',
+            'sectionId' => 'required',
+            'subjectId' => 'required',
+            'type' => 'required',
+            'roomId' => 'required',
         ]);
 
         $section = Sections::findOrFail($request->sectionId);
@@ -306,6 +327,25 @@ class RoomCoordinatorController extends Controller
 
         if ($overlappingRoomSchedule) {
             return redirect()->back()->with('error', 'There is an overlapping schedule for the selected room and time slot.');
+        }
+
+        $subject = Subject::find($request->subjectId);
+        $facultyIds = $subject->faculty->pluck('id');
+
+        $overlappingFacultySchedule = Schedules::where('day', $request->day)
+            ->whereIn('subject_id', function ($query) use ($facultyIds) {
+                $query->select('subject_id')
+                    ->from('subject_faculty')
+                    ->whereIn('faculty_id', $facultyIds);
+            })
+            ->where(function ($query) use ($request) {
+                $query->where('start_time', '<', $request->endTime)
+                    ->where('end_time', '>', $request->startTime);
+            })
+            ->exists();
+
+        if ($overlappingFacultySchedule) {
+            return redirect()->back()->with('error', 'There is an overlapping schedule for the faculty assigned to this subject.');
         }
 
         Schedules::create([
@@ -357,6 +397,7 @@ class RoomCoordinatorController extends Controller
         $scheduledSlots = [];
 
         $schedulingSuccess = false;
+        $errorReasons = [];
 
         // Iterate through subjects
         foreach ($subjects as $subject) {
@@ -376,7 +417,9 @@ class RoomCoordinatorController extends Controller
                     }
 
                     // Find an available time slot for the subject on the current day
-                    $availableSlot = $this->findAvailableSlot($rooms, $day, $preferredStartTime, $preferredEndTime, $scheduledSlots[$day], $request->section_id);
+                    $result = $this->findAvailableSlot($rooms, $day, $preferredStartTime, $preferredEndTime, $scheduledSlots[$day], $request->section_id, $subject->id);
+                    $availableSlot = $result['slot'];
+                    $reason = $result['reason'];
 
                     if ($availableSlot) {
                         // Create a new schedule for the subject
@@ -401,6 +444,9 @@ class RoomCoordinatorController extends Controller
                         $schedulingSuccess = true;
                         $scheduledForAnyDay = true;
                         break; // Break the loop once scheduled for one day
+                    }else {
+                        // Collect the reason for failure
+                        $errorReasons[$day][] = $reason;
                     }
                 }
                 // If scheduled for any day, break out of the subjects loop
@@ -414,16 +460,31 @@ class RoomCoordinatorController extends Controller
             $message = 'Automatic scheduling completed successfully.';
             return redirect()->back()->with('success', $message);
         } else {
-            return redirect()->back()->with('error', 'Automatic scheduling failed. No available time slots found.');
+            // Prepare detailed error messages
+            $detailedErrors = [];
+            foreach ($errorReasons as $day => $reasons) {
+                $reasonsCount = array_count_values($reasons);
+                foreach ($reasonsCount as $reason => $count) {
+                    if ($reason !== null) {
+                        $detailedErrors[] = "Day $day: $reason ($count times)";
+                    }
+                }
+            }
+            $message = 'Automatic scheduling failed. No available time slots found. Reasons: ' . implode(', ', $detailedErrors);
+            return redirect()->back()->with('error', $message);
         }
     }
 
-    private function findAvailableSlot($rooms, $day, $preferredStartTime, $preferredEndTime, $scheduledSlots, $sectionId)
+    private function findAvailableSlot($rooms, $day, $preferredStartTime, $preferredEndTime, $scheduledSlots, $sectionId, $subjectId)
     {
         // Sort scheduled slots by start time
         usort($scheduledSlots, function ($a, $b) {
             return strtotime($a['start_time']) - strtotime($b['start_time']);
         });
+
+         // Retrieve the faculty members for the subject
+         $subject = Subject::find($subjectId);
+         $facultyIds = $subject->faculty->pluck('id');
 
         // Iterate through rooms
         foreach ($rooms as $room) {
@@ -446,16 +507,54 @@ class RoomCoordinatorController extends Controller
                     ->where('room_id', $room->id)
                     ->exists();
 
-                if (!$overlappingSchedule && !$overlappingRoomSchedule) {
+                // Check if the calculated time slot overlaps with any existing schedules for the faculty and day
+                $overlappingFacultySchedule = Schedules::where('day', $day)
+                    ->where('start_time', '<', $endTime)
+                    ->where('end_time', '>', $startTime)
+                    ->whereIn('subject_id', function ($query) use ($facultyIds) {
+                        $query->select('subject_id')
+                            ->from('subject_faculty')
+                            ->whereIn('faculty_id', $facultyIds);
+                    })
+                    ->exists();
+
+                if (!$overlappingSchedule && !$overlappingRoomSchedule && !$overlappingFacultySchedule) {
                     return [
-                        'start_time' => $startTime,
-                        'end_time' => $endTime,
-                        'room_id' => $room->id,
+                        'slot' => [
+                            'start_time' => $startTime,
+                            'end_time' => $endTime,
+                            'room_id' => $room->id,
+                        ],
+                        'reason' => null,
+                    ];
+                }
+    
+                if ($overlappingSchedule) {
+                    return [
+                        'slot' => null,
+                        'reason' => 'Overlapping section schedule',
+                    ];
+                }
+    
+                if ($overlappingRoomSchedule) {
+                    return [
+                        'slot' => null,
+                        'reason' => 'Overlapping room schedule',
+                    ];
+                }
+    
+                if ($overlappingFacultySchedule) {
+                    return [
+                        'slot' => null,
+                        'reason' => 'Overlapping faculty schedule',
                     ];
                 }
             }
         }
-
-        return null;
+    
+        return [
+            'slot' => null,
+            'reason' => 'No available slots',
+        ];
     }
 }   
