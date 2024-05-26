@@ -364,7 +364,7 @@ class SubjectController extends Controller
             ->where('Year_Level', $yearLevel)
             ->get();
 
-        $assignedSubjectIds = $section->subjects()->pluck('subjects.id')->toArray();
+        $assignedSubjectIds = $section->subjects()->pluck('Subjects.id')->toArray();
 
         $availableSubjects = $subjectsForSection->reject(function ($subject) use ($assignedSubjectIds) {
             return in_array($subject->id, $assignedSubjectIds);
