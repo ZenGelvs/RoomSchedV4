@@ -5,14 +5,14 @@
 @section('content')
 
 <div class="container mt-4">
-    <h2 class="text-center mb-4">Assign Subjects for {{ $programName }}, {{ $yearLevel }} Year</h2>
+    <h2 class="text-center mb-4">Assign Subjects for {{ $programName }} - {{ $section->section }}</h2>
     @if (session('success'))
-    <div class="alert alert-success">
-        {{ session('success') }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
+        <div class="alert alert-success">
+            {{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
     @endif
     @if (session('error'))
         <div class="alert alert-danger">
@@ -29,14 +29,13 @@
                     Assign Subjects
                 </button>
             </h5>
-            
         </div>
         <div id="assignSubjectsCollapse" class="collapse show" aria-labelledby="assignSubjectsHeading" data-parent="#accordion">
             <div class="card-body">
                 <div class="table-responsive">
                     <form action="{{ route('department.assign.subjects') }}" method="POST">
                         @csrf
-                        <input type="hidden" name="section_id" value="{{ $sectionId ?? '' }}">
+                        <input type="hidden" name="section_id" value="{{ $sectionId }}">
                         <table class="table table-striped">
                             <thead>
                                 <tr>
@@ -56,30 +55,30 @@
                             </thead>
                             <tbody>
                                 @foreach($availableSubjects as $subject)
-                                <tr>
-                                    <td>{{ $subject->Subject_Code }}</td>
-                                    <td>{{ $subject->Description }}</td>
-                                    <td>{{ $subject->Lec }}</td>
-                                    <td>{{ $subject->Lab }}</td>
-                                    <td>{{ $subject->Units }}</td>
-                                    <td>{{ $subject->Pre_Req }}</td>
-                                    <td>{{ $subject->Year_Level }}</td>
-                                    <td>{{ $subject->Semester }}</td>
-                                    <td>{{ $subject->Program }}</td>
-                                    <td>{{ $subject->Academic_Year }}</td>
-                                    <td>
-                                        @if($subject->faculty->isEmpty())
-                                            None
-                                        @else
-                                            @foreach($subject->faculty as $facultyMember)
-                                                {{ $facultyMember->name }}                                  
-                                            @endforeach
-                                        @endif
-                                    </td>     
-                                    <td>
-                                        <input type="checkbox" name="subject[]" value="{{ $subject->id }}">
-                                    </td>
-                                </tr>
+                                    <tr>
+                                        <td>{{ $subject->Subject_Code }}</td>
+                                        <td>{{ $subject->Description }}</td>
+                                        <td>{{ $subject->Lec }}</td>
+                                        <td>{{ $subject->Lab }}</td>
+                                        <td>{{ $subject->Units }}</td>
+                                        <td>{{ $subject->Pre_Req }}</td>
+                                        <td>{{ $subject->Year_Level }}</td>
+                                        <td>{{ $subject->Semester }}</td>
+                                        <td>{{ $subject->Program }}</td>
+                                        <td>{{ $subject->Academic_Year }}</td>
+                                        <td>
+                                            @if($subject->faculty->isEmpty())
+                                                None
+                                            @else
+                                                @foreach($subject->faculty as $facultyMember)
+                                                    {{ $facultyMember->name }}                                  
+                                                @endforeach
+                                            @endif
+                                        </td>     
+                                        <td>
+                                            <input type="checkbox" name="subject[]" value="{{ $subject->id }}">
+                                        </td>
+                                    </tr>
                                 @endforeach
                             </tbody>
                         </table>
@@ -115,6 +114,7 @@
                                 <th>Program</th>
                                 <th>Academic Year</th>
                                 <th>Assigned Faculty</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>

@@ -295,11 +295,11 @@ class SubjectController extends Controller
 
         $search = $request->input('search');
 
-        $query = Subject::where('College', $userCollege)
+        $subjectQuery = Subject::where('College', $userCollege)
                         ->where('Department', $userDepartment);
                         
         if ($search) {
-            $query->where(function ($q) use ($search) {
+            $subjectQuery->where(function ($q) use ($search) {
                 $q->where('Subject_Code', 'like', '%'.$search.'%')
                 ->orWhere('Description', 'like', '%'.$search.'%')
                 ->orWhere('Year_Level', 'like', '%'.$search.'%')
@@ -311,7 +311,7 @@ class SubjectController extends Controller
             });
         }
 
-        $subjects = $query->paginate(10)->appends(['search' => $search]);
+        $subjects = $subjectQuery->paginate(10)->appends(['search' => $search]);
 
         $faculty = Faculty::where('college', $userCollege)
                         ->where('department', $userDepartment)
@@ -319,8 +319,10 @@ class SubjectController extends Controller
 
         $sections = Sections::where('college', $userCollege)
                             ->where('department', $userDepartment)
-                            ->paginate(5);
-        
+                            ->orderBy('section')
+                            ->get()
+                            ->groupBy('program_name'); 
+
         return view('department.subjects', compact('subjects', 'faculty', 'sections'));
     }
 
@@ -347,26 +349,31 @@ class SubjectController extends Controller
 
     public function assignSubjects(Request $request)
     {
-        $sectionId = $request->input('section_id');
-        $programName = $request->input('program_name');
-        $yearLevel = $request->input('year_level');
-    
+        $sectionId = $request->query('section_id');
+
+        $section = Sections::find($sectionId);
+
+        if (!$section) {
+            return redirect()->back()->with('error', 'Section not found.');
+        }
+
+        $programName = $section->program_name;
+        $yearLevel = $section->year_level;
+
         $subjectsForSection = Subject::where('Program', $programName)
             ->where('Year_Level', $yearLevel)
             ->get();
-    
-        $section = Sections::find($sectionId);
-        $assignedSubjectIds = $section->Subjects()->pluck('Subjects.id')->toArray(); 
-    
+
+        $assignedSubjectIds = $section->subjects()->pluck('subjects.id')->toArray();
+
         $availableSubjects = $subjectsForSection->reject(function ($subject) use ($assignedSubjectIds) {
             return in_array($subject->id, $assignedSubjectIds);
         });
-    
+
         $assignedSubjects = $section->subjects;
-    
-        return view('department.assign_subjects', compact('availableSubjects', 'assignedSubjects', 'programName', 'yearLevel', 'sectionId'));
+
+        return view('department.assign_subjects', compact('availableSubjects', 'assignedSubjects', 'programName', 'yearLevel', 'sectionId','section'));
     }
-    
 
     public function assignSectionToSubject(Request $request)
     {

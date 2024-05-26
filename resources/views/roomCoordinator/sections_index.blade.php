@@ -13,7 +13,7 @@
                     <div class="col-md-6">
                         <form action="{{ route('roomCoordinator.sectionScheduleIndex') }}" method="GET">
                             <div class="input-group">
-                                <input type="text" name="search" class="form-control" placeholder="Search...">
+                                <input type="text" name="search" class="form-control" placeholder="Search..." value="{{ request()->input('search') }}">
                                 <div class="input-group-append">
                                     <button type="submit" class="btn btn-primary">Search</button>
                                 </div>
@@ -51,6 +51,9 @@
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+                <div class="mt-3">
+                    {{ $sections->links() }}
                 </div>
             </div>
         </div>

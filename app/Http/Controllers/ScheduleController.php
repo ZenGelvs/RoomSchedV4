@@ -20,6 +20,7 @@ class ScheduleController extends Controller
 
         $sections = Sections::with('subjects')->where('college', Auth::user()->college)
                         ->where('department', Auth::user()->department)
+                        ->orderBy('program_name')->orderBy('year_level')
                         ->get(); 
         
         $faculties = Faculty::where('college', Auth::user()->college)
@@ -408,14 +409,7 @@ class ScheduleController extends Controller
                 if ($overlappingSchedule) {
                     return [
                         'slot' => null,
-                        'reason' => 'Overlapping section schedule',
-                    ];
-                }
-    
-                if ($overlappingRoomSchedule) {
-                    return [
-                        'slot' => null,
-                        'reason' => 'Overlapping room schedule',
+                        'reason' => 'Overlapping schedule for this Section',
                     ];
                 }
     

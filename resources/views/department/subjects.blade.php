@@ -85,7 +85,7 @@
                                                     <form action="{{ route('department.removeFaculty', ['subject' => $subject->id, 'faculty' => $facultyMember->id]) }}" method="POST">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirmUnassign()" >Remove</button>
+                                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirmUnassign()">Remove</button>
                                                     </form>                                    
                                                 @endforeach
                                             @endif
@@ -99,7 +99,7 @@
                                                         <option value="{{ $facultyMember->id }}">{{ $facultyMember->name }}</option>
                                                     @endforeach
                                                 </select>
-                                                <button type="submit" class="btn btn-primary" >Assign Faculty</button>
+                                                <button type="submit" class="btn btn-primary">Assign Faculty</button>
                                             </form>
                                         </td>
                                     </tr>
@@ -130,34 +130,43 @@
                         <tr>
                             <th>Program Name</th>
                             <th>Section</th>
-                            <th>Year Level</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($sections as $section)
+                        @foreach($sections as $programName => $programSections)
                             <tr>
-                                <td>{{ $section->program_name }}</td>
-                                <td>{{ $section->section }}</td>
-                                <td>{{ $section->year_level }}</td>
+                                <td>{{ $programName }}</td>
                                 <td>
-                                    <a href="{{ route('department.assignSubjects', ['section_id' => $section->id,  'program_name' => $section->program_name, 'year_level' => $section->year_level]) }}" class="btn btn-primary">Assign Subjects</a>
+                                    <select name="section_id" class="form-control" id="section-select-{{ $programName }}">
+                                        @foreach($programSections as $section)
+                                            <option value="{{ $section->id }}">{{ $section->section }}</option>
+                                        @endforeach
+                                    </select>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-primary" onclick="submitForm('{{ $programName }}')">Assign Subjects</button>
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
-                <div class="d-flex justify-content-center">
-                    {{ $sections->links() }}
-                </div>
             </div>
         </div>
     </div>
 </div>
+
 @section('scripts')
     <script>
         function confirmUnassign() {
             return confirm("Are you sure you want to unassign this Faculty from this Subject?");
+        }
+
+        function submitForm(programName) {
+            const selectElement = document.getElementById('section-select-' + programName);
+            const sectionId = selectElement.value;
+            const url = `{{ route('department.assignSubjects') }}?section_id=${sectionId}`;
+            window.location.href = url;
         }
     </script>
 @endsection

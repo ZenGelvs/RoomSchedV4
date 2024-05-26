@@ -157,15 +157,16 @@ class RoomCoordinatorController extends Controller
     public function sectionScheduleIndex(Request $request)
     {
         $search = $request->input('search');
-    
+        
         $sections = Sections::query()
                         ->where('program_name', 'like', "%$search%")
                         ->orWhere('year_level', 'like', "%$search%")
                         ->orWhere('section', 'like', "%$search%")
                         ->orWhere('college', 'like', "%$search%")
                         ->orWhere('department', 'like', "%$search%")
-                        ->get();
-                        
+                        ->paginate(5)
+                        ->appends(['search' => $search]);
+
         return view('roomCoordinator.sections_index', compact('sections'));
     }
 
@@ -533,14 +534,7 @@ class RoomCoordinatorController extends Controller
                 if ($overlappingSchedule) {
                     return [
                         'slot' => null,
-                        'reason' => 'Overlapping section schedule',
-                    ];
-                }
-    
-                if ($overlappingRoomSchedule) {
-                    return [
-                        'slot' => null,
-                        'reason' => 'Overlapping room schedule',
+                        'reason' => 'Overlapping schedule for this Section',
                     ];
                 }
     

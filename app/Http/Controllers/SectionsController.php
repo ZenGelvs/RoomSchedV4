@@ -16,7 +16,8 @@ class SectionsController extends Controller
                     ->get();
 
         $query = Sections::where('college', Auth::user()->college)
-                    ->where('department', Auth::user()->department);
+                    ->where('department', Auth::user()->department)
+                    ->orderBy('program_name')->orderBy('year_level');
 
         if ($request->has('search')) {
             $search = $request->input('search');

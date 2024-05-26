@@ -55,7 +55,7 @@ class DashboardController extends Controller
                 ->orWhere('building', 'like', "%$search%");
         }
 
-        $rooms = $rooms->paginate(10);
+        $rooms = $rooms->paginate(10)->appends(['search' => $search]);
 
         return view('roomCoordinatorDashboard', compact('rooms'));
     }
