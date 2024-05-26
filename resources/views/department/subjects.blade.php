@@ -30,12 +30,12 @@
                 </button>
             </h5>
         </div>
-        <div id="subjectManagementCollapse" class="collapse" aria-labelledby="subjectManagementHeading" data-parent="#accordion">
+        <div id="subjectManagementCollapse" class="collapse show" aria-labelledby="subjectManagementHeading" data-parent="#accordion">
             <div class="card-body">
                 <form action="{{ route('department.subjects') }}" method="GET" class="mb-4">
                     <div class="form-row">
                         <div class="col">
-                            <input type="text" name="search" class="form-control" placeholder="Search by Subject Name or Code" value="{{ request('search') }}">
+                            <input type="text" name="search" class="form-control" placeholder="Search by Subject Code, Description, Year, Program, Semester, or Faculty" value="{{ request('search') }}">
                         </div>
                         <div class="col">
                             <button type="submit" class="btn btn-primary">Search</button>
@@ -109,7 +109,7 @@
                     @endif
                 </div>
                 <div class="d-flex justify-content-center">
-                    {{ $subjects->links() }}
+                    {{ $subjects->appends(request()->query())->links() }}
                 </div>
             </div>
         </div>

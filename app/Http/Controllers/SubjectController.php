@@ -301,23 +301,28 @@ class SubjectController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('Subject_Code', 'like', '%'.$search.'%')
-                ->orWhere('Description', 'like', '%'.$search.'%');
+                ->orWhere('Description', 'like', '%'.$search.'%')
+                ->orWhere('Year_Level', 'like', '%'.$search.'%')
+                ->orWhere('Program', 'like', '%'.$search.'%')
+                ->orWhere('Semester', 'like', '%'.$search.'%')
+                ->orWhereHas('faculty', function ($q) use ($search) {
+                    $q->where('name', 'like', '%'.$search.'%');
+                });
             });
         }
 
-        $subjects = $query->paginate(10);
+        $subjects = $query->paginate(10)->appends(['search' => $search]);
 
         $faculty = Faculty::where('college', $userCollege)
                         ->where('department', $userDepartment)
                         ->get();
 
         $sections = Sections::where('college', $userCollege)
-                        ->where('department', $userDepartment)
-                        ->paginate(5);
+                            ->where('department', $userDepartment)
+                            ->paginate(5);
         
         return view('department.subjects', compact('subjects', 'faculty', 'sections'));
     }
-
 
     public function assignFaculty($subjectId, Request $request)
     {
