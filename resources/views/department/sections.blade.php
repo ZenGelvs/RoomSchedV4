@@ -6,12 +6,12 @@
     <div class="container mt-4">
         <h2 class="text-center mb-4">Manage Sections</h2>
         @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
+            <div class="alert alert-success">
+                {{ session('success') }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
         @endif
         @if (session('error'))
             <div class="alert alert-danger">
@@ -66,6 +66,23 @@
             </div>
         </div>
 
+        <!-- Search Bar -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Search Sections</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ route('department.sections') }}" method="GET">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="search" placeholder="Search by Program Name, Year Level, or Section" value="{{ request('search') }}">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit">Search</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         @if($sections->isEmpty())
             <p>No records found.</p>
         @else
@@ -93,7 +110,7 @@
                                 <td>{{ $section->section }}</td>
                                 <td>
                                     <a href="{{ route('department.editSection', $section->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                                    <form action="{{ route('department.destroy', $section->id) }}" method="POST" class="deleteForm">
+                                    <form action="{{ route('department.destroy', $section->id) }}" method="POST" class="deleteForm d-inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger btn-sm deleteBtn" data-message="Are you sure you want to delete this section?">Delete</button>
@@ -104,7 +121,7 @@
                     </tbody>
                 </table>
             </div>
-            {{ $sections->links() }}
+            {{ $sections->appends(['search' => request('search')])->links() }}
         @endif
     </div>
 

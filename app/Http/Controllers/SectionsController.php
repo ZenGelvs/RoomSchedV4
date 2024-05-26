@@ -9,15 +9,25 @@ use Illuminate\Support\Facades\Auth;
 
 class SectionsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $programs = Programs::where('college', Auth::user()->college)
                     ->where('department', Auth::user()->department)
                     ->get();
 
-        $sections = Sections::where('college', Auth::user()->college)
-                    ->where('department', Auth::user()->department)
-                    ->paginate(10); 
+        $query = Sections::where('college', Auth::user()->college)
+                    ->where('department', Auth::user()->department);
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('program_name', 'like', '%' . $search . '%')
+                ->orWhere('year_level', 'like', '%' . $search . '%')
+                ->orWhere('section', 'like', '%' . $search . '%');
+            });
+        }
+
+        $sections = $query->paginate(10);
 
         return view('department.sections', compact('programs', 'sections'));
     }
