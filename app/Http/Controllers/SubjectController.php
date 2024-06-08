@@ -209,15 +209,13 @@ class SubjectController extends Controller
 
     public function deleteAll()
     {
-        Schema::disableForeignKeyConstraints();
+        $subjects = Subject::all();
 
-        \DB::table('subject_faculty')->truncate();
-        \DB::table('section_subject')->truncate();
-        Subject::truncate();
+        foreach ($subjects as $subject) {
+            $subject->delete();
+        }
 
-        Schema::enableForeignKeyConstraints();
-
-        return redirect()->back()->with('success', 'All subjects have been deleted successfully.');
+        return redirect()->back()->with('success', 'All subjects and related schedules have been deleted successfully.');
     }
 
     public function delete($id)
