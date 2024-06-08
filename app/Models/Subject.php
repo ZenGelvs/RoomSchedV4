@@ -10,7 +10,7 @@ class Subject extends Model
 {
     use HasFactory;
 
-    protected $table = 'Subjects';
+    protected $table = 'subjects';
 
     protected $fillable = [
         'Subject_Code',
