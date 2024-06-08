@@ -116,11 +116,12 @@ class ScheduleController extends Controller
     public function ScheduleIndex(Request $request)
     {
         $sectionId = $request->input('section');
-        $section = Sections::findOrFail($sectionId); 
-        $schedules = $section->schedules()->get();
-        
-        $subjects = $section->subjects()->with('schedules', 'faculty')->get();
-
+        $section = Sections::findOrFail($sectionId);
+        $schedules = $section->schedules()->with('subject', 'room')->get();
+        $subjects = $section->subjects()->with(['schedules' => function($query) use ($sectionId) {
+            $query->where('section_id', $sectionId);
+        }, 'faculty'])->get();
+    
         return view('department.section_schedule', compact('section', 'schedules', 'subjects'));
     }
 

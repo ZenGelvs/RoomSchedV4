@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Programs; 
 use App\Models\Faculty;
 use App\Models\Subject;
 use App\Models\Sections;
+use App\Models\Programs; 
+use App\Models\Schedules;
 use Illuminate\Http\Request;
 use App\Imports\SubjectsImport;
 use Illuminate\Validation\Rule;
@@ -221,9 +222,13 @@ class SubjectController extends Controller
 
     public function delete($id)
     {
-        Subject::findOrFail($id)->delete();
+        $subject = Subject::findOrFail($id);
 
-        return redirect()->back()->with('success', 'Subject has been deleted successfully.');
+        $subject->schedules()->delete();
+
+        $subject->delete();
+
+        return redirect()->back()->with('success', 'Subject and related schedules have been deleted successfully.');
     }
 
     public function edit($id)
