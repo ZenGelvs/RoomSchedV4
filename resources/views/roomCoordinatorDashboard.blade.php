@@ -24,10 +24,10 @@
             </div>
         @endif
             <div class="row mt-4">
-                <div class="col-md-4">
+                <div class="col-md-5">
                     <form action="{{ route('dashboard.roomCoordIndex') }}" method="GET">
                         <div class="input-group mb-3">
-                            <input type="text" class="form-control" placeholder="Search by room ID or name" name="search">
+                            <input type="text" class="form-control" placeholder="Search for Rooms by Name, Type, or Building" name="search">
                             <div class="input-group-append">
                                 <button class="btn btn-primary" type="submit">Search</button>
                             </div>
