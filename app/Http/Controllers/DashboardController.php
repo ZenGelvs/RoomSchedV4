@@ -23,9 +23,14 @@ class DashboardController extends Controller
             $faculty->total_units = $faculty->subjects->sum('Units');
         }
     
-        $sectionsWithoutSchedules = Sections::has('schedules', '=', 0)->where('college', Auth::user()->college)
-            ->where('department', Auth::user()->department)
-            ->get();
+        $sectionsWithoutSchedules = Sections::with(['subjects' => function ($query) {
+            $query->whereHas('schedules', function ($q) {
+                $q->where('type', 'Lecture')->orWhere('type', 'Lab');
+            }, '<', 2);
+        }])
+        ->where('college', Auth::user()->college)
+        ->where('department', Auth::user()->department)
+        ->get();
     
         return view('dashboard', compact('faculties', 'sectionsWithoutSchedules'));
     }

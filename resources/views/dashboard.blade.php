@@ -45,16 +45,55 @@
                     </div>
                 </div>
             </div>
-            <!-- Sections without Schedules Card -->
+            <!-- Sections and Subjects without Schedules Card -->
             <div class="col-12 mb-4">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h5 class="card-title">Sections without Schedules</h5>
-                        <ul>
-                            @foreach($sectionsWithoutSchedules as $section)
-                            <li>{{ $section->program_name }} - {{ $section->section }}</li>
-                            @endforeach
-                        </ul>
+                        <h5 class="card-title">Sections and Subjects without Schedules</h5>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Program Name</th>
+                                        <th>Section</th>
+                                        <th>Subject Code</th>
+                                        <th>Description</th>
+                                        <th>Missing Lecture</th>
+                                        <th>Missing Lab</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($sectionsWithoutSchedules as $section)
+                                        @foreach($section->subjects as $subject)
+                                            @php
+                                                $hasLecture = $subject->schedules->where('type', 'Lecture')->count();
+                                                $hasLab = $subject->schedules->where('type', 'Lab')->count();
+                                            @endphp
+                                            <tr>
+                                                <td>{{ $section->program_name }}</td>
+                                                <td>{{ $section->section }}</td>
+                                                <td>{{ $subject->Subject_Code }}</td>
+                                                <td>{{ $subject->Description }}</td>
+                                                <td>
+                                                    @if($subject->Lec > 0 && !$hasLecture)
+                                                        Yes
+                                                    @else
+                                                        No
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if($subject->Lab > 0 && !$hasLab)
+                                                        Yes
+                                                    @else
+                                                        No
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                         <a href="{{ route('department.subjects') }}" class="btn btn-dark">Assign Subjects</a>
                         <a href="{{ route('department.sections') }}" class="btn btn-dark">Add Sections</a>
                     </div>
