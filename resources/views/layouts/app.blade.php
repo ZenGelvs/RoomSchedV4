@@ -124,6 +124,9 @@
                         <a class="nav-link" href="{{ route('department.faculty') }}">Faculty</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ route('department.rooms') }}">Rooms</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{{ route('department.schedule') }}">Schedules</a>
                     </li> 
                 @endif

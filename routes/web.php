@@ -3,6 +3,7 @@
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
+use App\Http\Controllers\RoomController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\FacultyController;
 use App\Http\Controllers\ProfileController;
@@ -78,6 +79,10 @@ Route::group(['namespace' => 'Department', 'prefix' => 'department'], function (
     Route::get('schedule/{schedule}/edit', [ScheduleController::class, 'EditSchedule'])->name('department.schedule.edit');
     Route::put('schedule/{schedule}', [ScheduleController::class, 'UpdateSchedule'])->name('department.schedule.update');
     Route::post('automatic_schedule', [ScheduleController::class, 'automaticSchedule'])->name('department.automatic_schedule');
+
+    //Room Routes
+    Route::get('rooms', [RoomController::class, 'index'])->name('department.rooms');
+    Route::get('/rooms/{roomId}/schedule', [RoomController::class, 'roomSchedule'])->name('department.roomSchedule');
 });
 
 //Room Coordinator Routes
@@ -90,7 +95,7 @@ Route::group(['prefix' => 'roomCoordinator', 'as' => 'roomCoordinator.'], functi
     Route::get('/rooms/{roomId}/schedule', [RoomCoordinatorController::class, 'roomSchedule'])->name('roomSchedule');
     Route::post('/assignRoom', [RoomCoordinatorController::class, 'assignRoom'])->name('assignRoom');
     Route::get('/assign-rooms-to-faculty', [RoomCoordinatorController::class, 'showAssignRoomsToFaculty'])->name('assignroomstofaculty');
-    Route::delete('/unassignRoom', [RoomCoordinatorController::class, 'unassignRoom'])->name('unassignRoom'); // New route for unassigning room
+    Route::delete('/unassignRoom', [RoomCoordinatorController::class, 'unassignRoom'])->name('unassignRoom'); 
 
 
     //Faculty Routes
