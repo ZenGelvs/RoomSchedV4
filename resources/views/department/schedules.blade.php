@@ -105,15 +105,6 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="building">Building:</label>
-                        <select class="form-control" id="building" name="building" required>
-                            <option value="">Select Building...</option>
-                            <option value="COECSA">COECSA Building</option>
-                            <option value="SOTERO">SPL Building</option>
-                            <option value="JOSE">JPL Building</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
                         <label for="roomId">Room ID:</label>
                         <select class="form-control" id="roomId" name="roomId" required>
                             <option value="">Select Room...</option>
@@ -264,26 +255,25 @@
         });
     });
     
-    document.getElementById('building').addEventListener('change', filterRooms);
-    document.getElementById('type').addEventListener('change', filterRooms);
-
-    function filterRooms() {
-        var building = document.getElementById('building').value;
-        var type = document.getElementById('type').value;
-        var roomSelect = document.getElementById('roomId');
-
-        roomSelect.innerHTML = '<option value="">Select Room...</option>';
-
-        @json($rooms).forEach(function(room) {
-            if ((building === '' || room.building === building) && 
-                (type === '' || room.room_type === type)) {
-                var option = document.createElement('option');
-                option.value = room.id;
-                option.textContent = room.room_id + ' - ' + room.room_name;
-                roomSelect.appendChild(option);
-            }
+    $(document).ready(function() {
+        $('#type').change(function() {
+            var classType = $(this).val();
+            var userRooms = @json($userRooms); // Convert userRooms to JavaScript array
+            var roomSelect = $('#roomId');
+            
+            roomSelect.empty(); // Clear the room options
+            
+            // Filter userRooms based on the selected class type
+            var filteredRooms = userRooms.filter(function(room) {
+                return room.room_type === classType;
+            });
+            
+            // Populate the room options based on the filtered rooms
+            filteredRooms.forEach(function(room) {
+                roomSelect.append('<option value="' + room.id + '">' + room.room_id + ' - ' + room.room_name + '</option>');
+            });
         });
-    }
+    });
     
     function checkEndTime() {
             console.log('Checking end time');

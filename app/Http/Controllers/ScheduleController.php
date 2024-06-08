@@ -18,6 +18,8 @@ class ScheduleController extends Controller
     {
         $rooms = Room::all();
 
+        $userRooms = Auth::user()->rooms()->get();
+
         $sections = Sections::with('subjects')->where('college', Auth::user()->college)
                         ->where('department', Auth::user()->department)
                         ->orderBy('program_name')->orderBy('year_level')
@@ -27,7 +29,7 @@ class ScheduleController extends Controller
                         ->where('department', Auth::user()->department)
                         ->get(); 
 
-        return view('department.schedules', compact('rooms', 'sections', 'faculties'));
+        return view('department.schedules', compact('rooms', 'userRooms', 'sections', 'faculties'));
     }
     
     public function store(Request $request)
