@@ -108,8 +108,8 @@
                                         <p><strong>{{ $schedule->subject->Subject_Code }}</strong></p>
                                         <p><strong>{{ $schedule->type }}</strong> </p>
                                         <p><strong>{{ $schedule->room->room_id }}</strong></p>
-                                        <a href="{{ route('department.schedule.edit', $schedule->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                                        <form action="{{ route('department.schedule.destroy', $schedule->id) }}" method="POST" class="delete-form">
+                                        <a href="{{ route('roomCoordinator.editSchedule', $schedule->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                                        <form action="{{ route('roomCoordinator.destroySchedule', $schedule->id) }}" method="POST" class="delete-form">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-danger delete-btn">Delete</button>
