@@ -116,7 +116,7 @@
                                                     <td>{{ $room->room_type }}</td>
                                                     <td>{{ $room->building }}</td>
                                                     <td>
-                                                        <form method="POST" action="{{ route('roomCoordinator.unassignRoom', ['user_id' => $user->id, 'room_id' => $room->id]) }}">
+                                                        <form method="POST" action="{{ route('roomCoordinator.unassignRoom', ['user_id' => $user->id, 'room_id' => $room->id]) }}" onsubmit="return confirmUnassign();">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="btn btn-danger">Unassign</button>
@@ -136,7 +136,9 @@
     </div>
 
     <script>
-       
+         function confirmUnassign() {
+        return confirm("Are you sure you want to unassign this room from this user?");
+    }
     </script>
     
 @endsection

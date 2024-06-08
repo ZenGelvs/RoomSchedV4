@@ -585,13 +585,21 @@ class RoomCoordinatorController extends Controller
     public function showAssignRoomsToFaculty(Request $request)
     {   
         $search = $request->input('search');
-    
+
         $users = User::whereNotIn('college', ['ADMIN'])
-                     ->whereNotIn('department', ['ROOM COORDINATOR'])
-                     ->get();
-    
-        $rooms = Room::query();
-    
+                    ->whereNotIn('department', ['ROOM COORDINATOR'])
+                    ->get();
+
+        $assignedRoomIds = []; 
+
+        foreach ($users as $user) {
+            foreach ($user->rooms as $room) {
+                $assignedRoomIds[] = $room->id;
+            }
+        }
+
+        $rooms = Room::whereNotIn('id', $assignedRoomIds);
+
         if ($search) {
             $rooms->where(function ($query) use ($search) {
                 $query->where('room_id', 'like', '%' . $search . '%')
@@ -600,9 +608,9 @@ class RoomCoordinatorController extends Controller
                     ->orWhere('room_type', 'like', '%' . $search . '%');
             });
         }
-    
+
         $rooms = $rooms->paginate(10)->appends(['search' => $search]); 
-    
+
         return view('roomCoordinator.assign_rooms', compact('users', 'rooms'));
     }    
 
