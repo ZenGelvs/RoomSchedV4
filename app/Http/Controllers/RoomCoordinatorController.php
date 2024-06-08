@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Room;
+use App\Models\User;
 use App\Models\Faculty;
-use App\Models\Sections;
 use App\Models\Subject;
+use App\Models\Sections;
 use App\Models\Schedules;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -555,4 +556,67 @@ class RoomCoordinatorController extends Controller
             'reason' => 'No available slots',
         ];
     }
+
+    public function assignRoom(Request $request)
+    {
+
+        $room_ids = $request->input('room_ids');
+        $user_id = $request->input('user_id');
+
+        if (empty($request->room_ids)) {
+            return redirect()->back()->with('error', 'Please select a room to assign.');
+        }
+
+        $user = User::findOrFail($request->user_id);
+    
+        $assignedRoomIds = $user->rooms()->pluck('room.id')->toArray();
+
+        $newRoomIds = array_diff($request->room_ids, $assignedRoomIds);
+
+        if (!empty($newRoomIds)) {
+            $user->rooms()->syncWithoutDetaching($newRoomIds);
+
+            return redirect()->back()->with('success', 'Room is assigned to user successfully.');
+        } else {
+            return redirect()->back()->with('error', 'Room/s are already assigned to the user.');
+        }
+    }
+
+    public function showAssignRoomsToFaculty(Request $request)
+    {   
+        $search = $request->input('search');
+    
+        $users = User::whereNotIn('college', ['ADMIN'])
+                     ->whereNotIn('department', ['ROOM COORDINATOR'])
+                     ->get();
+    
+        $rooms = Room::query();
+    
+        if ($search) {
+            $rooms->where(function ($query) use ($search) {
+                $query->where('room_id', 'like', '%' . $search . '%')
+                    ->orWhere('room_name', 'like', '%' . $search . '%')
+                    ->orWhere('building', 'like', '%' . $search . '%')
+                    ->orWhere('room_type', 'like', '%' . $search . '%');
+            });
+        }
+    
+        $rooms = $rooms->paginate(10)->appends(['search' => $search]); 
+    
+        return view('roomCoordinator.assign_rooms', compact('users', 'rooms'));
+    }    
+
+    public function unassignRoom(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'room_id' => 'required|exists:room,id',
+        ]);
+
+        $user = User::findOrFail($request->user_id);
+        $user->rooms()->detach($request->room_id);
+
+        return redirect()->back()->with('success', 'Room unassigned successfully.');
+    }
+
 }   

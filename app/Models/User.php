@@ -50,4 +50,9 @@ class User extends Authenticatable
     {
         return $this->attributes['department'];
     }
+
+    public function rooms()
+    {
+        return $this->belongsToMany(Room::class);
+    }
 }

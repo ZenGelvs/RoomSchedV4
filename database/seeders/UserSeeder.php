@@ -16,25 +16,25 @@ class UserSeeder extends Seeder
     {
         DB::table('users')->insert([
             [
-                'name' => 'Gelvin',
+                'name' => 'DCS',
                 'email' => 'Gelvin@Gelvin',
-                'password' => Hash::make('Gelvin'),
+                'password' => Hash::make('DCS'),
                 'remember_token' => Str::random(10),
                 'college' => 'COECSA',
                 'department' => 'DCS',
             ],
             [
-                'name' => 'Adrian',
+                'name' => 'DOA',
                 'email' => 'Adrian@Adrian',
-                'password' => Hash::make('Adrian'),
+                'password' => Hash::make('DOA'),
                 'remember_token' => Str::random(10),
                 'college' => 'COECSA',
                 'department' => 'DOE',
             ],
             [
-                'name' => 'Melvin',
+                'name' => 'CITHM',
                 'email' => 'Melvin@Melvin',
-                'password' => Hash::make('Melvin'),
+                'password' => Hash::make('CITHM'),
                 'remember_token' => Str::random(10),
                 'college' => 'CITHM',
                 'department' => 'TOURISM',

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Room;
+use App\Models\User;
 use App\Models\Faculty;
 use App\Models\Subject;
 use App\Models\Sections;
@@ -56,7 +57,7 @@ class DashboardController extends Controller
         }
 
         $rooms = $rooms->paginate(10)->appends(['search' => $search]);
-
+        
         return view('roomCoordinatorDashboard', compact('rooms'));
     }
 }

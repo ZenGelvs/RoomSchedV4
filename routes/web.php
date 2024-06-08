@@ -88,6 +88,10 @@ Route::group(['prefix' => 'roomCoordinator', 'as' => 'roomCoordinator.'], functi
     Route::get('/rooms/{id}/edit', [RoomCoordinatorController::class, 'editRoom'])->name('editRoom');
     Route::put('/rooms/{id}', [RoomCoordinatorController::class, 'updateRoom'])->name('updateRoom');
     Route::get('/rooms/{roomId}/schedule', [RoomCoordinatorController::class, 'roomSchedule'])->name('roomSchedule');
+    Route::post('/assignRoom', [RoomCoordinatorController::class, 'assignRoom'])->name('assignRoom');
+    Route::get('/assign-rooms-to-faculty', [RoomCoordinatorController::class, 'showAssignRoomsToFaculty'])->name('assignroomstofaculty');
+    Route::delete('/unassignRoom', [RoomCoordinatorController::class, 'unassignRoom'])->name('unassignRoom'); // New route for unassigning room
+
 
     //Faculty Routes
     Route::get('/faculty', [RoomCoordinatorController::class, 'facultySchedIndex'])->name('facultySchedIndex');

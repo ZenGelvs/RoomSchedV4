@@ -34,8 +34,12 @@
                         </div>
                     </form>
                 </div>
+                <div class="col-md-4">
+                    <a href="{{ route('roomCoordinator.assignroomstofaculty') }}" class="btn btn-danger">Assign Rooms to Faculty</a>
+                </div>
             </div>
-            
+
+            <!-- Add Room Form -->
             <div class="row mt-4">
                 <div class="col-md-12">
                     <div class="card">
@@ -61,7 +65,7 @@
                                         <select class="form-control" id="roomType" name="roomType" required>
                                             <option value="">Select Room Type</option>
                                             <option value="Lecture">Lecture</option>
-                                            <option value="Lab">Lab</option>
+                                            <option value="Laboratory">Lab</option>
                                         </select>
                                     </div>
                                     <div class="form-group">
@@ -80,6 +84,7 @@
                 </div>
             </div>
 
+            <!-- Room List -->
             <div class="row">
                 <div class="col-md-12">
                     <div class="card">
