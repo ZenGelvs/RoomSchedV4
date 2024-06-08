@@ -307,6 +307,7 @@ class SubjectController extends Controller
                 ->orWhere('Description', 'like', '%'.$search.'%')
                 ->orWhere('Year_Level', 'like', '%'.$search.'%')
                 ->orWhere('Program', 'like', '%'.$search.'%')
+                ->orWhere('Academic_Year', 'like', '%'.$search.'%')
                 ->orWhere('Semester', 'like', '%'.$search.'%')
                 ->orWhereHas('faculty', function ($q) use ($search) {
                     $q->where('name', 'like', '%'.$search.'%');
@@ -385,8 +386,10 @@ class SubjectController extends Controller
         });
 
         $assignedSubjects = $section->subjects;
+        $semesters = $subjectsForSection->pluck('Semester')->unique();
+        $academicYears = $subjectsForSection->pluck('Academic_Year')->unique();
 
-        return view('department.assign_subjects', compact('availableSubjects', 'assignedSubjects', 'programName', 'yearLevel', 'sectionId','section'));
+        return view('department.assign_subjects', compact('availableSubjects', 'assignedSubjects', 'programName', 'yearLevel', 'sectionId', 'section', 'semesters', 'academicYears'));
     }
 
     public function assignSectionToSubject(Request $request)
