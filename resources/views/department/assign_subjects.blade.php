@@ -55,6 +55,9 @@
                 </div>
                 
                 <div class="table-responsive">
+                    <form action="{{ route('department.assign.subjects') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="section_id" value="{{ $sectionId }}">
                     <table id="subjectsTable" class="table table-striped">
                         <thead>
                             <tr>
@@ -102,6 +105,8 @@
                             @endforeach
                         </tbody>
                     </table>
+                    <button type="submit" class="btn btn-success">Assign Selected Subjects</button>
+                    </form>
                 </div>        
             </div>
         </div>
@@ -115,6 +120,7 @@
                 </button>
             </h5>
         </div>
+        
         <div id="assignedSubjectsCollapse" class="collapse" aria-labelledby="assignedSubjectsHeading" data-parent="#accordion">
             <div class="card-body">
                 <div class="table-responsive">
