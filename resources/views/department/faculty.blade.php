@@ -40,7 +40,14 @@
                             <div class="form-group">
                                 <label for="faculty_id">Faculty ID:</label>
                                 <input type="number" class="form-control" id="faculty_id" name="faculty_id" required min="0">
-                            </div>                            
+                            </div> 
+                            <div class="form-group">
+                                <label for="faculty_type">Faculty Type:</label>
+                                <select class="form-control" id="faculty_type" name="faculty_type" required>
+                                    <option value="Part-Time">Part-Time</option>
+                                    <option value="Full-Time">Full-Time</option>
+                                </select>
+                            </div>                                
                             <button type="submit" class="btn btn-success">Add Faculty</button>
                         </form>
                     </div>
@@ -57,6 +64,7 @@
                         <tr>
                             <th>Faculty Name</th>
                             <th>Faculty ID</th>
+                            <th>Type</th>
                             <th>College</th>
                             <th>Department</th>
                             <th>Actions</th>
@@ -67,6 +75,7 @@
                             <tr>
                                 <td>{{ $facultyMember->name }}</td>
                                 <td>{{ $facultyMember->faculty_id }}</td>
+                                <td>{{ $facultyMember->type }}</td>
                                 <td>{{ $facultyMember->college }}</td>
                                 <td>{{ $facultyMember->department }}</td>
                                 <td>

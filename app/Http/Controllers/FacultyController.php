@@ -20,11 +20,13 @@ class FacultyController extends Controller
         $request->validate([
             'faculty_name' => 'required|string',
             'faculty_id' => 'required',
+            'faculty_type' => 'required',
         ]);
 
         $existingFaculty = Faculty::where('faculty_id', $request->faculty_id)
                                 ->where('department', Auth::user()->department)
                                 ->orWhere('name', $request->faculty_name)
+                                ->where('type', $request->faculty_type)
                                 ->exists();
 
         if ($existingFaculty) {
@@ -34,6 +36,7 @@ class FacultyController extends Controller
         Faculty::create([
             'name' => $request->faculty_name,
             'faculty_id' => $request->faculty_id,
+            'type' => $request->faculty_type,
             'college' => Auth::user()->college,
             'department' => Auth::user()->department,
         ]);
@@ -65,6 +68,7 @@ class FacultyController extends Controller
         $request->validate([
             'faculty_name' => 'required|string',
             'faculty_id' => 'required',
+            'faculty_type' => 'required',
         ]);
     
         $existingFaculty = Faculty::where('faculty_id', $request->faculty_id)
@@ -82,6 +86,7 @@ class FacultyController extends Controller
         $faculty = Faculty::findOrFail($id);
         $faculty->name = $request->faculty_name;
         $faculty->faculty_id = $request->faculty_id;
+        $faculty->type = $request->faculty_type;
         $faculty->save();
     
         return redirect()->route('department.faculty')->with('success', 'Faculty member updated successfully.');

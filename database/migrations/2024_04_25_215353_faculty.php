@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('college');
             $table->string('department');
+            $table->string('type');
             $table->timestamps();
         });
     }

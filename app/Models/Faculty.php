@@ -11,7 +11,7 @@ class Faculty extends Model
 
     protected $table = 'faculty';
 
-    protected $fillable = ['name', 'faculty_id', 'college', 'department'];
+    protected $fillable = ['name', 'faculty_id', 'college', 'department', 'type'];
 
     public function subjects()
     {

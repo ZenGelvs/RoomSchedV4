@@ -40,6 +40,14 @@
                         <input type="number" class="form-control" id="faculty_id" name="faculty_id" value="{{ $faculty->faculty_id }}" required>
                     </div>
 
+                    <div class="form-group">
+                        <label for="faculty_type">Faculty Type:</label>
+                        <select class="form-control" id="faculty_type" name="faculty_type" required>
+                            <option value="Full-Time" {{ old('faculty_type', $faculty->type) === 'Full-Time' ? 'selected' : '' }}>Full-Time</option>
+                            <option value="Part-Time" {{ old('faculty_type', $faculty->type) === 'Part-Time' ? 'selected' : '' }}>Part-Time</option>
+                        </select>
+                    </div>
+                    
                     <button type="submit" class="btn btn-primary" onclick="return confirmUpdate()" >Save Changes</button>
                     <a href="{{ route('department.faculty') }}" onclick="return confirmCancelation()" type="button" class="btn btn-secondary" >Cancel</a>
                 </form>

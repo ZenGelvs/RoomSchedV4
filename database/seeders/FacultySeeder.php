@@ -19,36 +19,42 @@ class FacultySeeder extends Seeder
                 'name' => 'Bruce Wayne',
                 'college' => 'COECSA',
                 'department' => 'DCS',
+                'type' => 'Full-time'
             ],
             [
                 'faculty_id' => '2020201234',
                 'name' => 'Tony Stark',
                 'college' => 'COECSA',
                 'department' => 'DCS',
+                'type' => 'Full-time'
             ],
             [
                 'faculty_id' => '1000000001',
                 'name' => 'Reed Richards',
                 'college' => 'COECSA',
                 'department' => 'DCS',
+                'type' => 'Full-time'
             ],
             [
                 'faculty_id' => '2017102635',
                 'name' => 'Barry Allen',
                 'college' => 'COECSA',
                 'department' => 'DOE',
+                'type' => 'Full-time'
             ],
             [
                 'faculty_id' => '2',
                 'name' => 'Clark Kent',
                 'college' => 'COECSA',
                 'department' => 'DOE',
+                'type' => 'Full-time'
             ],
             [
                 'faculty_id' => '1',
                 'name' => 'John Stewart',
                 'college' => 'COECSA',
                 'department' => 'DOE',
+                'type' => 'Full-time'
             ],
         ]);
     }
