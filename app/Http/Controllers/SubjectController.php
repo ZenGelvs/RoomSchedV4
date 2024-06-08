@@ -335,7 +335,18 @@ class SubjectController extends Controller
     {
         $subject = Subject::findOrFail($subjectId);
         $facultyId = $request->input('faculty_id');
-        
+        $facultyMember = Faculty::findOrFail($facultyId);
+    
+        $totalUnits = $facultyMember->subjects->sum('Units');
+    
+        $unitLimit = ($facultyMember->type === 'Part-Time') ? 12 : 24;
+    
+        $subjectUnits = $subject->Units;
+    
+        if (($totalUnits + $subjectUnits) > $unitLimit) {
+            return redirect()->route('department.subjects')->with('error', 'Assigning this subject will exceed the allowed unit limit for this faculty.');
+        }
+    
         if (!$subject->faculty->contains($facultyId)) {
             $subject->faculty()->attach($facultyId);
             return redirect()->route('department.subjects')->with('success', 'Faculty assigned to subject successfully.');
@@ -343,7 +354,7 @@ class SubjectController extends Controller
             return redirect()->route('department.subjects')->with('error', 'Faculty is already assigned to this subject.');
         }
     }
-
+    
     public function removeFaculty($subjectId, $facultyId)
     {
         $subject = Subject::findOrFail($subjectId);

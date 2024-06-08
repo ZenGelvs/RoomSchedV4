@@ -18,8 +18,8 @@
                                 <thead>
                                     <tr>
                                         <th>Faculty Name</th>
-                                        <th>Assigned Subjects</th>
-                                        <th>Sections</th>
+                                        <th>Assigned Subjects with Sections</th>
+                                        <th>Total Units of Assigned Subjects</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -29,19 +29,13 @@
                                         <td>
                                             <ul>
                                                 @foreach($faculty->subjects as $subject)
-                                                <li>{{ $subject->Subject_Code}}</li>
-                                                @endforeach
-                                            </ul>
-                                        </td>
-                                        <td>
-                                            <ul>
-                                                @foreach($faculty->subjects as $subject)
                                                     @foreach($subject->sections as $section)
-                                                        <li>{{ $section->program_name }} - {{ $section->section }}</li>
+                                                        <li>{{ $subject->Subject_Code }} - {{ $section->program_name }} - {{ $section->section }}</li>
                                                     @endforeach
                                                 @endforeach
                                             </ul>
                                         </td>
+                                        <td>{{ $faculty->total_units }}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -66,63 +60,6 @@
                     </div>
                 </div>
             </div>
-            <!-- Random Room Schedule Table -->
-            @if ($randomRoom)
-            <div class="col-12 mb-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Random Room Schedule</h5>
-                        <p><strong>Room:</strong> {{ $randomRoom->room_id }} - {{ $randomRoom->room_name }}</p>
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Day</th>
-                                        <th>Time</th>
-                                        <th>Subject</th>
-                                        <th>Class</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @php
-                                        $startTime = "07:00";
-                                        $colorMap = [];
-                                    @endphp
-                                    @foreach ($schedules as $schedule)
-                                    @if ($schedule->start_time > $startTime)
-                                    <tr>
-                                        <td><em>None</em></td>
-                                        <td> {{ $startTime }} - {{ $schedule->start_time }}</td>
-                                        <td><em>None</em></td>
-                                        <td><em>None</em></td>
-                                    </tr>
-                                    @endif
-                                    <tr>
-                                        <td>{{ $schedule->day }}</td>
-                                        <td>{{ $schedule->start_time }} - {{ $schedule->end_time }}</td>
-                                        <td>{{ $schedule->subject->Subject_Code }} - {{ $schedule->subject->Description }}</td>
-                                        <td>{{ $schedule->section->program_name }} - {{ $schedule->section->section }}</td>
-                                    </tr>
-                                    @php
-                                        $startTime = $schedule->end_time;
-                                    @endphp
-                                    @endforeach
-                                    @if ($startTime < "19:00")
-                                        <tr>
-                                            <td><em>None</em></td>
-                                            <td>{{ $startTime }} - 19:00</td>
-                                            <td><em>None</em></td>
-                                            <td><em>None</em></td>
-                                        </tr>
-                                    @endif
-                                </tbody>
-                            </table>
-                        </div>
-                        <a href="{{ route('department.schedule') }}" class="btn btn-dark">Schedule Sections</a>
-                    </div>
-                </div>
-            </div>
-            @endif
         </div>
     </div>
 </div>

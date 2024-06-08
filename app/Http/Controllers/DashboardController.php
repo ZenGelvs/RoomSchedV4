@@ -19,18 +19,17 @@ class DashboardController extends Controller
             ->where('department', Auth::user()->department)
             ->get();
     
+        foreach ($faculties as $faculty) {
+            $faculty->total_units = $faculty->subjects->sum('Units');
+        }
+    
         $sectionsWithoutSchedules = Sections::has('schedules', '=', 0)->where('college', Auth::user()->college)
             ->where('department', Auth::user()->department)
             ->get();
     
-        $randomRoom = Room::where('room_type', 'Lecture')
-            ->inRandomOrder()
-            ->first();
+        return view('dashboard', compact('faculties', 'sectionsWithoutSchedules'));
+    }
     
-        $schedules = $randomRoom ? Schedules::where('room_id', $randomRoom->id)->get() : collect();
-    
-        return view('dashboard', compact('faculties', 'sectionsWithoutSchedules', 'randomRoom', 'schedules'));
-    }    
 
     public function adminIndex(Request $request)
     {
