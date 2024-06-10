@@ -10,12 +10,12 @@
         <div class="row">
             <!-- Faculty and Assigned Subjects Card -->
             <div class="col-12 mb-4">
-                <div class="card h-100">
+                <div class="card h-100 shadow-sm">
                     <div class="card-body">
                         <h5 class="card-title">Faculty and Assigned Subjects</h5>
                         <div class="table-responsive">
-                            <table class="table">
-                                <thead>
+                            <table class="table table-striped table-bordered">
+                                <thead class="thead-dark">
                                     <tr>
                                         <th>Faculty Name</th>
                                         <th>Assigned Subjects with Sections</th>
@@ -27,11 +27,14 @@
                                     <tr>
                                         <td>{{ $faculty->name }}</td>
                                         <td>
-                                            <ul>
+                                            <ul class="list-unstyled">
                                                 @foreach($faculty->subjects as $subject)
-                                                    @foreach($subject->sections as $section)
-                                                        <li>{{ $subject->Subject_Code }} - {{ $section->program_name }} - {{ $section->section }}</li>
-                                                    @endforeach
+                                                    <li>{{ $subject->Subject_Code }}</li>
+                                                    <ul>
+                                                        @foreach($subject->sections as $section)
+                                                            <li>{{ $section->program_name }} - {{ $section->section }}</li>
+                                                        @endforeach
+                                                    </ul>
                                                 @endforeach
                                             </ul>
                                         </td>
@@ -40,14 +43,14 @@
                                     @endforeach
                                 </tbody>
                             </table>
-                            <a href="{{ route('department.faculty') }}" class="btn btn-dark">Add Faculty</a>
                         </div>
+                        <a href="{{ route('department.faculty') }}" class="btn btn-dark mt-3">Add Faculty</a>
                     </div>
                 </div>
             </div>
             <!-- Sections and Subjects without Schedules Card -->
             <div class="col-12 mb-4">
-                <div class="card h-100">
+                <div class="card h-100 shadow-sm">
                     <div class="card-body">
                         <h5 class="card-title">Sections and Subjects without Schedules</h5>
                         
@@ -70,8 +73,8 @@
                         </div>
 
                         <div class="table-responsive">
-                            <table class="table">
-                                <thead>
+                            <table class="table table-striped table-bordered">
+                                <thead class="thead-dark">
                                     <tr>
                                         <th>Program Name</th>
                                         <th>Section</th>
@@ -113,8 +116,8 @@
                                 </tbody>
                             </table>
                         </div>
-                        <a href="{{ route('department.subjects') }}" class="btn btn-dark">Assign Subjects</a>
-                        <a href="{{ route('department.sections') }}" class="btn btn-dark">Add Sections</a>
+                        <a href="{{ route('department.subjects') }}" class="btn btn-dark mt-3">Assign Subjects</a>
+                        <a href="{{ route('department.sections') }}" class="btn btn-dark mt-3">Add Sections</a>
                     </div>
                 </div>
             </div>

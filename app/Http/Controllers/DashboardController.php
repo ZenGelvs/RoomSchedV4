@@ -15,7 +15,8 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $faculties = Faculty::with(['subjects.sections'])->where('college', Auth::user()->college)
+        $faculties = Faculty::with(['subjects.sections'])
+            ->where('college', Auth::user()->college)
             ->where('department', Auth::user()->department)
             ->get();
     
@@ -24,20 +25,19 @@ class DashboardController extends Controller
         }
     
         $sectionsWithoutSchedules = Sections::with(['subjects' => function ($query) {
-            $query->whereHas('schedules', function ($q) {
+            $query->whereDoesntHave('schedules', function ($q) {
                 $q->where('type', 'Lecture')->orWhere('type', 'Lab');
-            }, '<', 2);
+            });
         }])
         ->where('college', Auth::user()->college)
         ->where('department', Auth::user()->department)
         ->get();
-        
+    
         $programs = $sectionsWithoutSchedules->groupBy('program_name');
-
+    
         return view('dashboard', compact('faculties', 'sectionsWithoutSchedules', 'programs'));
     }
     
-
     public function adminIndex(Request $request)
     {
         $query = $request->input('search');
