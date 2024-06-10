@@ -297,17 +297,19 @@
         var startTime = $(this).val();
         var classType = $('#type').val();
         var endTimeSelect = $('#endTime');
-        endTimeSelect.empty(); // Clear existing options
+        endTimeSelect.empty(); 
 
         if (startTime && classType === 'Lecture') {
             var startParts = startTime.split(':');
             var startHour = parseInt(startParts[0]);
             var startMinute = parseInt(startParts[1]);
 
+            var durations = [1.5,2, 3];
+            
             // Generate end times from 1.5 to 3 hours after start time
-            for (var duration = 1.5; duration <= 3; duration += 0.5) {
+                durations.forEach(function(duration) {
                 var endHour = startHour + Math.floor(duration);
-                var endMinute = startMinute + (duration % 1) * 60;
+                var endMinute = startMinute + ((duration % 1) * 60);
 
                 if (endMinute >= 60) {
                     endMinute -= 60;
@@ -318,9 +320,29 @@
                     var endTime = ('0' + endHour).slice(-2) + ':' + ('0' + endMinute).slice(-2);
                     endTimeSelect.append('<option value="' + endTime + '">' + endTime + '</option>');
                 }
-            }
-        } else if (classType === 'Laboratory') {
-            populateAllEndTimes();
+            });
+        } else if (startTime && classType === 'Laboratory') {
+            var startParts = startTime.split(':');
+            var startHour = parseInt(startParts[0]);
+            var startMinute = parseInt(startParts[1]);
+
+            var durations = [3,4,5];
+            
+            // Generate end times from 1.5 to 3 hours after start time
+                durations.forEach(function(duration) {
+                var endHour = startHour + Math.floor(duration);
+                var endMinute = startMinute + ((duration % 1) * 60);
+
+                if (endMinute >= 60) {
+                    endMinute -= 60;
+                    endHour += 1;
+                }
+
+                if (endHour <= 21) {
+                    var endTime = ('0' + endHour).slice(-2) + ':' + ('0' + endMinute).slice(-2);
+                    endTimeSelect.append('<option value="' + endTime + '">' + endTime + '</option>');
+                }
+            });
         }
 
         checkEndTime(); // Revalidate end time
