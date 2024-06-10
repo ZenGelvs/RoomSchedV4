@@ -60,7 +60,7 @@
                             <li class="list-group-item"><b>College:</b> {{ $subject->College }}</li>
                             <li class="list-group-item"><b>Department:</b> {{ $subject->Department }}</li>
                             <li class="list-group-item"><b>Program:</b> {{ $subject->Program }}</li>
-                            <li class="list-group-item"><b>Academic Year:</b> {{ $subject->Academic_Year }}</li>
+                            <li class="list-group-item"><b>Curriculum:</b> {{ $subject->Academic_Year }}</li>
                         </ul>
                         <div class="row mt-3">
                             <div class="col-md-6">

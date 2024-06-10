@@ -58,7 +58,7 @@
                                     <th>Year Level</th>
                                     <th>Semester</th>
                                     <th>Program</th>
-                                    <th>Academic Year</th>
+                                    <th>Curriculum</th>
                                     <th>Assigned Faculty</th>
                                     <th>Assign a Faculty</th>
                                 </tr>

@@ -129,7 +129,7 @@
                                 </select>
                             </div>                            
                             <div class="form-group">
-                                <label for="Academic_Year">Academic Year:</label>
+                                <label for="Academic_Year">Curriculum:</label>
                                 <input type="text" class="form-control" id="Academic_Year" name="Academic_Year" required>
                             </div>
                             <div id="unitsValidationMessage" class="text-danger" style="display: none;">Lec and Lab must equal Total Units.</div>

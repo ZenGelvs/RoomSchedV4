@@ -92,7 +92,7 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="Academic_Year">Academic Year:</label>
+                    <label for="Academic_Year">Curriculum:</label>
                     <input type="text" class="form-control" id="Academic_Year" name="Academic_Year" value="{{ $subject->Academic_Year }}" required>
                 </div>
                 <button type="submit" class="btn btn-warning">Update</button>

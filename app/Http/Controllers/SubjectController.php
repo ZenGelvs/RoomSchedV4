@@ -62,7 +62,7 @@ class SubjectController extends Controller
                 ->where('College', $data['college'])
                 ->where('Department', $data['department'])
                 ->where('Program', $data['program'])
-                ->where('Academic_Year', $data['academic_year'])
+                ->where('Academic_Year', $data['curriculum'])
                 ->first();
 
             if ($existingSubject) {
@@ -91,7 +91,7 @@ class SubjectController extends Controller
                 'College' => $data['college'],
                 'Department' => $data['department'],
                 'Program' => $data['program'],
-                'Academic_Year' => $data['academic_year'],
+                'Academic_Year' => $data['curriculum'],
             ]);
         }
 
@@ -147,7 +147,7 @@ class SubjectController extends Controller
                 $errors->push("Row {$index}: Program is required.");
             }
 
-            if (!isset($data['academic_year']) || empty($data['academic_year'])) {
+            if (!isset($data['curriculum']) || empty($data['curriculum'])) {
                 $errors->push("Row {$index}: Academic Year is required.");
             }
         }

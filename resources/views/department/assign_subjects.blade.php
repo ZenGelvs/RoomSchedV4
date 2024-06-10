@@ -44,7 +44,7 @@
                         </select>
                     </div>
                     <div class="form-group col-md-4">
-                        <label for="academicYearSelect">Academic Year:</label>
+                        <label for="academicYearSelect">Curriculum:</label>
                         <select id="academicYearSelect" class="form-control">
                             <option value="">All</option>
                             @foreach($academicYears as $year)
@@ -70,7 +70,7 @@
                                 <th>Year Level</th>
                                 <th>Semester</th>
                                 <th>Program</th>
-                                <th>Academic Year</th>
+                                <th>Curriculum</th>
                                 <th>Assigned Faculty</th>
                                 <th>Select Subjects</th> 
                             </tr>
