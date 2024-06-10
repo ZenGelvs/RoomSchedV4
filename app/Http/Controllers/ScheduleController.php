@@ -157,7 +157,7 @@ class ScheduleController extends Controller
         $schedule->load('section');
 
         $sections = Sections::with('subjects')->get();
-        $rooms = Room::all(); 
+        $rooms = Auth::user()->rooms()->get();
 
         return view('department.edit_schedule', compact('schedule', 'rooms', 'sections'));
     }

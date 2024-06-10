@@ -50,6 +50,25 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title">Sections and Subjects without Schedules</h5>
+                        
+                        <!-- Dropdowns for filtering -->
+                        <div class="form-group">
+                            <label for="programDropdown">Select Program</label>
+                            <select class="form-control" id="programDropdown">
+                                <option value="">Select Program</option>
+                                @foreach($programs as $programName => $sections)
+                                    <option value="{{ $programName }}">{{ $programName }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="sectionDropdown">Select Section</label>
+                            <select class="form-control" id="sectionDropdown" disabled>
+                                <option value="">Select Section</option>
+                            </select>
+                        </div>
+
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
@@ -62,14 +81,14 @@
                                         <th>Missing Lab</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="subjectsTableBody">
                                     @foreach($sectionsWithoutSchedules as $section)
                                         @foreach($section->subjects as $subject)
                                             @php
                                                 $hasLecture = $subject->schedules->where('type', 'Lecture')->count();
                                                 $hasLab = $subject->schedules->where('type', 'Lab')->count();
                                             @endphp
-                                            <tr>
+                                            <tr data-program="{{ $section->program_name }}" data-section="{{ $section->id }}">
                                                 <td>{{ $section->program_name }}</td>
                                                 <td>{{ $section->section }}</td>
                                                 <td>{{ $subject->Subject_Code }}</td>
@@ -102,4 +121,56 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const programDropdown = document.getElementById('programDropdown');
+    const sectionDropdown = document.getElementById('sectionDropdown');
+    const subjectsTableBody = document.getElementById('subjectsTableBody');
+
+    const sections = @json($sectionsWithoutSchedules->groupBy('program_name'));
+
+    programDropdown.addEventListener('change', function () {
+        const programName = this.value;
+        sectionDropdown.innerHTML = '<option value="">Select Section</option>';
+
+        if (programName) {
+            const programSections = sections[programName];
+            programSections.forEach(section => {
+                const option = document.createElement('option');
+                option.value = section.id;
+                option.textContent = section.section;
+                sectionDropdown.appendChild(option);
+            });
+
+            sectionDropdown.disabled = false;
+        } else {
+            sectionDropdown.disabled = true;
+        }
+
+        filterSubjects();
+    });
+
+    sectionDropdown.addEventListener('change', function () {
+        filterSubjects();
+    });
+
+    function filterSubjects() {
+        const programName = programDropdown.value;
+        const sectionId = sectionDropdown.value;
+
+        const rows = subjectsTableBody.querySelectorAll('tr');
+        rows.forEach(row => {
+            const rowProgramName = row.getAttribute('data-program');
+            const rowSectionId = row.getAttribute('data-section');
+            
+            if ((programName && rowProgramName !== programName) || (sectionId && rowSectionId !== sectionId)) {
+                row.style.display = 'none';
+            } else {
+                row.style.display = '';
+            }
+        });
+    }
+});
+</script>
 @endsection

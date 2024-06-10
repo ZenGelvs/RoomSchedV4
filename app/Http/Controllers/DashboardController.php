@@ -31,8 +31,10 @@ class DashboardController extends Controller
         ->where('college', Auth::user()->college)
         ->where('department', Auth::user()->department)
         ->get();
-    
-        return view('dashboard', compact('faculties', 'sectionsWithoutSchedules'));
+        
+        $programs = $sectionsWithoutSchedules->groupBy('program_name');
+
+        return view('dashboard', compact('faculties', 'sectionsWithoutSchedules', 'programs'));
     }
     
 
