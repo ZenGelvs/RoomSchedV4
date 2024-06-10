@@ -17,18 +17,20 @@ class ScheduleController extends Controller
     public function index()
     {
         $rooms = Room::all();
-
+    
         $userRooms = Auth::user()->rooms()->get();
-
-        $sections = Sections::with('subjects')->where('college', Auth::user()->college)
-                        ->where('department', Auth::user()->department)
-                        ->orderBy('program_name')->orderBy('year_level')
-                        ->get(); 
-        
+    
+        $sections = Sections::with('subjects')
+                            ->where('college', Auth::user()->college)
+                            ->where('department', Auth::user()->department)
+                            ->orderBy('program_name')
+                            ->orderBy('year_level')
+                            ->get(); 
+    
         $faculties = Faculty::where('college', Auth::user()->college)
-                        ->where('department', Auth::user()->department)
-                        ->get(); 
-
+                            ->where('department', Auth::user()->department)
+                            ->get(); 
+    
         return view('department.schedules', compact('rooms', 'userRooms', 'sections', 'faculties'));
     }
     

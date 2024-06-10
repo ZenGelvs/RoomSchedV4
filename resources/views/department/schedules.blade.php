@@ -204,34 +204,66 @@
     </div>
 
     <div class="row">
-        <div class="col-md-6">
-            <h2 class="mb-4">View Schedule</h2>
-            <form action="{{ route('department.section_schedule') }}" method="GET">
+        <div class="col-md-12">
+            <h2 class="mb-4">View Section Schedule</h2>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Program</th>
+                        <th>Section</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($sections->groupBy('program_name') as $program => $programSections)
+                    <tr>
+                        <td>{{ $program }}</td>
+                        <td>
+                            <select class="form-control section-select" data-program="{{ $program }}" required>
+                                <option value="">Select Section...</option>
+                                @foreach ($programSections as $section)
+                                    <option value="{{ $section->id }}">{{ $section->section }}</option>
+                                @endforeach
+                            </select>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-secondary view-schedule-btn" data-program="{{ $program }}">View Section Schedule</button>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+            <form id="sectionScheduleForm" action="{{ route('department.section_schedule') }}" method="GET" style="display: none;">
                 @csrf
-                <div class="form-group">
-                    <label for="sectionSelect">Select Section:</label>
-                    <select class="form-control" id="sectionSelect" name="section" required>
-                        <option value="">Select Section...</option>
-                        @foreach ($sections as $section)
-                            <option value="{{ $section->id }}">{{ $section->program_name }} - {{ $section->section }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-secondary">View Section Schedule</button>
+                <input type="hidden" id="hiddenSectionInput" name="section" value="">
             </form>
-            <form action="{{ route('department.faculty_schedule') }}" method="GET">
-                @csrf
-                <div class="form-group">
-                    <label for="facultySelect">Select Faculty:</label>
-                    <select class="form-control" id="facultySelect" name="faculty" required>
-                        <option value="">Select Faculty...</option>
-                        @foreach($faculties as $facultyOption)
-                            <option value="{{ $facultyOption->id }}">{{ $facultyOption->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-secondary">View Faculty Schedule</button>
-            </form>            
+            <h2 class="mb-4">View Faculty Schedule</h2>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Select Faculty:</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <form action="{{ route('department.faculty_schedule') }}" method="GET">
+                                @csrf
+                                <select class="form-control" id="facultySelect" name="faculty" required>
+                                    <option value="">Select Faculty...</option>
+                                    @foreach($faculties as $facultyOption)
+                                        <option value="{{ $facultyOption->id }}">{{ $facultyOption->name }}</option>
+                                    @endforeach
+                                </select>
+                            </td>
+                            <td>
+                                <button type="submit" class="btn btn-secondary">View Faculty Schedule</button>
+                            </td>
+                        </form>
+                    </tr>
+                </tbody>
+            </table>     
         </div>
     </div>
 </div>
@@ -427,5 +459,23 @@
     });
 });
 
+    document.addEventListener('DOMContentLoaded', function () {
+        const sectionScheduleForm = document.getElementById('sectionScheduleForm');
+        const hiddenSectionInput = document.getElementById('hiddenSectionInput');
+
+        document.querySelectorAll('.view-schedule-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const program = this.getAttribute('data-program');
+                const sectionSelect = document.querySelector(`.section-select[data-program="${program}"]`);
+                const selectedSectionId = sectionSelect.value;
+                if (selectedSectionId) {
+                    hiddenSectionInput.value = selectedSectionId;
+                    sectionScheduleForm.submit();
+                } else {
+                    alert('Please select a section.');
+                }
+            });
+        });
+    });
 </script>
 @endsection
