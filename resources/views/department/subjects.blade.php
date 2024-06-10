@@ -35,7 +35,7 @@
                 <form action="{{ route('department.subjects') }}" method="GET" class="mb-4">
                     <div class="form-row">
                         <div class="col">
-                            <input type="text" name="search" class="form-control" placeholder="Search by Subject Code, Description, Year, Program, Semester, or Faculty" value="{{ request('search') }}">
+                            <input type="text" name="search" class="form-control" placeholder="Search by Code, Description, Curriculum, Program, Semester, or Faculty" value="{{ request('search') }}">
                         </div>
                         <div class="col">
                             <button type="submit" class="btn btn-primary">Search</button>
@@ -54,7 +54,6 @@
                                     <th>Lecture Hours</th>
                                     <th>Lab Hours</th>
                                     <th>Units</th>
-                                    <th>Pre-Requisites</th>
                                     <th>Year Level</th>
                                     <th>Semester</th>
                                     <th>Program</th>
@@ -71,7 +70,6 @@
                                         <td>{{ $subject->Lec }}</td>
                                         <td>{{ $subject->Lab }}</td>
                                         <td>{{ $subject->Units }}</td>
-                                        <td>{{ $subject->Pre_Req }}</td>
                                         <td>{{ $subject->Year_Level }}</td>
                                         <td>{{ $subject->Semester }}</td>
                                         <td>{{ $subject->Program }}</td>

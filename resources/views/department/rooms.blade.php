@@ -9,8 +9,13 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
+                    <div class="mb-3">
+                        <button class="btn btn-primary filter-btn" data-room-type="">All</button>
+                        <button class="btn btn-primary filter-btn" data-room-type="Lecture">Lecture Rooms</button>
+                        <button class="btn btn-primary filter-btn" data-room-type="Laboratory">Laboratory Rooms</button>
+                    </div>
                     <div class="table-responsive">
-                        <table class="table">
+                        <table class="table" id="room-table">
                             <thead>
                                 <tr>
                                     <th>Room ID</th>
@@ -22,7 +27,7 @@
                             </thead>
                             <tbody>
                                 @foreach ($rooms as $room)
-                                    <tr>
+                                    <tr data-room-type="{{ $room->room_type }}">
                                         <td>{{ $room->room_id }}</td>
                                         <td>{{ $room->room_name }}</td>
                                         <td>{{ $room->room_type }}</td>
@@ -41,4 +46,35 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const roomRows = document.querySelectorAll('#room-table tbody tr');
+
+        filterButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                const roomType = this.getAttribute('data-room-type');
+
+                // Show all rows if room type is empty
+                if (roomType === '') {
+                    roomRows.forEach(function(row) {
+                        row.style.display = '';
+                    });
+                } else {
+                    roomRows.forEach(function(row) {
+                        const rowRoomType = row.getAttribute('data-room-type');
+                        if (rowRoomType === roomType) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>
 @endsection
