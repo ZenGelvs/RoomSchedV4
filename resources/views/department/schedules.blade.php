@@ -36,47 +36,6 @@
                 <form action="{{ route('department.schedule.store') }}" method="POST" id="createScheduleForm">
                     @csrf
                     <div class="form-group">
-                        <label for="day">Day:</label>
-                        <select class="form-control" id="day" name="day" required>
-                            <option value="">Select Day</option>
-                            <option value="Monday">Monday</option>
-                            <option value="Tuesday">Tuesday</option>
-                            <option value="Wednesday">Wednesday</option>
-                            <option value="Thursday">Thursday</option>
-                            <option value="Friday">Friday</option>
-                            <option value="Saturday">Saturday</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="startTime">Start Time:</label>
-                        <select class="form-control" id="startTime" name="startTime" required>
-                            <option value="">Select Start Time</option>
-                            @for ($hour = 7; $hour <= 20; $hour++)
-                                @for ($minute = 0; $minute < 60; $minute += 30)
-                                    @php
-                                        $time = sprintf('%02d:%02d', $hour, $minute);
-                                    @endphp
-                                    <option value="{{ $time }}">{{ $time }}</option>
-                                @endfor
-                            @endfor
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="endTime">End Time:</label>
-                        <select class="form-control" id="endTime" name="endTime" required>
-                            <option value="">Select End Time</option>
-                            @for ($hour = 7; $hour <= 20; $hour++)
-                                @for ($minute = 0; $minute < 60; $minute += 30)
-                                    @php
-                                        $time = sprintf('%02d:%02d', $hour, $minute);
-                                    @endphp
-                                    <option value="{{ $time }}">{{ $time }}</option>
-                                @endfor
-                            @endfor
-                        </select>
-                        <small class="text-danger" id="endTimeError" style="display:none;">End time must be after start time.</small>
-                    </div>
-                    <div class="form-group">
                         <label for="sectionId">Section ID:</label>
                         <select class="form-control" id="sectionId" name="sectionId" required>
                             <option value="">Select Section...</option>
@@ -103,6 +62,47 @@
                             <option value="Lecture">Lecture</option>
                             <option value="Laboratory">Laboratory</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="day">Day:</label>
+                        <select class="form-control" id="day" name="day" required>
+                            <option value="">Select Day</option>
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="startTime">Start Time:</label>
+                        <select class="form-control" id="startTime" name="startTime" required>
+                            <option value="">Select Start Time</option>
+                            @for ($hour = 7; $hour <= 21; $hour++)
+                                @for ($minute = 0; $minute < 60; $minute += 30)
+                                    @php
+                                        $time = sprintf('%02d:%02d', $hour, $minute);
+                                    @endphp
+                                    <option value="{{ $time }}">{{ $time }}</option>
+                                @endfor
+                            @endfor
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="endTime">End Time:</label>
+                        <select class="form-control" id="endTime" name="endTime" required>
+                            <option value="">Select End Time</option>
+                            @for ($hour = 7; $hour <= 20; $hour++)
+                                @for ($minute = 0; $minute < 60; $minute += 30)
+                                    @php
+                                        $time = sprintf('%02d:%02d', $hour, $minute);
+                                    @endphp
+                                    <option value="{{ $time }}">{{ $time }}</option>
+                                @endfor
+                            @endfor
+                        </select>
+                        <small class="text-danger" id="endTimeError" style="display:none;">End time must be after start time.</small>
                     </div>
                     <div class="form-group">
                         <label for="roomId">Room ID:</label>
@@ -242,130 +242,168 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 <script>
-     $(document).ready(function() {
-        $('#sectionId').change(function() {
-            var sectionId = $(this).val();
-            if (sectionId) {
-                $('#subjectId option').hide();
-                $('.section-' + sectionId + '-subject').show();
-            } else {
-                $('#subjectId option').hide();
-                $('#subjectId').find('option:first').show();
-            }
-        });
+ $(document).ready(function() {
+    // Update subject options based on selected section
+    $('#sectionId').change(function() {
+        var sectionId = $(this).val();
+        if (sectionId) {
+            $('#subjectId option').hide();
+            $('.section-' + sectionId + '-subject').show();
+        } else {
+            $('#subjectId option').hide();
+            $('#subjectId').find('option:first').show();
+        }
     });
-    
-    $(document).ready(function() {
-        $('#type').change(function() {
-            var classType = $(this).val();
-            var userRooms = @json($userRooms); // Convert userRooms to JavaScript array
-            var roomSelect = $('#roomId');
-            
-            roomSelect.empty(); // Clear the room options
-            
-            // Filter userRooms based on the selected class type
-            var filteredRooms = userRooms.filter(function(room) {
-                return room.room_type === classType;
-            });
-            
-            // Populate the room options based on the filtered rooms
-            filteredRooms.forEach(function(room) {
-                roomSelect.append('<option value="' + room.id + '">' + room.room_id + ' - ' + room.room_name + '</option>');
-            });
-        });
-    });
-    
-    function checkEndTime() {
-            console.log('Checking end time');
-            var startTime = $('#startTime').val();
-            var endTime = $('#endTime').val();
 
-            if (startTime && endTime) {
-                console.log('Start Time:', startTime);
-                console.log('End Time:', endTime);
-                if (endTime <= startTime) {
-                    $('#endTimeError').show();
-                    console.log('End time is before start time');
-                    return false;
-                } else {
-                    $('#endTimeError').hide();
-                    console.log('End time is after start time');
-                    return true;
+    // Update room options based on selected class type
+    $('#type').change(function() {
+        var classType = $(this).val();
+        var userRooms = @json($userRooms); 
+        var roomSelect = $('#roomId');
+        
+        roomSelect.empty(); 
+        
+        var filteredRooms = userRooms.filter(function(room) {
+            return room.room_type === classType;
+        });
+        
+        filteredRooms.forEach(function(room) {
+            roomSelect.append('<option value="' + room.id + '">' + room.room_id + ' - ' + room.room_name + '</option>');
+        });
+        
+        // Reset the end time dropdown if the class type changes
+        if (classType === 'Lecture') {
+            $('#startTime').trigger('change');
+        } else {
+            populateAllEndTimes();
+        }
+    });
+
+    // Function to populate all end times for Laboratory classes
+    function populateAllEndTimes() {
+        var endTimeSelect = $('#endTime');
+        endTimeSelect.empty(); // Clear existing options
+        endTimeSelect.append('<option value="">Select End Time</option>');
+        for (var hour = 7; hour <= 21; hour++) {
+            for (var minute = 0; minute < 60; minute += 30) {
+                var time = ('0' + hour).slice(-2) + ':' + ('0' + minute).slice(-2);
+                endTimeSelect.append('<option value="' + time + '">' + time + '</option>');
+            }
+        }
+    }
+
+    // Populate end time options based on selected start time
+    $('#startTime').change(function() {
+        var startTime = $(this).val();
+        var classType = $('#type').val();
+        var endTimeSelect = $('#endTime');
+        endTimeSelect.empty(); // Clear existing options
+
+        if (startTime && classType === 'Lecture') {
+            var startParts = startTime.split(':');
+            var startHour = parseInt(startParts[0]);
+            var startMinute = parseInt(startParts[1]);
+
+            // Generate end times from 1.5 to 3 hours after start time
+            for (var duration = 1.5; duration <= 3; duration += 0.5) {
+                var endHour = startHour + Math.floor(duration);
+                var endMinute = startMinute + (duration % 1) * 60;
+
+                if (endMinute >= 60) {
+                    endMinute -= 60;
+                    endHour += 1;
+                }
+
+                if (endHour <= 21) {
+                    var endTime = ('0' + endHour).slice(-2) + ':' + ('0' + endMinute).slice(-2);
+                    endTimeSelect.append('<option value="' + endTime + '">' + endTime + '</option>');
                 }
             }
-            console.log('Start time or End time is not selected');
-            return true;
+        } else if (classType === 'Laboratory') {
+            populateAllEndTimes();
         }
 
-            $('#startTime').change(function() {
-                checkEndTime();
-            });
+        checkEndTime(); // Revalidate end time
+    });
 
-            $('#endTime').change(function() {
-                checkEndTime();
-            });
+    function checkEndTime() {
+        var startTime = $('#startTime').val();
+        var endTime = $('#endTime').val();
 
-            $('form').submit(function() {
-                return checkEndTime();
-            });
+        if (startTime && endTime) {
+            if (endTime <= startTime) {
+                $('#endTimeError').show();
+                return false;
+            } else {
+                $('#endTimeError').hide();
+                return true;
+            }
+        }
+        return true;
+    }
+
+    $('#endTime').change(function() {
+        checkEndTime();
+    });
+
+    $('form').submit(function() {
+        return checkEndTime();
+    });
 
     function checkPrefEndTime() {
-            console.log('Checking end time');
-            var startTime = $('#preferredStartTime').val();
-            var endTime = $('#preferredEndTime').val();
+        var startTime = $('#preferredStartTime').val();
+        var endTime = $('#preferredEndTime').val();
 
-            if (startTime && endTime) {
-                console.log('Start Time:', startTime);
-                console.log('End Time:', endTime);
-                if (endTime <= startTime) {
-                    $('#PrefendTimeError').show();
-                    console.log('End time is before start time');
-                    return false;
-                } else {
-                    $('#PrefendTimeError').hide();
-                    console.log('End time is after start time');
-                    return true;
-                }
+        if (startTime && endTime) {
+            if (endTime <= startTime) {
+                $('#PrefendTimeError').show();
+                return false;
+            } else {
+                $('#PrefendTimeError').hide();
+                return true;
             }
-            console.log('Start time or End time is not selected');
-            return true;
+        }
+        return true;
+    }
+
+    $('#preferredStartTime').change(function() {
+        checkPrefEndTime();
+    });
+
+    $('#preferredEndTime').change(function() {
+        checkPrefEndTime();
+    });
+
+    $('form').submit(function() {
+        return checkPrefEndTime();
+    });
+
+    // Filter rooms by building
+    document.addEventListener('DOMContentLoaded', function() {
+        var preferredBuildingSelect = document.getElementById('preferredBuilding');
+        var preferredRoomSelect = document.getElementById('preferredRoom');
+
+        function filterRoomsByBuilding() {
+            var selectedBuilding = preferredBuildingSelect.value;
+            var options = preferredRoomSelect.querySelectorAll('option');
+
+            options.forEach(function(option) {
+                var building = option.getAttribute('data-building');
+                if (selectedBuilding === 'Any' || building === selectedBuilding) {
+                    option.style.display = '';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+
+            preferredRoomSelect.value = 'Any';
         }
 
-            $('#preferredStartTime').change(function() {
-                checkPrefEndTime();
-            });
+        preferredBuildingSelect.addEventListener('change', filterRoomsByBuilding);
 
-            $('#preferredEndTime').change(function() {
-                checkPrefEndTime();
-            });
-
-            $('form').submit(function() {
-                return checkPrefEndTime();
-            });
-        document.addEventListener('DOMContentLoaded', function() {
-            var preferredBuildingSelect = document.getElementById('preferredBuilding');
-            var preferredRoomSelect = document.getElementById('preferredRoom');
-
-            function filterRoomsByBuilding() {
-                var selectedBuilding = preferredBuildingSelect.value;
-                var options = preferredRoomSelect.querySelectorAll('option');
-
-                options.forEach(function(option) {
-                    var building = option.getAttribute('data-building');
-                    if (selectedBuilding === 'Any' || building === selectedBuilding) {
-                        option.style.display = '';
-                    } else {
-                        option.style.display = 'none';
-                    }
-                });
-
-                preferredRoomSelect.value = 'Any';
-            }
-
-            preferredBuildingSelect.addEventListener('change', filterRoomsByBuilding);
-
-            filterRoomsByBuilding();
-        });
+        filterRoomsByBuilding();
+    });
+});
 
 </script>
 @endsection

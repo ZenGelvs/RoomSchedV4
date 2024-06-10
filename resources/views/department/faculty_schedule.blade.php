@@ -87,7 +87,7 @@
                             <tbody>
                                 @php
                                     $startTime = "07:00";
-                                    $endTime = "19:00";
+                                    $endTime = "21:00";
                                     $colorMap = [];
                                 @endphp
                                 @foreach ($faculty->subjects as $subject)

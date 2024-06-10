@@ -120,10 +120,10 @@
                                     $startTime = $schedule->end_time;
                                 @endphp
                             @endforeach
-                            @if ($startTime < "19:00")
+                            @if ($startTime < "21:00")
                                 <tr>
                                     <td style="">
-                                        <p><strong>Time:</strong> {{ $startTime }} - 19:00</p>
+                                        <p><strong>Time:</strong> {{ $startTime }} - 21:00</p>
                                         <p><em>No schedule</em></p>
                                     </td>
                                 </tr>
