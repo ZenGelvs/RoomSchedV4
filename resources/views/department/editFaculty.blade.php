@@ -48,8 +48,8 @@
                         </select>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary" onclick="return confirmUpdate()" >Save Changes</button>
-                    <a href="{{ route('department.faculty') }}" onclick="return confirmCancelation()" type="button" class="btn btn-secondary" >Cancel</a>
+                    <button type="submit" class="btn btn-primary" onclick="return confirmUpdate()">Save Changes</button>
+                    <a href="{{ route('department.faculty') }}" onclick="return confirmCancelation()" type="button" class="btn btn-secondary">Cancel</a>
                 </form>
             </div>
         </div>
@@ -60,7 +60,7 @@
         return confirm('Are you sure you want to update this faculty?');
     }
     function confirmCancelation() {
-            return confirm("Are you sure you want to Cancel? All changes won't be saved?");
-        }
+        return confirm("Are you sure you want to Cancel? All changes won't be saved?");
+    }
 </script>
 @endsection

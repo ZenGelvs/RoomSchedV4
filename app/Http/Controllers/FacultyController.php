@@ -70,26 +70,34 @@ class FacultyController extends Controller
             'faculty_id' => 'required',
             'faculty_type' => 'required',
         ]);
-    
+
         $existingFaculty = Faculty::where('faculty_id', $request->faculty_id)
             ->where('id', '!=', $id)
             ->exists();
-    
+
         $existingFacultyWithName = Faculty::where('name', $request->faculty_name)
             ->where('id', '!=', $id)
             ->exists();
-    
+
         if ($existingFaculty || $existingFacultyWithName) {
             return redirect()->back()->with('error', 'Faculty member with the same ID or name already exists.');
         }
-    
+
         $faculty = Faculty::findOrFail($id);
+
+        if ($faculty->type === 'Full-Time' && $request->faculty_type === 'Part-Time') {
+            $totalUnits = $faculty->subjects->sum('Units');
+
+            if ($totalUnits > 12) {
+                return redirect()->back()->with('error', 'Faculty member cannot be changed to part-time because they have more than 12 assigned units.');
+            }
+        }
+
         $faculty->name = $request->faculty_name;
         $faculty->faculty_id = $request->faculty_id;
         $faculty->type = $request->faculty_type;
         $faculty->save();
-    
+
         return redirect()->route('department.faculty')->with('success', 'Faculty member updated successfully.');
     }
-    
 }
