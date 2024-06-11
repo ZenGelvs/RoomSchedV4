@@ -41,12 +41,68 @@ class DashboardController extends Controller
     public function adminIndex(Request $request)
     {
         $query = $request->input('search');
-        $subjects = Subject::when($query, function ($queryBuilder) use ($query) {
-            $queryBuilder->where('Subject_Code', 'like', '%'.$query.'%')
-                        ->orWhere('Description', 'like', '%'.$query.'%');
-        })->paginate(9);
-        
-        return view('adminDashboard', compact('subjects'));
+        $yearLevel = $request->input('Year_Level');
+        $semester = $request->input('Semester');
+        $college = $request->input('College');
+        $department = $request->input('Department');
+        $program = $request->input('Program');
+        $academicYear = $request->input('Academic_Year'); 
+
+        $yearLevels = Subject::distinct()->pluck('Year_Level')->toArray();
+        $semesters = Subject::distinct()->pluck('Semester')->toArray();
+        $colleges = Subject::distinct()->pluck('College')->toArray();
+        $departments = Subject::distinct()->pluck('Department')->toArray();
+        $programs = Subject::distinct()->pluck('Program')->toArray();
+        $academicYears = Subject::distinct()->pluck('Academic_Year')->toArray();
+
+        $subjects = Subject::query();
+
+        // Apply Search
+        if ($query) {
+            $subjects->where('Subject_Code', 'like', '%'.$query.'%')
+                ->orWhere('Description', 'like', '%'.$query.'%');
+        }
+
+        // Apply Filters
+        if ($yearLevel) {
+            $subjects->where('Year_Level', $yearLevel);
+        }
+        if ($semester) {
+            $subjects->where('Semester', $semester);
+        }
+        if ($college) {
+            $subjects->where('College', $college);
+        }
+        if ($department) {
+            $subjects->where('Department', $department);
+        }
+        if ($program) {
+            $subjects->where('Program', $program);
+        }
+        if ($academicYear) {
+            $subjects->where('Academic_Year', $academicYear);
+        }
+
+        $subjects = $subjects->paginate(9)
+            ->appends([
+                'search' => $query,
+                'Year_Level' => $yearLevel,
+                'Semester' => $semester,
+                'College' => $college,
+                'Department' => $department,
+                'Program' => $program,
+                'Academic_Year' => $academicYear
+            ]);
+
+        return view('adminDashboard', compact(
+            'subjects',
+            'yearLevels',
+            'semesters',
+            'colleges',
+            'departments',
+            'programs',
+            'academicYears'
+        ));
     }
 
     public function roomCoordIndex(Request $request)

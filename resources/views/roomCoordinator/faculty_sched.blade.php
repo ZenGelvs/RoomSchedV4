@@ -150,7 +150,7 @@
         word-wrap: break-word;
         white-space: normal;
         overflow: hidden;
-        height: 80px; /* fixed height for cells */
+        height: 40px; /* fixed height for cells */
         width: 150px; /* fixed width for cells */
     }
     .schedule-table th {

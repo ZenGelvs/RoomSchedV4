@@ -157,8 +157,8 @@
         word-wrap: break-word;
         white-space: normal;
         overflow: hidden;
-        height: 80px; /* fixed height for cells */
-        width: 150px; /* fixed width for cells */
+        height: 40px; 
+        width: 150px; 
     }
     .schedule-table th {
         position: sticky;
