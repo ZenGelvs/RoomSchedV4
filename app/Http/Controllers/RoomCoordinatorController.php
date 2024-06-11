@@ -270,7 +270,7 @@ class RoomCoordinatorController extends Controller
 
         $schedule->update($request->all());
 
-        return redirect()->route('roomCoordinator.viewSectionSchedule', $schedule->section_id)->with('success', 'Schedule updated successfully');
+        return redirect()->back()->with('success', 'Schedule updated successfully');
     }
 
     public function addSchedule()
