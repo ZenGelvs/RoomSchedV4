@@ -297,10 +297,16 @@ class SubjectController extends Controller
         $userDepartment = Auth::user()->department;
 
         $search = $request->input('search');
+        $yearLevel = $request->input('Year_Level');
+        $semester = $request->input('Semester');
+        $college = $request->input('College');
+        $department = $request->input('Department');
+        $program = $request->input('Program');
+        $academicYear = $request->input('Academic_Year');
 
         $subjectQuery = Subject::where('College', $userCollege)
                         ->where('Department', $userDepartment);
-                        
+
         if ($search) {
             $subjectQuery->where(function ($q) use ($search) {
                 $q->where('Subject_Code', 'like', '%'.$search.'%')
@@ -315,7 +321,26 @@ class SubjectController extends Controller
             });
         }
 
-        $subjects = $subjectQuery->paginate(10)->appends(['search' => $search]);
+        if ($yearLevel) {
+            $subjectQuery->where('Year_Level', $yearLevel);
+        }
+        if ($semester) {
+            $subjectQuery->where('Semester', $semester);
+        }
+        if ($college) {
+            $subjectQuery->where('College', $college);
+        }
+        if ($department) {
+            $subjectQuery->where('Department', $department);
+        }
+        if ($program) {
+            $subjectQuery->where('Program', $program);
+        }
+        if ($academicYear) {
+            $subjectQuery->where('Academic_Year', $academicYear);
+        }
+
+        $subjects = $subjectQuery->paginate(10)->appends($request->query());
 
         $faculty = Faculty::where('college', $userCollege)
                         ->where('department', $userDepartment)
@@ -327,7 +352,14 @@ class SubjectController extends Controller
                             ->get()
                             ->groupBy('program_name'); 
 
-        return view('department.subjects', compact('subjects', 'faculty', 'sections'));
+        $yearLevels = Subject::distinct()->pluck('Year_Level');
+        $semesters = Subject::distinct()->pluck('Semester');
+        $colleges = Subject::distinct()->pluck('College');
+        $departments = Subject::distinct()->pluck('Department');
+        $programs = Subject::distinct()->pluck('Program');
+        $academicYears = Subject::distinct()->pluck('Academic_Year');
+
+        return view('department.subjects', compact('subjects', 'faculty', 'sections', 'yearLevels', 'semesters', 'colleges', 'departments', 'programs', 'academicYears'));
     }
 
     public function assignFaculty($subjectId, Request $request)
