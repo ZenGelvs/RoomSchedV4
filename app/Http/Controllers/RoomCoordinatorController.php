@@ -404,53 +404,43 @@ class RoomCoordinatorController extends Controller
         $schedulingSuccess = false;
         $errorReasons = [];
 
-        // Check if the subject has been scheduled for any day of the week
-        $existingSchedules = Schedules::where('section_id', $request->section_id)
-            ->where('subject_id', $subject->id)
-            ->exists();
+        // Remove the check for existing schedules
+        foreach ($daysOfWeek as $day) {
+            // Check if the current day has available time slots
+            if (!isset($scheduledSlots[$day])) {
+                $scheduledSlots[$day] = [];
+            }
 
-        if (!$existingSchedules) {
-            // Flag to indicate if the subject is scheduled for any day
-            $scheduledForAnyDay = false;
+            // Find an available time slot for the subject on the current day
+            $result = $this->findAvailableSlot($rooms, $day, $preferredStartTime, $preferredEndTime, $scheduledSlots[$day], $request->section_id, $subject->id);
+            $availableSlot = $result['slot'];
+            $reason = $result['reason'];
 
-            foreach ($daysOfWeek as $day) {
-                // Check if the current day has available time slots
-                if (!isset($scheduledSlots[$day])) {
-                    $scheduledSlots[$day] = [];
-                }
+            if ($availableSlot) {
+                // Create a new schedule for the subject
+                Schedules::create([
+                    'day' => $day,
+                    'start_time' => $availableSlot['start_time'],
+                    'end_time' => $availableSlot['end_time'],
+                    'section_id' => $request->section_id,
+                    'subject_id' => $subject->id,
+                    'type' => 'Lecture',
+                    'room_id' => $availableSlot['room_id'],
+                    'college' =>  $section->college,
+                    'department' => $section->department,
+                ]);
 
-                // Find an available time slot for the subject on the current day
-                $result = $this->findAvailableSlot($rooms, $day, $preferredStartTime, $preferredEndTime, $scheduledSlots[$day], $request->section_id, $subject->id);
-                $availableSlot = $result['slot'];
-                $reason = $result['reason'];
+                // Mark the time slot as scheduled
+                $scheduledSlots[$day][] = [
+                    'start_time' => $availableSlot['start_time'],
+                    'end_time' => $availableSlot['end_time'],
+                ];
 
-                if ($availableSlot) {
-                    // Create a new schedule for the subject
-                    Schedules::create([
-                        'day' => $day,
-                        'start_time' => $availableSlot['start_time'],
-                        'end_time' => $availableSlot['end_time'],
-                        'section_id' => $request->section_id,
-                        'subject_id' => $subject->id,
-                        'type' => 'Lecture',
-                        'room_id' => $availableSlot['room_id'],
-                        'college' =>  $section->college,
-                        'department' => $section->department,
-                    ]);
-
-                    // Mark the time slot as scheduled
-                    $scheduledSlots[$day][] = [
-                        'start_time' => $availableSlot['start_time'],
-                        'end_time' => $availableSlot['end_time'],
-                    ];
-
-                    $schedulingSuccess = true;
-                    $scheduledForAnyDay = true;
-                    break; // Break the loop once scheduled for one day
-                } else {
-                    // Collect the reason for failure
-                    $errorReasons[$day][] = $reason;
-                }
+                $schedulingSuccess = true;
+                break; // Break the loop once scheduled for one day
+            } else {
+                // Collect the reason for failure
+                $errorReasons[$day][] = $reason;
             }
         }
 

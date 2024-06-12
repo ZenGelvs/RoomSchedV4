@@ -17,7 +17,7 @@
                             <table class="table table-striped table-bordered">
                                 <thead class="thead-dark">
                                     <tr>
-                                        <th>Faculty Name</th>
+                                        <th>Faculty Name and Type</th>
                                         <th>Assigned Subjects with Sections</th>
                                         <th>Total Units of Assigned Subjects</th>
                                     </tr>
@@ -25,7 +25,7 @@
                                 <tbody>
                                     @foreach($faculties as $faculty)
                                     <tr>
-                                        <td>{{ $faculty->name }}</td>
+                                        <td>{{ $faculty->name }} - {{ $faculty->type }}</td>
                                         <td>
                                             <ul class="list-unstyled">
                                                 @foreach($faculty->subjects as $subject)
