@@ -580,7 +580,7 @@ class RoomCoordinatorController extends Controller
             }
         }
 
-        $rooms = Room::whereNotIn('id', $assignedRoomIds);
+        $rooms = Room::query();
 
         if ($search) {
             $rooms->where(function ($query) use ($search) {
