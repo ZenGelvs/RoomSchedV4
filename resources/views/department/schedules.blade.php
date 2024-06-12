@@ -23,7 +23,7 @@
     @endif
     <div class="card mb-4">
         <div class="card-header" id="createScheduleHeading">
-            <h4 class="text-center mb-4">Create Schedule Manually</h2>
+            <h4 class="text-center mb-4">Manual Individual Scheduling</h2>
             <h2 class="mb-0">
                 <button class="btn btn-danger" data-toggle="collapse" data-target="#createScheduleCollapse" aria-expanded="true" aria-controls="createScheduleCollapse">
                     Create Schedule
@@ -50,7 +50,7 @@
                             <option value="">Select Subject...</option>
                             @foreach($sections as $section)
                                 @foreach($section->subjects as $subject)
-                                    <option class="section-{{ $section->id }}-subject" value="{{ $subject->id }}" style="display: none;">{{ $subject->Description }}</option>
+                                    <option class="section-{{ $section->id }}-subject" value="{{ $subject->id }}" data-lec-points="{{ $subject->Lec }} style="display: none;">{{ $subject->Description }}</option>
                                 @endforeach
                             @endforeach
                         </select>
@@ -118,7 +118,7 @@
     <!-- Automatic Scheduling using Greeedy Lagorithm-->
     <div class="card mb-4">
         <div class="card-header" id="autoScheduleHeading">
-            <h4 class="text-center mb-4">Automatic Scheduling</h4>
+            <h4 class="text-center mb-4">Automatic Room Finder</h4>
             <h2 class="mb-0">
                 <button class="btn btn-danger" data-toggle="collapse" data-target="#autoScheduleCollapse" aria-expanded="false" aria-controls="autoScheduleCollapse">
                     Automatic Scheduling
@@ -138,6 +138,17 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="autoSubjectId">Subject:</label>
+                        <select class="form-control" id="autoSubjectId" name="subjectId" required>
+                            <option value="">Select Subject...</option>
+                            @foreach($sections as $section)
+                                @foreach($section->subjects as $subject)
+                                    <option class="section-{{ $section->id }}-subject" value="{{ $subject->id }}" data-lec-points="{{ $subject->Lec }}" style="display: none;">{{ $subject->Description }}</option>
+                                @endforeach
+                            @endforeach
+                        </select>
+                    </div>                    
                     <div class="form-group">
                         <label for="preferredDay">Preferred Day</label>
                         <select class="form-control" id="preferredDay" name="preferred_day">
@@ -274,208 +285,194 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 <script>
- $(document).ready(function() {
-    // Update subject options based on selected section
-    $('#sectionId').change(function() {
-        var sectionId = $(this).val();
+class ScheduleManager {
+    constructor() {
+        this.init();
+    }
+
+    init() {
+        this.cacheElements();
+        this.bindEvents();
+        this.initializeForm();
+    }
+
+    cacheElements() {
+        this.sectionId = $('#sectionId');
+        this.subjectId = $('#subjectId');
+        this.autoSectionId = $('#sectionSelect'); 
+        this.autoSubjectId = $('#autoSubjectId'); 
+        this.type = $('#type');
+        this.startTime = $('#startTime');
+        this.endTime = $('#endTime');
+        this.endTimeError = $('#endTimeError');
+        this.prefStartTime = $('#preferredStartTime');
+        this.prefEndTime = $('#preferredEndTime');
+        this.prefEndTimeError = $('#PrefendTimeError');
+        this.prefBuilding = $('#preferredBuilding');
+        this.prefRoom = $('#preferredRoom');
+        this.sectionScheduleForm = $('#sectionScheduleForm');
+        this.hiddenSectionInput = $('#hiddenSectionInput');
+        this.userRooms = @json($userRooms);
+    }
+
+    bindEvents() {
+        this.sectionId.on('change', () => this.updateSubjectOptions());
+        this.autoSectionId.on('change', () => this.updateAutoSubjectOptions());
+        this.type.on('change', () => this.updateRoomOptions());
+        this.startTime.on('change', () => this.populateEndTimeOptions());
+        this.endTime.on('change', () => this.validateEndTime());
+        this.prefStartTime.on('change', () => this.populateAutoEndTimeOptions());
+        this.prefEndTime.on('change', () => this.validatePrefEndTime());
+        this.prefBuilding.on('change', () => this.filterRoomsByBuilding());
+        $('form').on('submit', (e) => this.validateForm(e));
+        $('.view-schedule-btn').on('click', (e) => this.viewSectionSchedule(e));
+    }
+
+    initializeForm() {
+        this.updateRoomOptions();
+        this.populateEndTimeOptions();
+        this.filterRoomsByBuilding();
+    }
+
+    updateSubjectOptions() {
+        const sectionId = this.sectionId.val();
+        this.subjectId.find('option').hide();
         if (sectionId) {
-            $('#subjectId option').hide();
-            $('.section-' + sectionId + '-subject').show();
+            $(`.section-${sectionId}-subject`).show();
         } else {
-            $('#subjectId option').hide();
-            $('#subjectId').find('option:first').show();
+            this.subjectId.find('option:first').show();
         }
-    });
+    }
 
-    // Update room options based on selected class type
-    $('#type').change(function() {
-        var classType = $(this).val();
-        var userRooms = @json($userRooms); 
-        var roomSelect = $('#roomId');
-        
-        roomSelect.empty(); 
-        
-        var filteredRooms = userRooms.filter(function(room) {
-            return room.room_type === classType;
+    updateAutoSubjectOptions() {
+        const sectionId = this.autoSectionId.val();
+        this.autoSubjectId.find('option').hide();
+        if (sectionId) {
+            $(`.section-${sectionId}-subject`).show();
+        } else {
+            this.autoSubjectId.find('option:first').show();
+        }
+    }
+
+    updateRoomOptions() {
+        const classType = this.type.val();
+        const roomSelect = $('#roomId');
+        roomSelect.empty();
+        const filteredRooms = this.userRooms.filter(room => room.room_type === classType);
+        filteredRooms.forEach(room => {
+            roomSelect.append(`<option value="${room.id}">${room.room_id} - ${room.room_name}</option>`);
         });
-        
-        filteredRooms.forEach(function(room) {
-            roomSelect.append('<option value="' + room.id + '">' + room.room_id + ' - ' + room.room_name + '</option>');
-        });
-        
-        // Reset the end time dropdown if the class type changes
         if (classType === 'Lecture') {
-            $('#startTime').trigger('change');
+            this.startTime.trigger('change');
         } else {
-            populateAllEndTimes();
+            this.populateAllEndTimes();
         }
-    });
+    }
 
-    // Function to populate all end times for Laboratory classes
-    function populateAllEndTimes() {
-        var endTimeSelect = $('#endTime');
-        endTimeSelect.empty(); // Clear existing options
-        endTimeSelect.append('<option value="">Select End Time</option>');
-        for (var hour = 7; hour <= 21; hour++) {
-            for (var minute = 0; minute < 60; minute += 30) {
-                var time = ('0' + hour).slice(-2) + ':' + ('0' + minute).slice(-2);
-                endTimeSelect.append('<option value="' + time + '">' + time + '</option>');
+    populateAllEndTimes() {
+        this.endTime.empty();
+        this.endTime.append('<option value="">Select End Time</option>');
+        for (let hour = 7; hour <= 21; hour++) {
+            for (let minute = 0; minute < 60; minute += 30) {
+                const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+                this.endTime.append(`<option value="${time}">${time}</option>`);
             }
         }
     }
 
-    // Populate end time options based on selected start time
-    $('#startTime').change(function() {
-        var startTime = $(this).val();
-        var classType = $('#type').val();
-        var endTimeSelect = $('#endTime');
-        endTimeSelect.empty(); 
+    populateEndTimeOptions() {
+        const startTime = this.startTime.val();
+        this.endTime.empty();
+        this.endTime.append('<option value="">Select End Time</option>');
+        if (startTime) {
+            const startParts = startTime.split(':');
+            const startHour = parseInt(startParts[0]);
+            const startMinute = parseInt(startParts[1]);
 
-        if (startTime && classType === 'Lecture') {
-            var startParts = startTime.split(':');
-            var startHour = parseInt(startParts[0]);
-            var startMinute = parseInt(startParts[1]);
-
-            var durations = [1.5,2, 3];
-            
-            // Generate end times from 1.5 to 3 hours after start time
-                durations.forEach(function(duration) {
-                var endHour = startHour + Math.floor(duration);
-                var endMinute = startMinute + ((duration % 1) * 60);
-
-                if (endMinute >= 60) {
-                    endMinute -= 60;
-                    endHour += 1;
+            for (let hour = startHour; hour <= 21; hour++) {
+                for (let minute = (hour === startHour ? startMinute + 30 : 0); minute < 60; minute += 30) {
+                    const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+                    this.endTime.append(`<option value="${time}">${time}</option>`);
                 }
-
-                if (endHour <= 21) {
-                    var endTime = ('0' + endHour).slice(-2) + ':' + ('0' + endMinute).slice(-2);
-                    endTimeSelect.append('<option value="' + endTime + '">' + endTime + '</option>');
-                }
-            });
-        } else if (startTime && classType === 'Laboratory') {
-            var startParts = startTime.split(':');
-            var startHour = parseInt(startParts[0]);
-            var startMinute = parseInt(startParts[1]);
-
-            var durations = [3,4,5];
-            
-            // Generate end times from 1.5 to 3 hours after start time
-                durations.forEach(function(duration) {
-                var endHour = startHour + Math.floor(duration);
-                var endMinute = startMinute + ((duration % 1) * 60);
-
-                if (endMinute >= 60) {
-                    endMinute -= 60;
-                    endHour += 1;
-                }
-
-                if (endHour <= 21) {
-                    var endTime = ('0' + endHour).slice(-2) + ':' + ('0' + endMinute).slice(-2);
-                    endTimeSelect.append('<option value="' + endTime + '">' + endTime + '</option>');
-                }
-            });
-        }
-
-        checkEndTime(); // Revalidate end time
-    });
-
-    function checkEndTime() {
-        var startTime = $('#startTime').val();
-        var endTime = $('#endTime').val();
-
-        if (startTime && endTime) {
-            if (endTime <= startTime) {
-                $('#endTimeError').show();
-                return false;
-            } else {
-                $('#endTimeError').hide();
-                return true;
             }
         }
-        return true;
+        this.validateEndTime();
     }
 
-    $('#endTime').change(function() {
-        checkEndTime();
-    });
+    populateAutoEndTimeOptions() {
+        const startTime = this.prefStartTime.val();
+        this.prefEndTime.empty();
+        this.prefEndTime.append('<option value="">Select End Time</option>');
+        if (startTime) {
+            const startParts = startTime.split(':');
+            const startHour = parseInt(startParts[0]);
+            const startMinute = parseInt(startParts[1]);
 
-    $('form').submit(function() {
-        return checkEndTime();
-    });
-
-    function checkPrefEndTime() {
-        var startTime = $('#preferredStartTime').val();
-        var endTime = $('#preferredEndTime').val();
-
-        if (startTime && endTime) {
-            if (endTime <= startTime) {
-                $('#PrefendTimeError').show();
-                return false;
-            } else {
-                $('#PrefendTimeError').hide();
-                return true;
+            for (let hour = startHour; hour <= 21; hour++) {
+                for (let minute = (hour === startHour ? startMinute + 30 : 0); minute < 60; minute += 30) {
+                    const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+                    this.prefEndTime.append(`<option value="${time}">${time}</option>`);
+                }
             }
         }
-        return true;
+        this.validatePrefEndTime();
     }
 
-    $('#preferredStartTime').change(function() {
-        checkPrefEndTime();
-    });
-
-    $('#preferredEndTime').change(function() {
-        checkPrefEndTime();
-    });
-
-    $('form').submit(function() {
-        return checkPrefEndTime();
-    });
-
-    // Filter rooms by building
-    document.addEventListener('DOMContentLoaded', function() {
-        var preferredBuildingSelect = document.getElementById('preferredBuilding');
-        var preferredRoomSelect = document.getElementById('preferredRoom');
-
-        function filterRoomsByBuilding() {
-            var selectedBuilding = preferredBuildingSelect.value;
-            var options = preferredRoomSelect.querySelectorAll('option');
-
-            options.forEach(function(option) {
-                var building = option.getAttribute('data-building');
-                if (selectedBuilding === 'Any' || building === selectedBuilding) {
-                    option.style.display = '';
-                } else {
-                    option.style.display = 'none';
-                }
-            });
-
-            preferredRoomSelect.value = 'Any';
+    validateEndTime() {
+        const startTime = this.startTime.val();
+        const endTime = this.endTime.val();
+        if (startTime && endTime && endTime <= startTime) {
+            this.endTimeError.show();
+            return false;
+        } else {
+            this.endTimeError.hide();
+            return true;
         }
+    }
 
-        preferredBuildingSelect.addEventListener('change', filterRoomsByBuilding);
+    validatePrefEndTime() {
+        const startTime = this.prefStartTime.val();
+        const endTime = this.prefEndTime.val();
+        if (startTime && endTime && endTime <= startTime) {
+            this.prefEndTimeError.show();
+            return false;
+        } else {
+            this.prefEndTimeError.hide();
+            return true;
+        }
+    }
 
-        filterRoomsByBuilding();
-    });
-});
+    validateForm(e) {
+        if (!this.validateEndTime() || !this.validatePrefEndTime()) {
+            e.preventDefault();
+        }
+    }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const sectionScheduleForm = document.getElementById('sectionScheduleForm');
-        const hiddenSectionInput = document.getElementById('hiddenSectionInput');
-
-        document.querySelectorAll('.view-schedule-btn').forEach(button => {
-            button.addEventListener('click', function () {
-                const program = this.getAttribute('data-program');
-                const sectionSelect = document.querySelector(`.section-select[data-program="${program}"]`);
-                const selectedSectionId = sectionSelect.value;
-                if (selectedSectionId) {
-                    hiddenSectionInput.value = selectedSectionId;
-                    sectionScheduleForm.submit();
-                } else {
-                    alert('Please select a section.');
-                }
-            });
+    filterRoomsByBuilding() {
+        const selectedBuilding = this.prefBuilding.val();
+        this.prefRoom.find('option').each(function () {
+            const building = $(this).data('building');
+            $(this).toggle(selectedBuilding === 'Any' || building === selectedBuilding);
         });
-    });
+        this.prefRoom.val('Any');
+    }
+
+    viewSectionSchedule(e) {
+        const program = $(e.target).data('program');
+        const sectionSelect = $(`.section-select[data-program="${program}"]`);
+        const selectedSectionId = sectionSelect.val();
+        if (selectedSectionId) {
+            this.hiddenSectionInput.val(selectedSectionId);
+            this.sectionScheduleForm.submit();
+        } else {
+            alert('Please select a section.');
+        }
+    }
+}
+
+$(document).ready(() => {
+    new ScheduleManager();
+});
 </script>
 @endsection
+

@@ -16,7 +16,7 @@ class ScheduleController extends Controller
 {
     public function index()
     {
-        $rooms = Room::all();
+        $rooms = Room::where('room_type', 'Lecture')->get();
     
         $userRooms = Auth::user()->rooms()->get();
     
@@ -255,9 +255,8 @@ class ScheduleController extends Controller
         $preferredEndTime = $request->preferred_end_time;
         $preferredBuilding = $request->preferred_building;
 
-        // Retrieve the section and its subjects
-        $section = Sections::findOrFail($request->section_id);
-        $subjects = $section->subjects;
+        // Retrieve the selected subject
+        $subject = Subject::findOrFail($request->subjectId);
 
         // Retrieve rooms and filter by preferred room and building
         $roomsQuery = Room::where('room_type', 'Lecture');
@@ -281,59 +280,52 @@ class ScheduleController extends Controller
         $schedulingSuccess = false;
         $errorReasons = [];
 
-        // Iterate through subjects
-        foreach ($subjects as $subject) {
-            // Check if the subject has been scheduled for any day of the week
-            $existingSchedules = Schedules::where('section_id', $request->section_id)
-                ->where('subject_id', $subject->id)
-                ->exists();
+        // Check if the subject has been scheduled for any day of the week
+        $existingSchedules = Schedules::where('section_id', $request->section_id)
+            ->where('subject_id', $subject->id)
+            ->exists();
 
-            if (!$existingSchedules) {
-                // Flag to indicate if the subject is scheduled for any day
-                $scheduledForAnyDay = false;
+        if (!$existingSchedules) {
+            // Flag to indicate if the subject is scheduled for any day
+            $scheduledForAnyDay = false;
 
-                foreach ($daysOfWeek as $day) {
-                    // Check if the current day has available time slots
-                    if (!isset($scheduledSlots[$day])) {
-                        $scheduledSlots[$day] = [];
-                    }
-
-                    // Find an available time slot for the subject on the current day
-                    $result = $this->findAvailableSlot($rooms, $day, $preferredStartTime, $preferredEndTime, $scheduledSlots[$day], $request->section_id, $subject->id);
-                    $availableSlot = $result['slot'];
-                    $reason = $result['reason'];
-
-                    if ($availableSlot) {
-                        // Create a new schedule for the subject
-                        Schedules::create([
-                            'day' => $day,
-                            'start_time' => $availableSlot['start_time'],
-                            'end_time' => $availableSlot['end_time'],
-                            'section_id' => $request->section_id,
-                            'subject_id' => $subject->id,
-                            'type' => 'Lecture',
-                            'room_id' => $availableSlot['room_id'],
-                            'college' => Auth::user()->college,
-                            'department' => Auth::user()->department,
-                        ]);
-
-                        // Mark the time slot as scheduled
-                        $scheduledSlots[$day][] = [
-                            'start_time' => $availableSlot['start_time'],
-                            'end_time' => $availableSlot['end_time'],
-                        ];
-
-                        $schedulingSuccess = true;
-                        $scheduledForAnyDay = true;
-                        break; // Break the loop once scheduled for one day
-                    } else {
-                        // Collect the reason for failure
-                        $errorReasons[$day][] = $reason;
-                    }
+            foreach ($daysOfWeek as $day) {
+                // Check if the current day has available time slots
+                if (!isset($scheduledSlots[$day])) {
+                    $scheduledSlots[$day] = [];
                 }
-                // If scheduled for any day, break out of the subjects loop
-                if ($scheduledForAnyDay) {
-                    break;
+
+                // Find an available time slot for the subject on the current day
+                $result = $this->findAvailableSlot($rooms, $day, $preferredStartTime, $preferredEndTime, $scheduledSlots[$day], $request->section_id, $subject->id);
+                $availableSlot = $result['slot'];
+                $reason = $result['reason'];
+
+                if ($availableSlot) {
+                    // Create a new schedule for the subject
+                    Schedules::create([
+                        'day' => $day,
+                        'start_time' => $availableSlot['start_time'],
+                        'end_time' => $availableSlot['end_time'],
+                        'section_id' => $request->section_id,
+                        'subject_id' => $subject->id,
+                        'type' => 'Lecture',
+                        'room_id' => $availableSlot['room_id'],
+                        'college' => Auth::user()->college,
+                        'department' => Auth::user()->department,
+                    ]);
+
+                    // Mark the time slot as scheduled
+                    $scheduledSlots[$day][] = [
+                        'start_time' => $availableSlot['start_time'],
+                        'end_time' => $availableSlot['end_time'],
+                    ];
+
+                    $schedulingSuccess = true;
+                    $scheduledForAnyDay = true;
+                    break; // Break the loop once scheduled for one day
+                } else {
+                    // Collect the reason for failure
+                    $errorReasons[$day][] = $reason;
                 }
             }
         }
@@ -363,32 +355,32 @@ class ScheduleController extends Controller
         usort($scheduledSlots, function ($a, $b) {
             return strtotime($a['start_time']) - strtotime($b['start_time']);
         });
-    
+
         // Retrieve the faculty members for the subject
         $subject = Subject::find($subjectId);
         $facultyIds = $subject->faculty->pluck('id');
-    
+
         // Iterate through rooms
         foreach ($rooms as $room) {
             if ($room->room_type === 'Lecture') {
                 // Initialize start time based on the end time of the last scheduled slot
                 $startTime = empty($scheduledSlots) ? $preferredStartTime : end($scheduledSlots)['end_time'];
                 $endTime = $preferredEndTime;
-    
+
                 // Check if the calculated time slot overlaps with any existing schedules for the same section, day, and time
                 $overlappingSchedule = Schedules::where('day', $day)
                     ->where('start_time', '<', $endTime)
                     ->where('end_time', '>', $startTime)
                     ->where('section_id', $sectionId)
                     ->exists();
-    
+
                 // Check if the calculated time slot overlaps with any existing schedules for the same room and day
                 $overlappingRoomSchedule = Schedules::where('day', $day)
                     ->where('start_time', '<', $endTime)
                     ->where('end_time', '>', $startTime)
                     ->where('room_id', $room->id)
                     ->exists();
-    
+
                 // Check if the calculated time slot overlaps with any existing schedules for the faculty and day
                 $overlappingFacultySchedule = Schedules::where('day', $day)
                     ->where('start_time', '<', $endTime)
@@ -399,7 +391,7 @@ class ScheduleController extends Controller
                             ->whereIn('faculty_id', $facultyIds);
                     })
                     ->exists();
-    
+
                 if (!$overlappingSchedule && !$overlappingRoomSchedule && !$overlappingFacultySchedule) {
                     return [
                         'slot' => [
@@ -410,14 +402,14 @@ class ScheduleController extends Controller
                         'reason' => null,
                     ];
                 }
-    
+
                 if ($overlappingSchedule) {
                     return [
                         'slot' => null,
                         'reason' => 'Overlapping schedule for this Section',
                     ];
                 }
-    
+
                 if ($overlappingFacultySchedule) {
                     return [
                         'slot' => null,
@@ -426,11 +418,11 @@ class ScheduleController extends Controller
                 }
             }
         }
-    
+
         return [
             'slot' => null,
             'reason' => 'No available slots',
         ];
     }
-    
+
 }

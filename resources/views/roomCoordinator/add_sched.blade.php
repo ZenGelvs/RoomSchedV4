@@ -23,7 +23,7 @@
     @endif
     <div class="card mb-4">
         <div class="card-header" id="createScheduleHeading">
-            <h4 class="text-center mb-4">Create Schedule Manually</h2>
+            <h4 class="text-center mb-4">Manual Individual Scheduling</h2>
             <h2 class="mb-0">
                 <button class="btn btn-danger" data-toggle="collapse" data-target="#createScheduleCollapse" aria-expanded="true" aria-controls="createScheduleCollapse">
                     Create Schedule
@@ -32,9 +32,37 @@
         </div>
         <div id="createScheduleCollapse" class="collapse" aria-labelledby="createScheduleHeading" data-parent="#accordion">
             <div class="card-body">
-                <!-- Form to create a new schedule -->
-                <form action="{{ route('roomCoordinator.storeSchedule') }}" method="POST">
+                <!-- Manual Form to create a new schedule -->
+                <form action="{{ route('department.schedule.store') }}" method="POST" id="createScheduleForm">
                     @csrf
+                    <div class="form-group">
+                        <label for="sectionId">Section ID:</label>
+                        <select class="form-control" id="sectionId" name="sectionId" required>
+                            <option value="">Select Section...</option>
+                            @foreach($sections as $section)
+                                <option value="{{ $section->id }}">{{ $section->program_name }} - {{ $section->section }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="subjectId">Subject:</label>
+                        <select class="form-control" id="subjectId" name="subjectId" required>
+                            <option value="">Select Subject...</option>
+                            @foreach($sections as $section)
+                                @foreach($section->subjects as $subject)
+                                    <option class="section-{{ $section->id }}-subject" value="{{ $subject->id }}" data-lec-points="{{ $subject->Lec }} style="display: none;">{{ $subject->Description }}</option>
+                                @endforeach
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="type">Type of Class:</label>
+                        <select class="form-control" id="type" name="type" required>
+                            <option value="">Select Class Type...</option>
+                            <option value="Lecture">Lecture</option>
+                            <option value="Laboratory">Laboratory</option>
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label for="day">Day:</label>
                         <select class="form-control" id="day" name="day" required>
@@ -51,7 +79,7 @@
                         <label for="startTime">Start Time:</label>
                         <select class="form-control" id="startTime" name="startTime" required>
                             <option value="">Select Start Time</option>
-                            @for ($hour = 7; $hour <= 20; $hour++)
+                            @for ($hour = 7; $hour <= 21; $hour++)
                                 @for ($minute = 0; $minute < 60; $minute += 30)
                                     @php
                                         $time = sprintf('%02d:%02d', $hour, $minute);
@@ -77,37 +105,9 @@
                         <small class="text-danger" id="endTimeError" style="display:none;">End time must be after start time.</small>
                     </div>
                     <div class="form-group">
-                        <label for="sectionId">Section ID:</label>
-                        <select class="form-control" id="sectionId" name="sectionId" required>
-                            <option value="">Select Section...</option>
-                            @foreach($sections as $section)
-                                <option value="{{ $section->id }}">{{ $section->program_name }} - {{ $section->section }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="subjectId">Subject:</label>
-                        <select class="form-control" id="subjectId" name="subjectId" required>
-                            <option value="">Select Subject...</option>
-                            @foreach($sections as $section)
-                                @foreach($section->subjects as $subject)
-                                    <option class="section-{{ $section->id }}-subject" value="{{ $subject->id }}" style="display: none;">{{ $subject->Description }}</option>
-                                @endforeach
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="type">Type of Class:</label>
-                        <select class="form-control" id="type" name="type" required>
-                            <option value="">Select Class Type...</option>
-                            <option value="Lecture">Lecture</option>
-                            <option value="Laboratory">Laboratory</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="building">Building:</label>
+                        <label for="building">Select a Building:</label>
                         <select class="form-control" id="building" name="building" required>
-                            <option value="">Select Building...</option>
+                            <option value="Any">Any</option>
                             <option value="COECSA">COECSA Building</option>
                             <option value="SOTERO">SPL Building</option>
                             <option value="JOSE">JPL Building</option>
@@ -127,7 +127,7 @@
     <!-- Automatic Scheduling using Greeedy Lagorithm-->
     <div class="card mb-4">
         <div class="card-header" id="autoScheduleHeading">
-            <h4 class="text-center mb-4">Automatic Scheduling</h4>
+            <h4 class="text-center mb-4">Automatic Room Finder</h4>
             <h2 class="mb-0">
                 <button class="btn btn-danger" data-toggle="collapse" data-target="#autoScheduleCollapse" aria-expanded="false" aria-controls="autoScheduleCollapse">
                     Automatic Scheduling
@@ -147,6 +147,17 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="autoSubjectId">Subject:</label>
+                        <select class="form-control" id="autoSubjectId" name="subjectId" required>
+                            <option value="">Select Subject...</option>
+                            @foreach($sections as $section)
+                                @foreach($section->subjects as $subject)
+                                    <option class="section-{{ $section->id }}-subject" value="{{ $subject->id }}" data-lec-points="{{ $subject->Lec }}" style="display: none;">{{ $subject->Description }}</option>
+                                @endforeach
+                            @endforeach
+                        </select>
+                    </div>                    
                     <div class="form-group">
                         <label for="preferredDay">Preferred Day</label>
                         <select class="form-control" id="preferredDay" name="preferred_day">
@@ -218,130 +229,207 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 <script>
-     $(document).ready(function() {
-        $('#sectionId').change(function() {
-            var sectionId = $(this).val();
-            if (sectionId) {
-                $('#subjectId option').hide();
-                $('.section-' + sectionId + '-subject').show();
-            } else {
-                $('#subjectId option').hide();
-                $('#subjectId').find('option:first').show();
-            }
-        });
-    });
-    
-    document.getElementById('building').addEventListener('change', filterRooms);
-    document.getElementById('type').addEventListener('change', filterRooms);
-
-    function filterRooms() {
-        var building = document.getElementById('building').value;
-        var type = document.getElementById('type').value;
-        var roomSelect = document.getElementById('roomId');
-
-        roomSelect.innerHTML = '<option value="">Select Room...</option>';
-
-        @json($rooms).forEach(function(room) {
-            if ((building === '' || room.building === building) && 
-                (type === '' || room.room_type === type)) {
-                var option = document.createElement('option');
-                option.value = room.id;
-                option.textContent = room.room_id + ' - ' + room.room_name;
-                roomSelect.appendChild(option);
-            }
-        });
+class ScheduleManager {
+    constructor() {
+        this.init();
     }
 
-    function checkEndTime() {
-            console.log('Checking end time');
-            var startTime = $('#startTime').val();
-            var endTime = $('#endTime').val();
+    init() {
+        this.cacheElements();
+        this.bindEvents();
+        this.initializeForm();
+    }
 
-            if (startTime && endTime) {
-                console.log('Start Time:', startTime);
-                console.log('End Time:', endTime);
-                if (endTime <= startTime) {
-                    $('#endTimeError').show();
-                    console.log('End time is before start time');
-                    return false;
-                } else {
-                    $('#endTimeError').hide();
-                    console.log('End time is after start time');
-                    return true;
-                }
-            }
-            console.log('Start time or End time is not selected');
-            return true;
+    cacheElements() {
+        this.sectionId = $('#sectionId');
+        this.subjectId = $('#subjectId');
+        this.autoSectionId = $('#sectionSelect'); 
+        this.autoSubjectId = $('#autoSubjectId'); 
+        this.type = $('#type');
+        this.startTime = $('#startTime');
+        this.endTime = $('#endTime');
+        this.endTimeError = $('#endTimeError');
+        this.building = $('#building');
+        this.roomId = $('#roomId');
+        this.prefStartTime = $('#preferredStartTime');
+        this.prefEndTime = $('#preferredEndTime');
+        this.prefEndTimeError = $('#PrefendTimeError');
+        this.prefBuilding = $('#preferredBuilding');
+        this.prefRoom = $('#preferredRoom');
+        this.sectionScheduleForm = $('#sectionScheduleForm');
+        this.hiddenSectionInput = $('#hiddenSectionInput');
+        this.rooms = @json($rooms);
+    }
+
+    bindEvents() {
+        this.sectionId.on('change', () => this.updateSubjectOptions());
+        this.autoSectionId.on('change', () => this.updateAutoSubjectOptions());
+        this.type.on('change', () => this.updateRoomOptions());
+        this.startTime.on('change', () => this.populateEndTimeOptions());
+        this.endTime.on('change', () => this.validateEndTime());
+        this.prefStartTime.on('change', () => this.populateAutoEndTimeOptions());
+        this.prefEndTime.on('change', () => this.validatePrefEndTime());
+        this.prefBuilding.on('change', () => this.filterRoomsByBuilding());
+        this.building.on('change', () => this.filterRoomsByBuildingManual());
+        $('form').on('submit', (e) => this.validateForm(e));
+        $('.view-schedule-btn').on('click', (e) => this.viewSectionSchedule(e));
+    }
+
+    initializeForm() {
+        this.updateRoomOptions();
+        this.populateEndTimeOptions();
+        this.filterRoomsByBuilding();
+        this.filterRoomsByBuildlingManual();
+    }
+
+    updateSubjectOptions() {
+        const sectionId = this.sectionId.val();
+        this.subjectId.find('option').hide();
+        if (sectionId) {
+            $(`.section-${sectionId}-subject`).show();
+        } else {
+            this.subjectId.find('option:first').show();
         }
+    }
 
-            $('#startTime').change(function() {
-                checkEndTime();
-            });
-
-            $('#endTime').change(function() {
-                checkEndTime();
-            });
-
-            $('form').submit(function() {
-                return checkEndTime();
-            });
-
-    function checkPrefEndTime() {
-            console.log('Checking end time');
-            var startTime = $('#preferredStartTime').val();
-            var endTime = $('#preferredEndTime').val();
-
-            if (startTime && endTime) {
-                console.log('Start Time:', startTime);
-                console.log('End Time:', endTime);
-                if (endTime <= startTime) {
-                    $('#PrefendTimeError').show();
-                    console.log('End time is before start time');
-                    return false;
-                } else {
-                    $('#PrefendTimeError').hide();
-                    console.log('End time is after start time');
-                    return true;
-                }
-            }
-            console.log('Start time or End time is not selected');
-            return true;
+    updateAutoSubjectOptions() {
+        const sectionId = this.autoSectionId.val();
+        this.autoSubjectId.find('option').hide();
+        if (sectionId) {
+            $(`.section-${sectionId}-subject`).show();
+        } else {
+            this.autoSubjectId.find('option:first').show();
         }
+    }
 
-            $('#preferredStartTime').change(function() {
-                checkPrefEndTime();
-            });
-
-            $('#preferredEndTime').change(function() {
-                checkPrefEndTime();
-            });
-
-            $('form').submit(function() {
-                return checkPrefEndTime();
-            });
-        document.addEventListener('DOMContentLoaded', function() {
-            var preferredBuildingSelect = document.getElementById('preferredBuilding');
-            var preferredRoomSelect = document.getElementById('preferredRoom');
-
-            function filterRoomsByBuilding() {
-                var selectedBuilding = preferredBuildingSelect.value;
-                var options = preferredRoomSelect.querySelectorAll('option');
-
-                options.forEach(function(option) {
-                    var building = option.getAttribute('data-building');
-                    if (selectedBuilding === 'Any' || building === selectedBuilding) {
-                        option.style.display = '';
-                    } else {
-                        option.style.display = 'none';
-                    }
-                });
-
-                preferredRoomSelect.value = 'Any';
-            }
-
-            preferredBuildingSelect.addEventListener('change', filterRoomsByBuilding);
-
-            filterRoomsByBuilding();
+    updateRoomOptions() {
+        const classType = this.type.val();
+        const roomSelect = $('#roomId');
+        roomSelect.empty();
+        const filteredRooms = this.rooms.filter(room => room.room_type === classType);
+        filteredRooms.forEach(room => {
+            roomSelect.append(`<option value="${room.id}">${room.room_id} - ${room.room_name}</option>`);
         });
+        if (classType === 'Lecture') {
+            this.startTime.trigger('change');
+        } else {
+            this.populateAllEndTimes();
+        }
+    }
+
+    populateAllEndTimes() {
+        this.endTime.empty();
+        this.endTime.append('<option value="">Select End Time</option>');
+        for (let hour = 7; hour <= 21; hour++) {
+            for (let minute = 0; minute < 60; minute += 30) {
+                const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+                this.endTime.append(`<option value="${time}">${time}</option>`);
+            }
+        }
+    }
+
+    populateEndTimeOptions() {
+        const startTime = this.startTime.val();
+        this.endTime.empty();
+        this.endTime.append('<option value="">Select End Time</option>');
+        if (startTime) {
+            const startParts = startTime.split(':');
+            const startHour = parseInt(startParts[0]);
+            const startMinute = parseInt(startParts[1]);
+
+            for (let hour = startHour; hour <= 21; hour++) {
+                for (let minute = (hour === startHour ? startMinute + 30 : 0); minute < 60; minute += 30) {
+                    const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+                    this.endTime.append(`<option value="${time}">${time}</option>`);
+                }
+            }
+        }
+        this.validateEndTime();
+    }
+
+    populateAutoEndTimeOptions() {
+        const startTime = this.prefStartTime.val();
+        this.prefEndTime.empty();
+        this.prefEndTime.append('<option value="">Select End Time</option>');
+        if (startTime) {
+            const startParts = startTime.split(':');
+            const startHour = parseInt(startParts[0]);
+            const startMinute = parseInt(startParts[1]);
+
+            for (let hour = startHour; hour <= 21; hour++) {
+                for (let minute = (hour === startHour ? startMinute + 30 : 0); minute < 60; minute += 30) {
+                    const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+                    this.prefEndTime.append(`<option value="${time}">${time}</option>`);
+                }
+            }
+        }
+        this.validatePrefEndTime();
+    }
+
+    validateEndTime() {
+        const startTime = this.startTime.val();
+        const endTime = this.endTime.val();
+        if (startTime && endTime && endTime <= startTime) {
+            this.endTimeError.show();
+            return false;
+        } else {
+            this.endTimeError.hide();
+            return true;
+        }
+    }
+
+    validatePrefEndTime() {
+        const startTime = this.prefStartTime.val();
+        const endTime = this.prefEndTime.val();
+        if (startTime && endTime && endTime <= startTime) {
+            this.prefEndTimeError.show();
+            return false;
+        } else {
+            this.prefEndTimeError.hide();
+            return true;
+        }
+    }
+
+    validateForm(e) {
+        if (!this.validateEndTime() || !this.validatePrefEndTime()) {
+            e.preventDefault();
+        }
+    }
+
+    filterRoomsByBuilding() {
+        const selectedBuilding = this.prefBuilding.val();
+        this.prefRoom.find('option').each(function () {
+            const building = $(this).data('building');
+            $(this).toggle(selectedBuilding === 'Any' || building === selectedBuilding);
+        });
+        this.prefRoom.val('Any');
+    }
+
+    filterRoomsByBuildingManual() {
+        const selectedBuilding = this.building.val();
+        this.roomId.find('option').each(function () {
+            const building = $(this).data('building');
+            $(this).toggle(selectedBuilding === 'Any' || building === selectedBuilding);
+        });
+        this.roomId.val('');
+    }
+
+    viewSectionSchedule(e) {
+        const program = $(e.target).data('program');
+        const sectionSelect = $(`.section-select[data-program="${program}"]`);
+        const selectedSectionId = sectionSelect.val();
+        if (selectedSectionId) {
+            this.hiddenSectionInput.val(selectedSectionId);
+            this.sectionScheduleForm.submit();
+        } else {
+            alert('Please select a section.');
+        }
+    }
+}
+
+$(document).ready(() => {
+    new ScheduleManager();
+});
 </script>
 @endsection
+
