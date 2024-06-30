@@ -250,79 +250,66 @@ class ScheduleController extends Controller
         $request->validate([
             'section_id' => 'required|exists:sections,id',
         ]);
-
+    
         $preferredStartTime = $request->preferred_start_time;
         $preferredEndTime = $request->preferred_end_time;
         $preferredBuilding = $request->preferred_building;
-
+    
         // Retrieve the selected subject
         $subject = Subject::findOrFail($request->subjectId);
-
+    
         // Retrieve rooms and filter by preferred room and building
         $roomsQuery = Room::where('room_type', 'Lecture');
-
+    
         if ($request->preferredRoom !== 'Any') {
             $roomsQuery->where('id', $request->preferredRoom);
         }
-
+    
         if ($preferredBuilding !== 'Any') {
             $roomsQuery->where('building', $preferredBuilding);
         }
-
+    
         $rooms = $roomsQuery->get();
-
+    
         // Determine preferred days to iterate through
         $daysOfWeek = ($request->preferred_day !== 'Any') ? [$request->preferred_day] : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
+    
         // Track scheduled time slots per day
         $scheduledSlots = [];
-
-        $schedulingSuccess = false;
+    
+        $availableRoom = null;
         $errorReasons = [];
-
+    
         // Remove the check for existing schedules
         foreach ($daysOfWeek as $day) {
             // Check if the current day has available time slots
             if (!isset($scheduledSlots[$day])) {
                 $scheduledSlots[$day] = [];
             }
-
+    
             // Find an available time slot for the subject on the current day
             $result = $this->findAvailableSlot($rooms, $day, $preferredStartTime, $preferredEndTime, $scheduledSlots[$day], $request->section_id, $subject->id);
             $availableSlot = $result['slot'];
             $reason = $result['reason'];
-
+    
             if ($availableSlot) {
-                // Create a new schedule for the subject
-                Schedules::create([
+                $availableRoom = [
                     'day' => $day,
                     'start_time' => $availableSlot['start_time'],
                     'end_time' => $availableSlot['end_time'],
-                    'section_id' => $request->section_id,
-                    'subject_id' => $subject->id,
-                    'type' => 'Lecture',
                     'room_id' => $availableSlot['room_id'],
-                    'college' => Auth::user()->college,
-                    'department' => Auth::user()->department,
-                ]);
-
-                // Mark the time slot as scheduled
-                $scheduledSlots[$day][] = [
-                    'start_time' => $availableSlot['start_time'],
-                    'end_time' => $availableSlot['end_time'],
+                    'room_id' => Room::find($availableSlot['room_id'])->room_id,
+                    'building' => Room::find($availableSlot['room_id'])->building,
                 ];
-
-                $schedulingSuccess = true;
-                break; // Break the loop once scheduled for one day
+                break; // Break the loop once an available room is found
             } else {
                 // Collect the reason for failure
                 $errorReasons[$day][] = $reason;
             }
         }
-
-        if ($schedulingSuccess) {
-            $message = 'Automatic scheduling completed successfully.';
-            return redirect()->back()->with('success', $message);
+    
+        if ($availableRoom) {
+            return redirect()->back()->with('availableRoom', $availableRoom);
         } else {
             // Prepare detailed error messages
             $detailedErrors = [];
@@ -334,11 +321,11 @@ class ScheduleController extends Controller
                     }
                 }
             }
-            $message = 'Automatic scheduling failed. No available time slots found. ' . implode(', ', $detailedErrors);
+            $message = 'No available time slots found. ' . implode(', ', $detailedErrors);
             return redirect()->back()->with('error', $message);
         }
     }
-
+        
     private function findAvailableSlot($rooms, $day, $preferredStartTime, $preferredEndTime, $scheduledSlots, $sectionId, $subjectId)
     {
         // Sort scheduled slots by start time
@@ -413,6 +400,138 @@ class ScheduleController extends Controller
             'slot' => null,
             'reason' => 'No available slots',
         ];
+    }
+
+    public function storePairSchedule(Request $request)
+    {
+        $request->validate([
+            'section_id' => 'required',
+            'subject_id' => 'required',
+            'lecture_day1' => 'required|string',
+            'lecture_start_time1' => 'required',
+            'lecture_end_time1' => 'required',
+            'lecture_room_id1' => 'required',
+            'lecture_day2' => 'required|string',
+            'lecture_start_time2' => 'required',
+            'lecture_end_time2' => 'required',
+            'lecture_room_id2' => 'required',
+        ]);
+
+        // Check for overlapping within the two schedules
+        if ($request->lecture_day1 == $request->lecture_day2 &&
+            (($request->lecture_start_time1 < $request->lecture_end_time2 && $request->lecture_end_time1 > $request->lecture_start_time2) ||
+            ($request->lecture_start_time2 < $request->lecture_end_time1 && $request->lecture_end_time2 > $request->lecture_start_time1))) {
+            return redirect()->back()->with('error', 'The two schedules are scheduled at the same day.');
+        }
+
+          // Fetch the selected subject to determine lab points
+        $subject = Subject::find($request->subject_id);
+        $hasLabPoints = $subject->Lab > 0;
+
+        // Set the type for the second schedule based on lab points
+        $type2 = $hasLabPoints ? 'Laboratory' : 'Lecture';
+
+        // First schedule checks
+        if ($this->hasScheduleConflict($request->lecture_day1, $request->lecture_start_time1, $request->lecture_end_time1, $request->section_id, $request->subject_id, $request->lecture_room_id1)) {
+            return redirect()->back()->with('error', 'Conflict with the first schedule. Scheduling Stopped.');
+        }
+
+        // Second schedule checks
+        if ($this->hasScheduleConflict($request->lecture_day2, $request->lecture_start_time2, $request->lecture_end_time2, $request->section_id, $request->subject_id, $request->lecture_room_id2)) {
+            return redirect()->back()->with('error', 'Conflict with the second schedule. Scheduling Stopped.');
+        }
+
+        // Create first schedule
+        Schedules::create([
+            'day' => $request->lecture_day1,
+            'start_time' => $request->lecture_start_time1,
+            'end_time' => $request->lecture_end_time1,
+            'section_id' => $request->section_id,
+            'subject_id' => $request->subject_id,
+            'type' => 'Lecture',  // assuming type Lecture for this example
+            'room_id' => $request->lecture_room_id1,
+            'college' => Auth::user()->college,
+            'department' => Auth::user()->department,
+        ]);
+
+        // Create second schedule
+        Schedules::create([
+            'day' => $request->lecture_day2,
+            'start_time' => $request->lecture_start_time2,
+            'end_time' => $request->lecture_end_time2,
+            'section_id' => $request->section_id,
+            'subject_id' => $request->subject_id,
+            'type' => $type2,  
+            'room_id' => $request->lecture_room_id2,
+            'college' => Auth::user()->college,
+            'department' => Auth::user()->department,
+        ]);
+
+        return redirect()->back()->with('success', 'Pair schedule created successfully.');
+    }
+
+    protected function hasScheduleConflict($day, $startTime, $endTime, $sectionId, $subjectId, $roomId)
+    {
+        // Check for existing identical schedule
+        $existingSchedule = Schedules::where('day', $day)
+            ->where('start_time', $startTime)
+            ->where('end_time', $endTime)
+            ->where('section_id', $sectionId)
+            ->where('subject_id', $subjectId)
+            ->where('room_id', $roomId)
+            ->exists();
+
+        if ($existingSchedule) {
+            return true;
+        }
+
+        // Check for overlapping schedule in the same section
+        $overlappingSchedule = Schedules::where('day', $day)
+            ->where('section_id', $sectionId)
+            ->where(function ($query) use ($startTime, $endTime) {
+                $query->where('start_time', '<', $endTime)
+                    ->where('end_time', '>', $startTime);
+            })
+            ->exists();
+
+        if ($overlappingSchedule) {
+            return true;
+        }
+
+        // Check for overlapping schedule in the same room
+        $overlappingRoomSchedule = Schedules::where('day', $day)
+            ->where('room_id', $roomId)
+            ->where(function ($query) use ($startTime, $endTime) {
+                $query->where('start_time', '<', $endTime)
+                    ->where('end_time', '>', $startTime);
+            })
+            ->exists();
+
+        if ($overlappingRoomSchedule) {
+            return true;
+        }
+
+        // Check for overlapping faculty schedule
+        $subject = Subject::find($subjectId);
+        $facultyIds = $subject->faculty->pluck('id');
+
+        $overlappingFacultySchedule = Schedules::where('day', $day)
+            ->whereIn('subject_id', function ($query) use ($facultyIds) {
+                $query->select('subject_id')
+                    ->from('subject_faculty')
+                    ->whereIn('faculty_id', $facultyIds);
+            })
+            ->where(function ($query) use ($startTime, $endTime) {
+                $query->where('start_time', '<', $endTime)
+                    ->where('end_time', '>', $startTime);
+            })
+            ->exists();
+
+        if ($overlappingFacultySchedule) {
+            return true;
+        }
+
+        return false;
     }
 
 }

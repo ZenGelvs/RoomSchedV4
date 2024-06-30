@@ -13,6 +13,8 @@ use App\Http\Controllers\SectionsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RoomCoordinatorController;
 
+//Reset Password Route
+// Auth::routes(['verify' => true]);
 
 Route::get('/', function () {
     return view('welcome');
@@ -79,6 +81,7 @@ Route::group(['namespace' => 'Department', 'prefix' => 'department'], function (
     Route::get('schedule/{schedule}/edit', [ScheduleController::class, 'EditSchedule'])->name('department.schedule.edit');
     Route::put('schedule/{schedule}', [ScheduleController::class, 'UpdateSchedule'])->name('department.schedule.update');
     Route::post('automatic_schedule', [ScheduleController::class, 'automaticSchedule'])->name('department.automatic_schedule');
+    Route::post('pair_schedule', [ScheduleController::class, 'storePairSchedule'])->name('department.pair_schedule.store');
 
     //Room Routes
     Route::get('rooms', [RoomController::class, 'index'])->name('department.rooms');

@@ -115,6 +115,21 @@
             </div>
         </div>
     </div>
+
+    <!--Room Found Prompt-->
+    @if (session('availableRoom'))
+        <div class="alert alert-info">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <h4>Available Room Found:</h4>
+            <p><strong>Day:</strong> {{ session('availableRoom.day') }}</p>
+            <p><strong>Start Time:</strong> {{ session('availableRoom.start_time') }}</p>
+            <p><strong>End Time:</strong> {{ session('availableRoom.end_time') }}</p>
+            <p><strong>Room:</strong> {{ session('availableRoom.room_id') }} ({{ session('availableRoom.building') }})</p>
+        </div>
+    @endif
+
     <!-- Automatic Scheduling using Greeedy Lagorithm-->
     <div class="card mb-4">
         <div class="card-header" id="autoScheduleHeading">
@@ -214,6 +229,149 @@
         </div>
     </div>
 
+    <!--Pair Scheduling -->
+    <div class="card mb-4"> 
+        <div class="card-header" id="pairScheduleHeading">
+            <h4 class="text-center mb-4">Pair Scheduling</h4>
+            <h2 class="mb-0">
+                <button class="btn btn-danger" data-toggle="collapse" data-target="#pairScheduleCollapse" aria-expanded="false" aria-controls="pairScheduleCollapse">
+                    Pair Scheduling
+                </button>
+            </h2>
+        </div>
+        <div id="pairScheduleCollapse" class="collapse" aria-labelledby="pairScheduleHeading" data-parent="#accordion">
+            <div class="card-body">
+                <form id="pairScheduleForm" action="{{ route('department.pair_schedule.store') }}" method="POST">
+                    @csrf
+                    <div class="form-group">
+                        <label for="pairSectionSelect">Select Section</label>
+                        <select class="form-control" id="pairSectionSelect" name="section_id" required>
+                            <option value="">Select Section...</option>
+                            @foreach ($sections as $section)
+                                <option value="{{ $section->id }}">{{ $section->program_name }} - {{ $section->section }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+    
+                    <div class="form-group">
+                        <label for="pairSubjectId">Subject:</label>
+                        <select class="form-control" id="pairSubjectId" name="subject_id" required>
+                            <option value="">Select Subject...</option>
+                            @foreach($sections as $section)
+                                @foreach($section->subjects as $subject)
+                                    <option class="section-{{ $section->id }}-subject" value="{{ $subject->id }}" data-lec-points="{{ $subject->Lec }}" data-lab-points="{{ $subject->Lab }}" style="display: none;">{{ $subject->Description }}</option>
+                                @endforeach
+                            @endforeach
+                        </select>
+                    </div> 
+                    <!--1st Schedule -->
+                    <div id="lectureSchedule" class="schedule-group">
+                        <h5><b>Lecture Schedule</b></h5>
+                        <div class="form-group">
+                            <label for="lectureDay1">Day 1:</label>
+                            <select class="form-control" id="lectureDay1" name="lecture_day1" required>
+                                <option value="">Select Day...</option>
+                                <option value="Monday">Monday</option>
+                                <option value="Tuesday">Tuesday</option>
+                                <option value="Wednesday">Wednesday</option>
+                                <option value="Thursday">Thursday</option>
+                                <option value="Friday">Friday</option>
+                                <option value="Saturday">Saturday</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="lectureStartTime1">Start Time for day 1:</label>
+                            <select class="form-control" id="lectureStartTime1" name="lecture_start_time1" required>
+                                <option value="">Select Start Time...</option>
+                                @for ($hour = 7; $hour <= 21; $hour++)
+                                    @for ($minute = 0; $minute < 60; $minute += 30)
+                                        @php
+                                            $time = sprintf('%02d:%02d', $hour, $minute);
+                                        @endphp
+                                        <option value="{{ $time }}">{{ $time }}</option>
+                                    @endfor
+                                @endfor
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="lectureEndTime1">End Time for day 1:</label>
+                            <select class="form-control" id="lectureEndTime1" name="lecture_end_time1" required>
+                                <option value="">Select End Time...</option>
+                                @for ($hour = 7; $hour <= 21; $hour++)
+                                    @for ($minute = 0; $minute < 60; $minute += 30)
+                                        @php
+                                            $time = sprintf('%02d:%02d', $hour, $minute);
+                                        @endphp
+                                        <option value="{{ $time }}">{{ $time }}</option>
+                                    @endfor
+                                @endfor
+                            </select>
+                            <small class="text-danger" id="lectureEndTimeError1" style="display:none;">End time must be after start time.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="lectureRoomId1">Room for day 1:</label>
+                            <select class="form-control" id="lectureRoomId1" name="lecture_room_id1" required>
+                                <option value="">Select Room...</option>
+                            </select>
+                        </div>
+                        
+                        <!--2nd Schedule -->
+                        <h5><b>Lecture/Laboratory Schedule</b></h5>
+                        <div class="form-group">
+                            <label for="lectureDay2">Day 2:</label>
+                            <select class="form-control" id="lectureDay2" name="lecture_day2" required>
+                                <option value="">Select Day...</option>
+                                <option value="Monday">Monday</option>
+                                <option value="Tuesday">Tuesday</option>
+                                <option value="Wednesday">Wednesday</option>
+                                <option value="Thursday">Thursday</option>
+                                <option value="Friday">Friday</option>
+                                <option value="Saturday">Saturday</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="lectureStartTime2">Start Time for day 2 (Optional):</label>
+                            <select class="form-control" id="lectureStartTime2" name="lecture_start_time2" required>
+                                <option value="">Select Start Time...</option>
+                                @for ($hour = 7; $hour <= 21; $hour++)
+                                    @for ($minute = 0; $minute < 60; $minute += 30)
+                                        @php
+                                            $time = sprintf('%02d:%02d', $hour, $minute);
+                                        @endphp
+                                        <option value="{{ $time }}">{{ $time }}</option>
+                                    @endfor
+                                @endfor
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="lectureEndTime2">End Time for day 2 :</label>
+                            <select class="form-control" id="lectureEndTime2" name="lecture_end_time2" required>
+                                <option value="">Select End Time...</option>
+                                @for ($hour = 7; $hour <= 21; $hour++)
+                                    @for ($minute = 0; $minute < 60; $minute += 30)
+                                        @php
+                                            $time = sprintf('%02d:%02d', $hour, $minute);
+                                        @endphp
+                                        <option value="{{ $time }}">{{ $time }}</option>
+                                    @endfor
+                                @endfor
+                            </select>
+                            <small class="text-danger" id="lectureEndTimeError2" style="display:none;">End time must be after start time.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="lectureRoomId2">Room for day 2 (Optional):</label>
+                            <select class="form-control" id="lectureRoomId2" name="lecture_room_id2" required>
+                                <option value="">Select Room...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Schedue -->
     <div class="row">
         <div class="col-md-12">
             <h2 class="mb-4">View Section Schedule</h2>
@@ -285,194 +443,204 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 <script>
-class ScheduleManager {
-    constructor() {
-        this.init();
-    }
-
-    init() {
-        this.cacheElements();
-        this.bindEvents();
-        this.initializeForm();
-    }
-
-    cacheElements() {
-        this.sectionId = $('#sectionId');
-        this.subjectId = $('#subjectId');
-        this.autoSectionId = $('#sectionSelect'); 
-        this.autoSubjectId = $('#autoSubjectId'); 
-        this.type = $('#type');
-        this.startTime = $('#startTime');
-        this.endTime = $('#endTime');
-        this.endTimeError = $('#endTimeError');
-        this.prefStartTime = $('#preferredStartTime');
-        this.prefEndTime = $('#preferredEndTime');
-        this.prefEndTimeError = $('#PrefendTimeError');
-        this.prefBuilding = $('#preferredBuilding');
-        this.prefRoom = $('#preferredRoom');
-        this.sectionScheduleForm = $('#sectionScheduleForm');
-        this.hiddenSectionInput = $('#hiddenSectionInput');
-        this.userRooms = @json($userRooms);
-    }
-
-    bindEvents() {
-        this.sectionId.on('change', () => this.updateSubjectOptions());
-        this.autoSectionId.on('change', () => this.updateAutoSubjectOptions());
-        this.type.on('change', () => this.updateRoomOptions());
-        this.startTime.on('change', () => this.populateEndTimeOptions());
-        this.endTime.on('change', () => this.validateEndTime());
-        this.prefStartTime.on('change', () => this.populateAutoEndTimeOptions());
-        this.prefEndTime.on('change', () => this.validatePrefEndTime());
-        this.prefBuilding.on('change', () => this.filterRoomsByBuilding());
-        $('form').on('submit', (e) => this.validateForm(e));
-        $('.view-schedule-btn').on('click', (e) => this.viewSectionSchedule(e));
-    }
-
-    initializeForm() {
-        this.updateRoomOptions();
-        this.populateEndTimeOptions();
-        this.filterRoomsByBuilding();
-    }
-
-    updateSubjectOptions() {
-        const sectionId = this.sectionId.val();
-        this.subjectId.find('option').hide();
-        if (sectionId) {
-            $(`.section-${sectionId}-subject`).show();
-        } else {
-            this.subjectId.find('option:first').show();
+    class ScheduleManager {
+        constructor() {
+            this.init();
         }
-    }
-
-    updateAutoSubjectOptions() {
-        const sectionId = this.autoSectionId.val();
-        this.autoSubjectId.find('option').hide();
-        if (sectionId) {
-            $(`.section-${sectionId}-subject`).show();
-        } else {
-            this.autoSubjectId.find('option:first').show();
+    
+        init() {
+            this.cacheElements();
+            this.bindEvents();
+            this.initializeForm();
         }
-    }
-
-    updateRoomOptions() {
-        const classType = this.type.val();
-        const roomSelect = $('#roomId');
-        roomSelect.empty();
-        const filteredRooms = this.userRooms.filter(room => room.room_type === classType);
-        filteredRooms.forEach(room => {
-            roomSelect.append(`<option value="${room.id}">${room.room_id} - ${room.room_name}</option>`);
-        });
-        if (classType === 'Lecture') {
-            this.startTime.trigger('change');
-        } else {
-            this.populateAllEndTimes();
+    
+        cacheElements() {
+            this.sectionId = $('#sectionId');
+            this.subjectId = $('#subjectId');
+            this.autoSectionId = $('#sectionSelect'); 
+            this.autoSubjectId = $('#autoSubjectId'); 
+            this.type = $('#type');
+            this.startTime = $('#startTime');
+            this.endTime = $('#endTime');
+            this.endTimeError = $('#endTimeError');
+            this.prefStartTime = $('#preferredStartTime');
+            this.prefEndTime = $('#preferredEndTime');
+            this.prefEndTimeError = $('#PrefendTimeError');
+            this.prefBuilding = $('#preferredBuilding');
+            this.prefRoom = $('#preferredRoom');
+            this.sectionScheduleForm = $('#sectionScheduleForm');
+            this.hiddenSectionInput = $('#hiddenSectionInput');
+            this.pairSectionSelect = $('#pairSectionSelect');
+            this.pairSubjectId = $('#pairSubjectId');
+            this.lectureDay1 = $('#lectureDay1');
+            this.lectureStartTime1 = $('#lectureStartTime1');
+            this.lectureEndTime1 = $('#lectureEndTime1');
+            this.lectureEndTimeError1 = $('#lectureEndTimeError1');
+            this.lectureRoomId1 = $('#lectureRoomId1');
+            this.lectureDay2 = $('#lectureDay2');
+            this.lectureStartTime2 = $('#lectureStartTime2');
+            this.lectureEndTime2 = $('#lectureEndTime2');
+            this.lectureEndTimeError2 = $('#lectureEndTimeError2');
+            this.lectureRoomId2 = $('#lectureRoomId2');
+            this.userRooms = @json($userRooms);
         }
-    }
+    
+        bindEvents() {
+            this.sectionId.on('change', () => this.updateSubjectOptions(this.sectionId, this.subjectId));
+            this.autoSectionId.on('change', () => this.updateSubjectOptions(this.autoSectionId, this.autoSubjectId));
+            this.type.on('change', () => this.updateRoomOptions());
+			this.startTime.on('change', () => this.populateEndTimeOptions(this.startTime, this.endTime));
+            this.endTime.on('change', () => this.validateTime(this.startTime, this.endTime, this.endTimeError));
+			this.prefStartTime.on('change', () => this.populateEndTimeOptions(this.prefStartTime, this.prefEndTime));
+            this.prefEndTime.on('change', () => this.validateTime(this.prefStartTime, this.prefEndTime, this.prefEndTimeError));
+            this.prefBuilding.on('change', () => this.filterRoomsByBuilding());
+			this.pairSectionSelect.on('change', () => this.updateSubjectOptions(this.pairSectionSelect, this.pairSubjectId));
+            this.lectureStartTime1.on('change', () => this.populateEndTimeOptions(this.lectureStartTime1, this.lectureEndTime1));
+            this.lectureEndTime1.on('change', () => this.validateTime(this.lectureStartTime1, this.lectureEndTime1, this.lectureEndTimeError1));
+            this.lectureStartTime2.on('change', () => this.populateEndTimeOptions(this.lectureStartTime2, this.lectureEndTime2));
+            this.lectureEndTime2.on('change', () => this.validateTime(this.lectureStartTime2, this.lectureEndTime2, this.lectureEndTimeError2));
+            this.pairSubjectId.on('change', () => this.filterRoomsForSubject());
+            $('.view-schedule-btn').on('click', (e) => this.viewSectionSchedule(e));
+        }
+    
+        initializeForm() {
+            this.updateRoomOptions();
+            this.populateEndTimeOptions(this.startTime, this.endTime);
+            this.filterRoomsByBuilding();
+            this.populateEndTimeOptions(this.lectureStartTime1, this.lectureEndTime1);
+            this.populateEndTimeOptions(this.lectureStartTime2, this.lectureEndTime2);
+        }
+        
+        //Pair Scheduling
+        updatePairSubjectOptions() {
+            const selectedSectionId = this.pairSectionSelect.val();
+            this.pairSubjectId.children().hide().filter(`.section-${selectedSectionId}-subject`).show();
+            this.pairSubjectId.val('');
+        }
 
-    populateAllEndTimes() {
-        this.endTime.empty();
-        this.endTime.append('<option value="">Select End Time</option>');
-        for (let hour = 7; hour <= 21; hour++) {
-            for (let minute = 0; minute < 60; minute += 30) {
-                const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-                this.endTime.append(`<option value="${time}">${time}</option>`);
+        filterRoomsForSubject() {
+            const selectedSubject = this.pairSubjectId.find('option:selected');
+            const hasLabPoints = selectedSubject.data('lab-points') > 0;
+
+            this.filterRoomsForDay(this.lectureRoomId1, 'Lecture');
+            this.filterRoomsForDay(this.lectureRoomId2, hasLabPoints ? 'Laboratory' : 'Lecture');
+        }
+
+        filterRoomsForDay(roomElement, roomType) {
+            roomElement.empty().append('<option value="">Select Room...</option>');
+            const filteredRooms = this.userRooms.filter(room => room.room_type === roomType);
+            filteredRooms.forEach(room => {
+                roomElement.append(`<option value="${room.id}">${room.room_id} - ${room.room_name}</option>`);
+            });
+        }
+        
+        //Manual and Auto Sched
+        updateSubjectOptions(sectionElement, subjectElement) {
+            const sectionId = sectionElement.val();
+            subjectElement.find('option').hide();
+            subjectElement.val('');
+            subjectElement.find(`.section-${sectionId}-subject`).show();
+        }
+    
+        updateRoomOptions() {
+            const classType = this.type.val();
+            const roomSelect = $('#roomId');
+            roomSelect.empty();
+            const filteredRooms = this.userRooms.filter(room => room.room_type === classType);
+            filteredRooms.forEach(room => {
+                roomSelect.append(`<option value="${room.id}">${room.room_id} - ${room.room_name}</option>`);
+            });
+            if (classType === 'Lecture') {
+                this.startTime.trigger('change');
+            } else {
+                this.populateAllEndTimes();
             }
         }
-    }
 
-    populateEndTimeOptions() {
-        const startTime = this.startTime.val();
-        this.endTime.empty();
-        this.endTime.append('<option value="">Select End Time</option>');
-        if (startTime) {
-            const startParts = startTime.split(':');
-            const startHour = parseInt(startParts[0]);
-            const startMinute = parseInt(startParts[1]);
+        populateEndTimeOptions(startTimeElement, endTimeElement) {
+            const startTime = startTimeElement.val();
+            endTimeElement.empty().append('<option value="">Select End Time</option>');
+            if (startTime) {
+                const [startHour, startMinute] = startTime.split(':').map(Number);
+                for (let hour = startHour; hour <= 21; hour++) {
+                    for (let minute = (hour === startHour ? startMinute + 30 : 0); minute < 60; minute += 30) {
+                        const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+                        endTimeElement.append(`<option value="${time}">${time}</option>`);
+                    }
+                }
+            }
+            this.validateTime(startTimeElement, endTimeElement, endTimeElement.next('.text-danger'));
+        }
 
-            for (let hour = startHour; hour <= 21; hour++) {
-                for (let minute = (hour === startHour ? startMinute + 30 : 0); minute < 60; minute += 30) {
+        validateTime(startTimeElement, endTimeElement, errorElement) {
+            const startTime = startTimeElement.val();
+            const endTime = endTimeElement.val();
+            if (endTime <= startTime) {
+                errorElement.show();
+                endTimeElement.addClass('is-invalid');
+            } else {
+                errorElement.hide();
+                endTimeElement.removeClass('is-invalid');
+            }
+        }
+
+        updateRoomOptions() {
+            const classType = this.type.val();
+            const roomSelect = $('#roomId');
+            roomSelect.empty();
+            const filteredRooms = this.userRooms.filter(room => room.room_type === classType);
+            filteredRooms.forEach(room => {
+                roomSelect.append(`<option value="${room.id}">${room.room_id} - ${room.room_name}</option>`);
+            });
+            if (classType === 'Lecture') {
+                this.startTime.trigger('change');
+            } else {
+                this.populateAllEndTimes();
+            }
+        }
+
+        getTimeIndex(time) {
+            if (!time) return -1;
+            const [hours, minutes] = time.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+
+        populateAllEndTimes() {
+            this.endTime.empty().append('<option value="">Select End Time</option>');
+            for (let hour = 7; hour <= 21; hour++) {
+                for (let minute = 0; minute < 60; minute += 30) {
                     const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
                     this.endTime.append(`<option value="${time}">${time}</option>`);
                 }
             }
         }
-        this.validateEndTime();
-    }
 
-    populateAutoEndTimeOptions() {
-        const startTime = this.prefStartTime.val();
-        this.prefEndTime.empty();
-        this.prefEndTime.append('<option value="">Select End Time</option>');
-        if (startTime) {
-            const startParts = startTime.split(':');
-            const startHour = parseInt(startParts[0]);
-            const startMinute = parseInt(startParts[1]);
+        filterRoomsByBuilding() {
+            const selectedBuilding = this.prefBuilding.val();
+            this.prefRoom.find('option').each(function () {
+                const building = $(this).data('building');
+                $(this).toggle(selectedBuilding === 'Any' || building === selectedBuilding);
+            });
+            this.prefRoom.val('Any');
+        }
 
-            for (let hour = startHour; hour <= 21; hour++) {
-                for (let minute = (hour === startHour ? startMinute + 30 : 0); minute < 60; minute += 30) {
-                    const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-                    this.prefEndTime.append(`<option value="${time}">${time}</option>`);
-                }
+        viewSectionSchedule(e) {
+            const program = $(e.target).data('program');
+            const sectionSelect = $(`.section-select[data-program="${program}"]`);
+            const selectedSectionId = sectionSelect.val();
+            if (selectedSectionId) {
+                this.hiddenSectionInput.val(selectedSectionId);
+                this.sectionScheduleForm.submit();
+            } else {
+                alert('Please select a section.');
             }
         }
-        this.validatePrefEndTime();
     }
+    
+    $(document).ready(() => {
+        new ScheduleManager();
+    });
+    </script>
 
-    validateEndTime() {
-        const startTime = this.startTime.val();
-        const endTime = this.endTime.val();
-        if (startTime && endTime && endTime <= startTime) {
-            this.endTimeError.show();
-            return false;
-        } else {
-            this.endTimeError.hide();
-            return true;
-        }
-    }
-
-    validatePrefEndTime() {
-        const startTime = this.prefStartTime.val();
-        const endTime = this.prefEndTime.val();
-        if (startTime && endTime && endTime <= startTime) {
-            this.prefEndTimeError.show();
-            return false;
-        } else {
-            this.prefEndTimeError.hide();
-            return true;
-        }
-    }
-
-    validateForm(e) {
-        if (!this.validateEndTime() || !this.validatePrefEndTime()) {
-            e.preventDefault();
-        }
-    }
-
-    filterRoomsByBuilding() {
-        const selectedBuilding = this.prefBuilding.val();
-        this.prefRoom.find('option').each(function () {
-            const building = $(this).data('building');
-            $(this).toggle(selectedBuilding === 'Any' || building === selectedBuilding);
-        });
-        this.prefRoom.val('Any');
-    }
-
-    viewSectionSchedule(e) {
-        const program = $(e.target).data('program');
-        const sectionSelect = $(`.section-select[data-program="${program}"]`);
-        const selectedSectionId = sectionSelect.val();
-        if (selectedSectionId) {
-            this.hiddenSectionInput.val(selectedSectionId);
-            this.sectionScheduleForm.submit();
-        } else {
-            alert('Please select a section.');
-        }
-    }
-}
-
-$(document).ready(() => {
-    new ScheduleManager();
-});
-</script>
 @endsection
 

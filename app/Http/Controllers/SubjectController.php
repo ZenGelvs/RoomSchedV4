@@ -374,13 +374,16 @@ class SubjectController extends Controller
     
         $subjectUnits = $subject->Units;
     
-        if (($totalUnits + $subjectUnits) > $unitLimit) {
-            return redirect()->route('department.subjects')->with('error', 'Assigning this subject will exceed the allowed unit limit for this faculty.');
-        }
+       
     
         if (!$subject->faculty->contains($facultyId)) {
             $subject->faculty()->attach($facultyId);
-            return redirect()->route('department.subjects')->with('success', 'Faculty assigned to subject successfully.');
+            if (($totalUnits + $subjectUnits) > $unitLimit) {
+                return redirect()->route('department.subjects')->with('error', 'Faculty assigned to subject successfully, but this subject will exceed the allowed unit limit for this faculty.');
+            }
+            else{
+                return redirect()->route('department.subjects')->with('success', '.');
+            }
         } else {
             return redirect()->route('department.subjects')->with('error', 'Faculty is already assigned to this subject.');
         }
