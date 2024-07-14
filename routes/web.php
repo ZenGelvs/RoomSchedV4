@@ -74,6 +74,7 @@ Route::group(['namespace' => 'Department', 'prefix' => 'department'], function (
 
     //Schedule Routes
     Route::get('schedule', [ScheduleController::class, 'index'])->name('department.schedule');
+    Route::get('automatic_schedule', [ScheduleController::class, 'showAutomaticSchedule'])->name('department.show_automatic_schedule'); 
     Route::post('schedule', [ScheduleController::class, 'store'])->name('department.schedule.store');
     Route::get('section_schedule', [ScheduleController::class, 'ScheduleIndex'])->name('department.section_schedule');
     Route::delete('schedule/{schedule}', [ScheduleController::class, 'destroy'])->name('department.schedule.destroy');

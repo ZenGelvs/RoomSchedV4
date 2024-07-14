@@ -93,14 +93,6 @@
                         <label for="endTime">End Time:</label>
                         <select class="form-control" id="endTime" name="endTime" required>
                             <option value="">Select End Time</option>
-                            @for ($hour = 7; $hour <= 20; $hour++)
-                                @for ($minute = 0; $minute < 60; $minute += 30)
-                                    @php
-                                        $time = sprintf('%02d:%02d', $hour, $minute);
-                                    @endphp
-                                    <option value="{{ $time }}">{{ $time }}</option>
-                                @endfor
-                            @endfor
                         </select>
                         <small class="text-danger" id="endTimeError" style="display:none;">End time must be after start time.</small>
                     </div>
@@ -116,119 +108,121 @@
         </div>
     </div>
 
-    <!--Room Found Prompt-->
-    @if (session('availableRoom'))
-        <div class="alert alert-info">
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-            <h4>Available Room Found:</h4>
-            <p><strong>Day:</strong> {{ session('availableRoom.day') }}</p>
-            <p><strong>Start Time:</strong> {{ session('availableRoom.start_time') }}</p>
-            <p><strong>End Time:</strong> {{ session('availableRoom.end_time') }}</p>
-            <p><strong>Room:</strong> {{ session('availableRoom.room_id') }} ({{ session('availableRoom.building') }})</p>
-        </div>
-    @endif
-
-    <!-- Automatic Scheduling using Greeedy Lagorithm-->
+    <!-- Room Finder using Greedy Algorithm -->
     <div class="card mb-4">
-        <div class="card-header" id="autoScheduleHeading">
-            <h4 class="text-center mb-4">Automatic Room Finder</h4>
-            <h2 class="mb-0">
-                <button class="btn btn-danger" data-toggle="collapse" data-target="#autoScheduleCollapse" aria-expanded="false" aria-controls="autoScheduleCollapse">
-                    Automatic Scheduling
-                </button>
-            </h2>
-        </div>
-        <div id="autoScheduleCollapse" class="collapse" aria-labelledby="autoScheduleHeading" data-parent="#accordion">
-            <div class="card-body">
-                <form id="autoScheduleForm" action="{{ route('department.automatic_schedule') }}" method="POST">
-                    @csrf
-                    <div class="form-group">
-                        <label for="sectionSelect">Select Section to automatically schedule subjects for (Lecture Only)</label>
-                        <select class="form-control" id="sectionSelect" name="section_id" required>
-                            <option value="">Select Section...</option>
-                            @foreach ($sections as $section)
-                                <option value="{{ $section->id }}">{{ $section->program_name }} - {{ $section->section }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="autoSubjectId">Subject:</label>
-                        <select class="form-control" id="autoSubjectId" name="subjectId" required>
-                            <option value="">Select Subject...</option>
-                            @foreach($sections as $section)
-                                @foreach($section->subjects as $subject)
-                                    <option class="section-{{ $section->id }}-subject" value="{{ $subject->id }}" data-lec-points="{{ $subject->Lec }}" style="display: none;">{{ $subject->Description }}</option>
-                                @endforeach
-                            @endforeach
-                        </select>
-                    </div>                    
-                    <div class="form-group">
-                        <label for="preferredDay">Preferred Day</label>
-                        <select class="form-control" id="preferredDay" name="preferred_day">
-                            <option value="Any">Any</option>
-                            <option value="Monday">Monday</option>
-                            <option value="Tuesday">Tuesday</option>
-                            <option value="Wednesday">Wednesday</option>
-                            <option value="Thursday">Thursday</option>
-                            <option value="Friday">Friday</option>
-                            <option value="Saturday">Saturday</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="preferredStartTime">Preferred Start Time:</label>
-                        <select class="form-control" id="preferredStartTime" name="preferred_start_time" required>
-                            <option value="">Select a Start time</option>
-                            @for ($hour = 7; $hour <= 20; $hour++)
-                                @for ($minute = 0; $minute < 60; $minute += 30)
-                                    @php
-                                        $time = sprintf('%02d:%02d', $hour, $minute);
-                                    @endphp
-                                    <option value="{{ $time }}">{{ $time }}</option>
-                                @endfor
+    <div class="card-header" id="autoScheduleHeading">
+        <h4 class="text-center mb-4">Automatic Room Finder</h4>
+        <h2 class="mb-0">
+            <button class="btn btn-danger" data-toggle="collapse" data-target="#autoScheduleCollapse" aria-expanded="false" aria-controls="autoScheduleCollapse">
+                Automatic Room Finder
+            </button>
+        </h2>
+    </div>
+    <div id="autoScheduleCollapse" class="collapse" aria-labelledby="autoScheduleHeading" data-parent="#accordion">
+        <div class="card-body">
+            <form id="autoScheduleForm" action="{{ route('department.automatic_schedule') }}" method="POST">
+                @csrf
+                <div class="form-group">
+                    <label for="preferredDay">Preferred Day</label>
+                    <select class="form-control" id="preferredDay" name="preferred_day">
+                        <option value="Any">Any</option>
+                        <option value="Monday">Monday</option>
+                        <option value="Tuesday">Tuesday</option>
+                        <option value="Wednesday">Wednesday</option>
+                        <option value="Thursday">Thursday</option>
+                        <option value="Friday">Friday</option>
+                        <option value="Saturday">Saturday</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="preferredStartTime">Preferred Start Time:</label>
+                    <select class="form-control" id="preferredStartTime" name="preferred_start_time" required>
+                        <option value="">Select a Start time</option>
+                        @for ($hour = 7; $hour <= 20; $hour++)
+                            @for ($minute = 0; $minute < 60; $minute += 30)
+                                @php
+                                    $time = sprintf('%02d:%02d', $hour, $minute);
+                                @endphp
+                                <option value="{{ $time }}">{{ $time }}</option>
                             @endfor
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="preferredEndTime">End Time:</label>
-                        <select class="form-control" id="preferredEndTime" name="preferred_end_time" required>
-                            <option value="">Select an End time</option>
-                            @for ($hour = 7; $hour <= 20; $hour++)
-                                @for ($minute = 0; $minute < 60; $minute += 30)
-                                    @php
-                                        $time = sprintf('%02d:%02d', $hour, $minute);
-                                    @endphp
-                                    <option value="{{ $time }}">{{ $time }}</option>
-                                @endfor
+                        @endfor
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="preferredEndTime">End Time:</label>
+                    <select class="form-control" id="preferredEndTime" name="preferred_end_time" required>
+                        <option value="">Select an End time</option>
+                        @for ($hour = 7; $hour <= 20; $hour++)
+                            @for ($minute = 0; $minute < 60; $minute += 30)
+                                @php
+                                    $time = sprintf('%02d:%02d', $hour, $minute);
+                                @endphp
+                                <option value="{{ $time }}">{{ $time }}</option>
                             @endfor
-                        </select>
-                        <small class="text-danger" id="PrefendTimeError" style="display:none;">End time must be after start time.</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="preferredBuilding">Select a Building:</label>
-                        <select class="form-control" id="preferredBuilding" name="preferred_building" required>
-                            <option value="Any">Any</option>
-                            <option value="COECSA">COECSA Building</option>
-                            <option value="SOTERO">SPL Building</option>
-                            <option value="JOSE">JPL Building</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="preferredRoom">Select Room:</label>
-                        <select class="form-control" id="preferredRoom" name="preferredRoom" required>
-                            <option value="Any">Any</option>
-                            @foreach ($rooms as $room)
-                                <option value="{{ $room->id }}" data-building="{{ $room->building }}">{{ $room->room_id }} {{ $room->room_name }}</option>
-                            @endforeach
-                        </select>
-                    </div>                                     
-                    <button type="submit" class="btn btn-primary">Automate Scheduling</button>
-                </form>
-            </div>
+                        @endfor
+                    </select>
+                    <small class="text-danger" id="PrefendTimeError" style="display:none;">End time must be after start time.</small>
+                </div>
+                <div class="form-group">
+                    <label for="preferredBuilding">Select a Building:</label>
+                    <select class="form-control" id="preferredBuilding" name="preferred_building" required>
+                        <option value="Any">Any</option>
+                        <option value="COECSA">COECSA Building</option>
+                        <option value="SOTERO">SPL Building</option>
+                        <option value="JOSE">JPL Building</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="preferredRoom">Select Room:</label>
+                    <select class="form-control" id="preferredRoom" name="preferredRoom" required>
+                        <option value="Any">Any</option>
+                        @foreach ($rooms as $room)
+                            <option value="{{ $room->id }}" data-building="{{ $room->building }}">{{ $room->room_id }} {{ $room->room_name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
         </div>
     </div>
+    <!-- Room Found Prompt -->
+    @if (isset($paginatedRooms) && $paginatedRooms->isNotEmpty())
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4 class="text-center mb-4">Available Rooms</h4>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Day</th>
+                        <th>Time Span</th>
+                        <th>Room</th>
+                        <th>Building</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($paginatedRooms as $room)
+                        <tr>
+                            <td>{{ $room['day'] }}</td>
+                            <td>{{ $room['start_time'] }} - {{ $room['end_time'] }}</td>
+                            <td>{{ $room['room'] }}</td>
+                            <td>{{ $room['building'] }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+            {{ $paginatedRooms->appends(request()->except('page'))->links() }}
+        </div>
+    </div>
+    @else
+        <div class="alert alert-info">
+            <p> No available rooms found.</p>
+        </div>
+    @endif
+</div>
 
+    
     <!--Pair Scheduling -->
     <div class="card mb-4"> 
         <div class="card-header" id="pairScheduleHeading">
@@ -330,7 +324,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="lectureStartTime2">Start Time for day 2 (Optional):</label>
+                            <label for="lectureStartTime2">Start Time for day 2 :</label>
                             <select class="form-control" id="lectureStartTime2" name="lecture_start_time2" required>
                                 <option value="">Select Start Time...</option>
                                 @for ($hour = 7; $hour <= 21; $hour++)
@@ -359,7 +353,7 @@
                             <small class="text-danger" id="lectureEndTimeError2" style="display:none;">End time must be after start time.</small>
                         </div>
                         <div class="form-group">
-                            <label for="lectureRoomId2">Room for day 2 (Optional):</label>
+                            <label for="lectureRoomId2">Room for day 2 :</label>
                             <select class="form-control" id="lectureRoomId2" name="lecture_room_id2" required>
                                 <option value="">Select Room...</option>
                             </select>
@@ -562,8 +556,16 @@
             endTimeElement.empty().append('<option value="">Select End Time</option>');
             if (startTime) {
                 const [startHour, startMinute] = startTime.split(':').map(Number);
-                for (let hour = startHour; hour <= 21; hour++) {
-                    for (let minute = (hour === startHour ? startMinute + 30 : 0); minute < 60; minute += 30) {
+                let newStartHour = startHour + 2;
+                let newStartMinute = startMinute;
+                
+                if (newStartMinute >= 60) {
+                    newStartMinute -= 60;
+                    newStartHour += 1;
+                }
+                
+                for (let hour = newStartHour; hour <= 21; hour++) {
+                    for (let minute = (hour === newStartHour ? newStartMinute : 0); minute < 60; minute += 30) {
                         const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
                         endTimeElement.append(`<option value="${time}">${time}</option>`);
                     }
@@ -571,6 +573,7 @@
             }
             this.validateTime(startTimeElement, endTimeElement, endTimeElement.next('.text-danger'));
         }
+
 
         validateTime(startTimeElement, endTimeElement, errorElement) {
             const startTime = startTimeElement.val();
