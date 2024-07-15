@@ -59,8 +59,10 @@ class DashboardController extends Controller
 
         // Apply Search
         if ($query) {
-            $subjects->where('Subject_Code', 'like', '%'.$query.'%')
-                ->orWhere('Description', 'like', '%'.$query.'%');
+            $subjects->where(function ($q) use ($query) {
+                $q->where('Subject_Code', 'like', '%' . $query . '%')
+                ->orWhere('Description', 'like', '%' . $query . '%');
+            });
         }
 
         // Apply Filters

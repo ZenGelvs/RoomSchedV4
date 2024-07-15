@@ -44,6 +44,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::delete('/subjects/delete/{id}', [SubjectController::class, 'delete'])->name('subjects.delete');
     Route::get('/subjects/edit/{id}', [SubjectController::class, 'edit'])->name('subjects.edit');
     Route::put('/subjects/update/{id}', [SubjectController::class, 'update'])->name('subjects.update');
+    Route::get('/subjects/view/{id}', [SubjectController::class, 'view'])->name('subjects.view');
+
 });
 
 //Department Headn Route 

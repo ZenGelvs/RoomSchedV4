@@ -462,4 +462,10 @@ class SubjectController extends Controller
         return redirect()->back()->with('success', 'Subject unassigned successfully.');
     }
 
+    public function view($id)
+    {
+        $subject = Subject::findOrFail($id);
+        return view('admin.viewSubject', compact('subject'));
+    }
+
 }
