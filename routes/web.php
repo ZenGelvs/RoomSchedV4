@@ -117,4 +117,5 @@ Route::group(['prefix' => 'roomCoordinator', 'as' => 'roomCoordinator.'], functi
     Route::get('/section/add-schedule', [RoomCoordinatorController::class, 'addSchedule'])->name('addSchedule');
     Route::post('/section/store-schedule', [RoomCoordinatorController::class, 'storeSchedule'])->name('storeSchedule');
     Route::post('/section/automatic-schedule', [RoomCoordinatorController::class, 'automaticSchedule'])->name('automaticSchedule');
+    Route::get('/section/automatic_schedule', [RoomCoordinatorController::class, 'showAutomaticSchedule'])->name('automatic_schedule');
 });

@@ -358,8 +358,6 @@ class ScheduleController extends Controller
             $paginatedRooms = null;
         }
     
-        // Do not clear session data here
-    
         // Retrieve other data required for the view
         $rooms = Room::where('room_type', 'Lecture')->get();
         $userRooms = Auth::user()->rooms()->get();
