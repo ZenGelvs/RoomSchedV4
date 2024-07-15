@@ -118,4 +118,11 @@ Route::group(['prefix' => 'roomCoordinator', 'as' => 'roomCoordinator.'], functi
     Route::post('/section/store-schedule', [RoomCoordinatorController::class, 'storeSchedule'])->name('storeSchedule');
     Route::post('/section/automatic-schedule', [RoomCoordinatorController::class, 'automaticSchedule'])->name('automaticSchedule');
     Route::get('/section/automatic_schedule', [RoomCoordinatorController::class, 'showAutomaticSchedule'])->name('automatic_schedule');
+
+     // Schedule Pairing Routes
+     Route::get('/manage-schedule-pairing', [RoomCoordinatorController::class, 'manageSchedulePairing'])->name('manageSchedulePairing');
+     Route::post('/store-schedule-pairing', [RoomCoordinatorController::class, 'storeSchedulePairing'])->name('storeSchedulePairing');
+     Route::get('/edit-schedule-pairing/{id}', [RoomCoordinatorController::class, 'editSchedulePairing'])->name('editSchedulePairing');
+     Route::put('/update-schedule-pairing/{id}', [RoomCoordinatorController::class, 'updateSchedulePairing'])->name('updateSchedulePairing');
+     Route::delete('/destroy-schedule-pairing/{id}', [RoomCoordinatorController::class, 'destroySchedulePairing'])->name('destroySchedulePairing');
 });

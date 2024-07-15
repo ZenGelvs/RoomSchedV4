@@ -8,6 +8,7 @@ use App\Models\Faculty;
 use App\Models\Subject;
 use App\Models\Sections;
 use App\Models\Schedules;
+use App\Models\SchedulePairing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -561,4 +562,50 @@ class RoomCoordinatorController extends Controller
         return redirect()->back()->with('success', 'Room unassigned successfully.');
     }
 
+    public function manageSchedulePairing()
+    {
+        $schedulePairings = SchedulePairing::paginate(10);
+        return view('roomCoordinator.manageSchedulePairing', compact('schedulePairings'));
+    }
+
+    public function storeSchedulePairing(Request $request)
+    {
+        $request->validate([
+            'days' => 'required|array|min:2|max:2',
+        ]);
+
+        SchedulePairing::create([
+            'days' => json_encode($request->days),
+        ]);
+
+        return redirect()->route('roomCoordinator.manageSchedulePairing')->with('success', 'Schedule Pairing Added Successfully');
+    }
+
+    public function editSchedulePairing($id)
+    {
+        $schedulePairing = SchedulePairing::findOrFail($id);
+        return view('roomCoordinator.editSchedulePairing', compact('schedulePairing'));
+    }
+
+    public function updateSchedulePairing(Request $request, $id)
+    {
+        $request->validate([
+            'days' => 'required|array|min:2|max:2',
+        ]);
+
+        $schedulePairing = SchedulePairing::findOrFail($id);
+        $schedulePairing->update([
+            'days' => json_encode($request->days),
+        ]);
+
+        return redirect()->route('roomCoordinator.manageSchedulePairing')->with('success', 'Schedule Pairing Updated Successfully');
+    }
+
+    public function destroySchedulePairing($id)
+    {
+        $schedulePairing = SchedulePairing::findOrFail($id);
+        $schedulePairing->delete();
+
+        return redirect()->route('roomCoordinator.manageSchedulePairing')->with('success', 'Schedule Pairing Deleted Successfully');
+    }
 }   

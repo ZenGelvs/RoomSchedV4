@@ -34,9 +34,12 @@
                         </div>
                     </form>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-2">
                     <a href="{{ route('roomCoordinator.assignroomstofaculty') }}" class="btn btn-danger">Assign Rooms to Faculty</a>
                 </div>
+                <div class="col-md-2">
+                    <a href="{{ route('roomCoordinator.manageSchedulePairing') }}" class="btn btn-danger">Manage Schedule Pairing</a>
+                </div>    
             </div>
 
             <!-- Add Room Form -->
