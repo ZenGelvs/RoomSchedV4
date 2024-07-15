@@ -7,6 +7,7 @@ use App\Models\Faculty;
 use App\Models\Subject;
 use App\Models\Sections;
 use App\Models\Schedules;
+use App\Models\SchedulePairing;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
@@ -30,8 +31,10 @@ class ScheduleController extends Controller
         $faculties = Faculty::where('college', Auth::user()->college)
                             ->where('department', Auth::user()->department)
                             ->get(); 
+
+        $schedulePairings = SchedulePairing::all();
     
-        return view('department.schedules', compact('rooms', 'userRooms', 'sections', 'faculties'));
+        return view('department.schedules', compact('rooms', 'userRooms', 'sections', 'faculties', 'schedulePairings'));
     }
     
     public function store(Request $request)
@@ -370,8 +373,9 @@ class ScheduleController extends Controller
         $faculties = Faculty::where('college', Auth::user()->college)
                             ->where('department', Auth::user()->department)
                             ->get();
+        $schedulePairings = SchedulePairing::all();
     
-        return view('department.schedules', compact('paginatedRooms', 'rooms', 'userRooms', 'sections', 'faculties'));
+        return view('department.schedules', compact('paginatedRooms', 'rooms', 'userRooms', 'sections', 'faculties', 'schedulePairings'));
     }
 
     public function storePairSchedule(Request $request)
@@ -379,69 +383,79 @@ class ScheduleController extends Controller
         $request->validate([
             'section_id' => 'required',
             'subject_id' => 'required',
-            'lecture_day1' => 'required|string',
-            'lecture_start_time1' => 'required',
-            'lecture_end_time1' => 'required',
-            'lecture_room_id1' => 'required',
-            'lecture_day2' => 'required|string',
-            'lecture_start_time2' => 'required',
-            'lecture_end_time2' => 'required',
-            'lecture_room_id2' => 'required',
+            'pairing_ids' => 'required|array|min:1',
+            'pairing_ids.*' => 'exists:schedule_pairings,id',
         ]);
-
-        // Check for overlapping within the two schedules
-        if ($request->lecture_day1 == $request->lecture_day2 &&
-            (($request->lecture_start_time1 < $request->lecture_end_time2 && $request->lecture_end_time1 > $request->lecture_start_time2) ||
-            ($request->lecture_start_time2 < $request->lecture_end_time1 && $request->lecture_end_time2 > $request->lecture_start_time1))) {
-            return redirect()->back()->with('error', 'The two schedules are scheduled at the same day.');
+    
+        // Fetch the selected pairings
+        $pairingIds = $request->pairing_ids;
+    
+        // Ensure only one pairing is selected
+        if (count($pairingIds) !== 1) {
+            return redirect()->back()->with('error', 'Exactly one day pairing must be selected.');
         }
-
-          // Fetch the selected subject to determine lab points
+    
+        $pairing = SchedulePairing::find($pairingIds[0]);
+        $days = json_decode($pairing->days, true); // Decode the JSON days
+    
+        if (count($days) < 2) {
+            return redirect()->back()->with('error', 'The selected pairing must contain exactly two days.');
+        }
+    
         $subject = Subject::find($request->subject_id);
         $hasLabPoints = $subject->Lab > 0;
-
-        // Set the type for the second schedule based on lab points
+        
         $type2 = $hasLabPoints ? 'Laboratory' : 'Lecture';
-
-        // First schedule checks
-        if ($this->hasScheduleConflict($request->lecture_day1, $request->lecture_start_time1, $request->lecture_end_time1, $request->section_id, $request->subject_id, $request->lecture_room_id1)) {
-            return redirect()->back()->with('error', 'Conflict with the first schedule. Scheduling Stopped.');
+    
+        $conflictDetected = false;
+    
+        // Define day pairs
+        $scheduleData = [
+            [
+                'day' => $days[0],
+                'start_time' => $request->input('lecture_start_time1'),
+                'end_time' => $request->input('lecture_end_time1'),
+                'room_id' => $request->input('lecture_room_id1'),
+                'type' => 'Lecture'
+            ],
+            [
+                'day' => $days[1],
+                'start_time' => $request->input('lecture_start_time2'),
+                'end_time' => $request->input('lecture_end_time2'),
+                'room_id' => $request->input('lecture_room_id2'),
+                'type' => $type2
+            ]
+        ];
+    
+        foreach ($scheduleData as $data) {
+            if ($this->hasScheduleConflict($data['day'], $data['start_time'], $data['end_time'], $request->section_id, $request->subject_id, $data['room_id'])) {
+                $conflictDetected = true;
+                break;
+            }
         }
-
-        // Second schedule checks
-        if ($this->hasScheduleConflict($request->lecture_day2, $request->lecture_start_time2, $request->lecture_end_time2, $request->section_id, $request->subject_id, $request->lecture_room_id2)) {
-            return redirect()->back()->with('error', 'Conflict with the second schedule. Scheduling Stopped.');
+    
+        if ($conflictDetected) {
+            return redirect()->back()->with('error', 'There was a conflict with the selected schedules.');
         }
-
-        // Create first schedule
-        Schedules::create([
-            'day' => $request->lecture_day1,
-            'start_time' => $request->lecture_start_time1,
-            'end_time' => $request->lecture_end_time1,
-            'section_id' => $request->section_id,
-            'subject_id' => $request->subject_id,
-            'type' => 'Lecture',  
-            'room_id' => $request->lecture_room_id1,
-            'college' => Auth::user()->college,
-            'department' => Auth::user()->department,
-        ]);
-
-        // Create second schedule
-        Schedules::create([
-            'day' => $request->lecture_day2,
-            'start_time' => $request->lecture_start_time2,
-            'end_time' => $request->lecture_end_time2,
-            'section_id' => $request->section_id,
-            'subject_id' => $request->subject_id,
-            'type' => $type2,  
-            'room_id' => $request->lecture_room_id2,
-            'college' => Auth::user()->college,
-            'department' => Auth::user()->department,
-        ]);
-
+    
+        // Create schedules
+        foreach ($scheduleData as $data) {
+            Schedules::create([
+                'day' => $data['day'],
+                'start_time' => $data['start_time'],
+                'end_time' => $data['end_time'],
+                'section_id' => $request->section_id,
+                'subject_id' => $request->subject_id,
+                'type' => $data['type'],
+                'room_id' => $data['room_id'],
+                'college' => Auth::user()->college,
+                'department' => Auth::user()->department,
+            ]);
+        }
+    
         return redirect()->back()->with('success', 'Pair schedule created successfully.');
     }
-
+    
     protected function hasScheduleConflict($day, $startTime, $endTime, $sectionId, $subjectId, $roomId)
     {
         // Check for existing identical schedule

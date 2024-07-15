@@ -61,3 +61,19 @@
     </div>
 </div>
 @endsection
+
+@section('scripts')
+<script>
+    document.getElementById('editSchedulePairingForm').addEventListener('submit', function(event) {
+        const checkboxes = document.querySelectorAll('input[name="days[]"]:checked');
+        if (checkboxes.length !== 2) {
+            event.preventDefault();
+            alert('You must select exactly two days.');
+        } else {
+            if (!confirm("Are you sure you want to update this schedule pairing?")) {
+                event.preventDefault();
+            }
+        }
+    });
+</script>
+@endsection

@@ -222,7 +222,6 @@
     @endif
 </div>
 
-    
     <!--Pair Scheduling -->
     <div class="card mb-4"> 
         <div class="card-header" id="pairScheduleHeading">
@@ -246,7 +245,6 @@
                             @endforeach
                         </select>
                     </div>
-    
                     <div class="form-group">
                         <label for="pairSubjectId">Subject:</label>
                         <select class="form-control" id="pairSubjectId" name="subject_id" required>
@@ -258,21 +256,20 @@
                             @endforeach
                         </select>
                     </div> 
+                    <div class="form-group">
+                        <label for="pairScheduleSelect">Select Day Pairings:</label>
+                        @foreach ($schedulePairings as $pairing)
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="pairing_ids[]" value="{{ $pairing->id }}" id="pairing{{ $pairing->id }}">
+                                <label class="form-check-label" for="pairing{{ $pairing->id }}">
+                                    {{ implode(' & ', json_decode($pairing->days)) }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
                     <!--1st Schedule -->
                     <div id="lectureSchedule" class="schedule-group">
                         <h5><b>Lecture Schedule</b></h5>
-                        <div class="form-group">
-                            <label for="lectureDay1">Day 1:</label>
-                            <select class="form-control" id="lectureDay1" name="lecture_day1" required>
-                                <option value="">Select Day...</option>
-                                <option value="Monday">Monday</option>
-                                <option value="Tuesday">Tuesday</option>
-                                <option value="Wednesday">Wednesday</option>
-                                <option value="Thursday">Thursday</option>
-                                <option value="Friday">Friday</option>
-                                <option value="Saturday">Saturday</option>
-                            </select>
-                        </div>
                         <div class="form-group">
                             <label for="lectureStartTime1">Start Time for day 1:</label>
                             <select class="form-control" id="lectureStartTime1" name="lecture_start_time1" required>
@@ -311,18 +308,6 @@
                         
                         <!--2nd Schedule -->
                         <h5><b>Lecture/Laboratory Schedule</b></h5>
-                        <div class="form-group">
-                            <label for="lectureDay2">Day 2:</label>
-                            <select class="form-control" id="lectureDay2" name="lecture_day2" required>
-                                <option value="">Select Day...</option>
-                                <option value="Monday">Monday</option>
-                                <option value="Tuesday">Tuesday</option>
-                                <option value="Wednesday">Wednesday</option>
-                                <option value="Thursday">Thursday</option>
-                                <option value="Friday">Friday</option>
-                                <option value="Saturday">Saturday</option>
-                            </select>
-                        </div>
                         <div class="form-group">
                             <label for="lectureStartTime2">Start Time for day 2 :</label>
                             <select class="form-control" id="lectureStartTime2" name="lecture_start_time2" required>
@@ -466,12 +451,10 @@
             this.hiddenSectionInput = $('#hiddenSectionInput');
             this.pairSectionSelect = $('#pairSectionSelect');
             this.pairSubjectId = $('#pairSubjectId');
-            this.lectureDay1 = $('#lectureDay1');
             this.lectureStartTime1 = $('#lectureStartTime1');
             this.lectureEndTime1 = $('#lectureEndTime1');
             this.lectureEndTimeError1 = $('#lectureEndTimeError1');
             this.lectureRoomId1 = $('#lectureRoomId1');
-            this.lectureDay2 = $('#lectureDay2');
             this.lectureStartTime2 = $('#lectureStartTime2');
             this.lectureEndTime2 = $('#lectureEndTime2');
             this.lectureEndTimeError2 = $('#lectureEndTimeError2');
@@ -489,9 +472,12 @@
             this.prefEndTime.on('change', () => this.validateTime(this.prefStartTime, this.prefEndTime, this.prefEndTimeError));
             this.prefBuilding.on('change', () => this.filterRoomsByBuilding());
 			this.pairSectionSelect.on('change', () => this.updateSubjectOptions(this.pairSectionSelect, this.pairSubjectId));
-            this.lectureStartTime1.on('change', () => this.populateEndTimeOptions(this.lectureStartTime1, this.lectureEndTime1));
+            this.lectureStartTime1.on('change', () => this.populateEndTimeOptionsForPair(this.lectureStartTime1, this.lectureEndTime1, false)); 
             this.lectureEndTime1.on('change', () => this.validateTime(this.lectureStartTime1, this.lectureEndTime1, this.lectureEndTimeError1));
-            this.lectureStartTime2.on('change', () => this.populateEndTimeOptions(this.lectureStartTime2, this.lectureEndTime2));
+            this.lectureStartTime2.on('change', () => {
+                const isLabSubject = this.pairSubjectId.find('option:selected').data('lab-points') > 0;
+                this.populateEndTimeOptionsForPair(this.lectureStartTime2, this.lectureEndTime2, isLabSubject); // Pass `true` or `false` based on the subject
+            });            
             this.lectureEndTime2.on('change', () => this.validateTime(this.lectureStartTime2, this.lectureEndTime2, this.lectureEndTimeError2));
             this.pairSubjectId.on('change', () => this.filterRoomsForSubject());
             $('.view-schedule-btn').on('click', (e) => this.viewSectionSchedule(e));
@@ -528,6 +514,27 @@
             });
         }
         
+        populateEndTimeOptionsForPair(startTimeElement, endTimeElement, isLabSubject) {
+            const startTime = startTimeElement.val();
+            endTimeElement.empty().append('<option value="">Select End Time</option>');
+            if (startTime) {
+                const [startHour, startMinute] = startTime.split(':').map(Number);
+                const startTimeInMinutes = startHour * 60 + startMinute;
+                // Define the minimum and maximum end times based on lab points
+                const minEndTime = isLabSubject ? startTimeInMinutes + 180 : startTimeInMinutes + 120; // 3 hours if lab, 2 hours otherwise
+                const maxEndTime = isLabSubject ? startTimeInMinutes + 300 : startTimeInMinutes + 240; // 5 hours if lab, 4 hours otherwise
+                // Generate end times from minEndTime to maxEndTime in 30-minute intervals
+                for (let minutes = minEndTime; minutes <= maxEndTime; minutes += 30) {
+                    const hour = Math.floor(minutes / 60);
+                    const minute = minutes % 60;
+                    const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+                    endTimeElement.append(`<option value="${time}">${time}</option>`);
+                }
+            }
+            // Validate the selected end time
+            this.validateTime(startTimeElement, endTimeElement, endTimeElement.next('.text-danger'));
+        }
+
         //Manual and Auto Sched
         updateSubjectOptions(sectionElement, subjectElement) {
             const sectionId = sectionElement.val();

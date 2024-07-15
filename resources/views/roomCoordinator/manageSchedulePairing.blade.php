@@ -31,7 +31,7 @@
         </div>
         <div class="collapse" id="addSchedulePairingForm">
             <div class="card-body">
-                <form method="POST" action="{{ route('roomCoordinator.storeSchedulePairing') }}">
+                <form id="schedulePairingForm" method="POST" action="{{ route('roomCoordinator.storeSchedulePairing') }}">
                     @csrf
                     <div class="form-group">
                         <label for="days">Select Two Days</label>
@@ -100,8 +100,18 @@
 </div>
 @endsection
 
+@section('scripts')
 <script>
+    document.getElementById('schedulePairingForm').addEventListener('submit', function(event) {
+        const checkboxes = document.querySelectorAll('input[name="days[]"]:checked');
+        if (checkboxes.length !== 2) {
+            event.preventDefault();
+            alert('You must select exactly two days.');
+        }
+    });
+
     function confirmDeletePairing() {
         return confirm("Are you sure you want to delete this pairing?");
     }
 </script>
+@endsection
