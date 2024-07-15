@@ -62,6 +62,9 @@
                                 </td>
                             </tr>
                         @endforeach
+                        <tr>
+                            <td colspan="5" class="text-right"><strong>Total Units:</strong></td>
+                            <td colspan="5" ><strong>{{ $faculty->subjects->sum('Units') }}</strong></td>
                     </tbody>
                 </table>
             </div>
