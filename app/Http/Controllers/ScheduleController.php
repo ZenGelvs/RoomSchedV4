@@ -249,88 +249,92 @@ class ScheduleController extends Controller
     }
 
     public function automaticSchedule(Request $request)
-    {
-        $request->validate([
-            'preferred_start_time' => 'required',
-            'preferred_end_time' => 'required',
-            'preferred_building' => 'required',
-            'preferred_day' => 'required',
-        ]);
+{
+    $request->validate([
+        'preferred_start_time' => 'required',
+        'preferred_end_time' => 'required',
+        'preferred_building' => 'required',
+        'preferred_day' => 'required',
+    ]);
 
-        $preferredStartTime = $request->preferred_start_time;
-        $preferredEndTime = $request->preferred_end_time;
-        $preferredBuilding = $request->preferred_building;
+    $preferredStartTime = $request->preferred_start_time;
+    $preferredEndTime = $request->preferred_end_time;
+    $preferredBuilding = $request->preferred_building;
 
-        // Retrieve rooms and filter by preferred room and building
-        $roomsQuery = Room::where('room_type', 'Lecture');
+    // Retrieve rooms and filter by preferred room and building
+    $roomsQuery = Room::where('room_type', 'Lecture');
 
-        if ($request->preferredRoom !== 'Any') {
-            $roomsQuery->where('id', $request->preferredRoom);
-        }
-
-        if ($preferredBuilding !== 'Any') {
-            $roomsQuery->where('building', $preferredBuilding);
-        }
-
-        $rooms = $roomsQuery->get();
-
-        // Determine preferred days to iterate through
-        $daysOfWeek = ($request->preferred_day !== 'Any') ? [$request->preferred_day] : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-        $availableRooms = collect();
-
-        foreach ($daysOfWeek as $day) {
-            foreach ($rooms as $room) {
-                $scheduledSlots = Schedules::where('room_id', $room->id)
-                                            ->where('day', $day)
-                                            ->orderBy('start_time')
-                                            ->get();
-                $result = $this->findAvailableSlot($room, $day, $preferredStartTime, $preferredEndTime, $scheduledSlots);
-
-                if ($result['slot']) {
-                    $availableRooms->push([
-                        'day' => $day,
-                        'start_time' => $result['slot']['start_time'],
-                        'end_time' => $result['slot']['end_time'],
-                        'room_id' => $room->id,
-                        'room' => $room->room_id,
-                        'building' => $room->building,
-                    ]);
-                }
-            }
-        }
-
-        // Store paginated results in session
-        $request->session()->put('availableRooms', $availableRooms);
-
-        // Redirect to the results page
-        return redirect()->route('department.show_automatic_schedule');
+    if ($request->preferredRoom !== 'Any') {
+        $roomsQuery->where('id', $request->preferredRoom);
     }
 
-    private function findAvailableSlot($room, $day, $preferredStartTime, $preferredEndTime, $scheduledSlots)
-    {
-        foreach ($scheduledSlots as $slot) {
-            if (strtotime($preferredStartTime) >= strtotime($slot->end_time) || strtotime($preferredEndTime) <= strtotime($slot->start_time)) {
-                return [
-                    'slot' => [
-                        'start_time' => $preferredStartTime,
-                        'end_time' => $preferredEndTime,
-                        'room_id' => $room->id,
-                    ],
-                    'reason' => null,
-                ];
+    if ($preferredBuilding !== 'Any') {
+        $roomsQuery->where('building', $preferredBuilding);
+    }
+
+    $rooms = $roomsQuery->get();
+
+    // Determine preferred days to iterate through
+    $daysOfWeek = ($request->preferred_day !== 'Any') ? [$request->preferred_day] : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    $availableRooms = collect();
+
+    foreach ($daysOfWeek as $day) {
+        foreach ($rooms as $room) {
+            $scheduledSlots = Schedules::where('room_id', $room->id)
+                                        ->where('day', $day)
+                                        ->orderBy('start_time')
+                                        ->get();
+            $result = $this->findAvailableSlot($room, $day, $preferredStartTime, $preferredEndTime, $scheduledSlots);
+
+            if ($result['slot']) {
+                $availableRooms->push([
+                    'day' => $day,
+                    'start_time' => $result['slot']['start_time'],
+                    'end_time' => $result['slot']['end_time'],
+                    'room_id' => $room->id,
+                    'room' => $room->room_id,
+                    'building' => $room->building,
+                ]);
             }
         }
-
-        return [
-            'slot' => [
-                'start_time' => $preferredStartTime,
-                'end_time' => $preferredEndTime,
-                'room_id' => $room->id,
-            ],
-            'reason' => null,
-        ];
     }
+
+    // Store paginated results in session
+    $request->session()->put('availableRooms', $availableRooms);
+
+    // Redirect to the results page
+    return redirect()->route('department.show_automatic_schedule');
+}
+
+private function findAvailableSlot($room, $day, $preferredStartTime, $preferredEndTime, $scheduledSlots)
+{
+    $preferredStart = strtotime($preferredStartTime);
+    $preferredEnd = strtotime($preferredEndTime);
+
+    foreach ($scheduledSlots as $slot) {
+        $slotStart = strtotime($slot->start_time);
+        $slotEnd = strtotime($slot->end_time);
+
+        // Check for any overlap
+        if (($preferredStart < $slotEnd) && ($preferredEnd > $slotStart)) {
+            return [
+                'slot' => null, // No available slot due to overlap
+                'reason' => "Overlap with existing slot from {$slot->start_time} to {$slot->end_time}",
+            ];
+        }
+    }
+
+    // If no overlap is found, return the preferred time slot
+    return [
+        'slot' => [
+            'start_time' => $preferredStartTime,
+            'end_time' => $preferredEndTime,
+            'room_id' => $room->id,
+        ],
+        'reason' => null,
+    ];
+}
 
     private function paginateAvailableRooms($availableRooms, $page)
     {
@@ -349,10 +353,6 @@ class ScheduleController extends Controller
     {
         $availableRooms = $request->session()->get('availableRooms');
         $page = $request->input('page', 1);
-    
-        // Debug: Check page number and available rooms
-        \Log::info('Page Number:', ['page' => $page]);
-        \Log::info('Available Rooms:', ['count' => $availableRooms ? $availableRooms->count() : 0]);
     
         if ($availableRooms) {
             // Paginate the results

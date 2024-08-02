@@ -222,7 +222,7 @@
     @endif
 </div>
 
-    <!--Pair Scheduling -->
+    <!-- Pair Scheduling -->
     <div class="card mb-4"> 
         <div class="card-header" id="pairScheduleHeading">
             <h4 class="text-center mb-4">Pair Scheduling</h4>
@@ -307,7 +307,7 @@
                         </div>
                         
                         <!--2nd Schedule -->
-                        <h5><b>Lecture/Laboratory Schedule</b></h5>
+                        <h5 id="lectureSchedule2Label"><b>Lecture/Laboratory Schedule</b></h5> <!-- Add ID here -->
                         <div class="form-group">
                             <label for="lectureStartTime2">Start Time for day 2 :</label>
                             <select class="form-control" id="lectureStartTime2" name="lecture_start_time2" required>
@@ -459,6 +459,7 @@
             this.lectureEndTime2 = $('#lectureEndTime2');
             this.lectureEndTimeError2 = $('#lectureEndTimeError2');
             this.lectureRoomId2 = $('#lectureRoomId2');
+            this.scheduleGroup2Label = $('#lectureSchedule2Label'); 
             this.userRooms = @json($userRooms);
         }
     
@@ -479,7 +480,10 @@
                 this.populateEndTimeOptionsForPair(this.lectureStartTime2, this.lectureEndTime2, isLabSubject); // Pass `true` or `false` based on the subject
             });            
             this.lectureEndTime2.on('change', () => this.validateTime(this.lectureStartTime2, this.lectureEndTime2, this.lectureEndTimeError2));
-            this.pairSubjectId.on('change', () => this.filterRoomsForSubject());
+            this.pairSubjectId.on('change', () => {
+                this.filterRoomsForSubject();
+                this.updateScheduleLabel(); 
+            });
             $('.view-schedule-btn').on('click', (e) => this.viewSectionSchedule(e));
         }
     
@@ -533,6 +537,16 @@
             }
             // Validate the selected end time
             this.validateTime(startTimeElement, endTimeElement, endTimeElement.next('.text-danger'));
+        }
+
+        updateScheduleLabel() {
+            const selectedSubject = this.pairSubjectId.find('option:selected');
+            const hasLabPoints = selectedSubject.data('lab-points') > 0;
+            if (hasLabPoints) {
+                this.scheduleGroup2Label.html('<b>Laboratory Schedule</b>');
+            } else {
+                this.scheduleGroup2Label.html('<b>Lecture Schedule</b>');
+            }
         }
 
         //Manual and Auto Sched
